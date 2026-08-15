@@ -23,7 +23,6 @@ function readPosition(documentId: string): ReaderPosition | null {
 
 export function useReaderProgress(documentId: string, contentRef: RefObject<HTMLElement | null>) {
   const initialPosition = useMemo(() => readPosition(documentId), [documentId])
-  const skipInitialWrite = useRef(Boolean(initialPosition))
   const endIsVisible = useRef(false)
   const [progress, setProgress] = useState(0)
   const [resumeAvailable, setResumeAvailable] = useState(
@@ -68,13 +67,11 @@ export function useReaderProgress(documentId: string, contentRef: RefObject<HTML
   }, [contentRef])
 
   useEffect(() => {
-    if (skipInitialWrite.current) {
-      skipInitialWrite.current = false
-      return
-    }
+    if (resumeAvailable) return
+
     const position: ReaderPosition = { documentId, progress, updatedAt: new Date().toISOString() }
     window.localStorage.setItem(readerPositionKey(documentId), JSON.stringify(position))
-  }, [documentId, progress])
+  }, [documentId, progress, resumeAvailable])
 
   const resume = useCallback(() => {
     if (!initialPosition) return

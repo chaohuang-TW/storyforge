@@ -61,3 +61,23 @@ test('persists preferences across reload and reaches the end without overflow', 
   await expect(page.getByRole('progressbar', { name: '閱讀進度' })).toHaveAttribute('value', '100')
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false)
 })
+
+test('preserves a saved reading position before the resume decision', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => {
+    window.localStorage.setItem(
+      'storyforge.reader.position.phase-1-reader-demo',
+      JSON.stringify({ documentId: 'phase-1-reader-demo', progress: 42, updatedAt: '2026-08-15T00:00:00.000Z' }),
+    )
+  })
+  await page.reload()
+
+  await expect(page.getByRole('button', { name: '回到上次閱讀處' })).toBeVisible()
+  await page.waitForTimeout(100)
+
+  const savedProgress = await page.evaluate(() => {
+    const stored = window.localStorage.getItem('storyforge.reader.position.phase-1-reader-demo')
+    return stored ? JSON.parse(stored).progress : null
+  })
+  expect(savedProgress).toBe(42)
+})

@@ -1,14 +1,62 @@
-import { fireEvent, render, screen } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { act, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { App } from './App'
 import { READER_PREFERENCES_KEY } from '../reader/hooks/useReaderPreferences'
 import { readerPositionKey } from '../reader/hooks/useReaderProgress'
+
+class TestIntersectionObserver {
+  static instances: TestIntersectionObserver[] = []
+
+  constructor(private readonly callback: IntersectionObserverCallback) {
+    TestIntersectionObserver.instances.push(this)
+  }
+
+  disconnect() {}
+
+  observe() {}
+
+  trigger(marker: Element) {
+    this.callback(
+      [
+        {
+          intersectionRatio: 1,
+          isIntersecting: true,
+          target: marker,
+        } as IntersectionObserverEntry,
+      ],
+      this as unknown as IntersectionObserver,
+    )
+  }
+}
+
+const positionKey = readerPositionKey('phase-1-reader-demo')
+
+function seedSavedPosition() {
+  window.localStorage.setItem(
+    positionKey,
+    JSON.stringify({ documentId: 'phase-1-reader-demo', progress: 42, updatedAt: '2026-08-15T00:00:00.000Z' }),
+  )
+}
+
+function triggerProgress(markerIndex: number) {
+  const marker = document.querySelector(`[data-reader-progress-marker="${markerIndex}"]`)
+  expect(marker).not.toBeNull()
+  act(() => TestIntersectionObserver.instances[0].trigger(marker!))
+}
+
+function savedProgress() {
+  return JSON.parse(window.localStorage.getItem(positionKey) ?? '{}').progress
+}
 
 describe('Book reader', () => {
   beforeEach(() => {
     window.localStorage.clear()
     Object.defineProperty(window, 'scrollTo', { configurable: true, value: vi.fn(), writable: true })
+    TestIntersectionObserver.instances = []
+    vi.stubGlobal('IntersectionObserver', TestIntersectionObserver)
   })
+
+  afterEach(() => vi.unstubAllGlobals())
 
   it('renders the reader presentation blocks and product identity', () => {
     render(<App />)
@@ -65,16 +113,36 @@ describe('Book reader', () => {
     expect(reader).toHaveAttribute('data-theme', 'system')
   })
 
-  it('offers an explicit return to a saved reading position', () => {
-    window.localStorage.setItem(
-      readerPositionKey('phase-1-reader-demo'),
-      JSON.stringify({ documentId: 'phase-1-reader-demo', progress: 42, updatedAt: '2026-08-15T00:00:00.000Z' }),
-    )
+  it('preserves a pending saved reading position when observer progress changes', () => {
+    seedSavedPosition()
+
+    render(<App />)
+    triggerProgress(1)
+
+    expect(screen.getByRole('button', { name: '回到上次閱讀處' })).toBeInTheDocument()
+    expect(savedProgress()).toBe(42)
+  })
+
+  it('allows reading position persistence after closing the resume prompt', () => {
+    seedSavedPosition()
+
+    render(<App />)
+    triggerProgress(1)
+    fireEvent.click(screen.getByRole('button', { name: '關閉' }))
+    triggerProgress(12)
+
+    expect(savedProgress()).toBe(48)
+  })
+
+  it('allows reading position persistence after resuming a saved position', () => {
+    seedSavedPosition()
 
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: '回到上次閱讀處' }))
+    triggerProgress(12)
 
     expect(window.scrollTo).toHaveBeenCalledWith(expect.objectContaining({ behavior: 'auto' }))
     expect(screen.queryByRole('complementary', { name: '上次閱讀位置' })).not.toBeInTheDocument()
+    expect(savedProgress()).toBe(48)
   })
 })
