@@ -2,19 +2,29 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 3B — Choice & Causal Commit (development)**
+Status: **Phase 3B — Choice & Causal Commit (complete)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
-Phase 0 — Foundation, Phase 1 — Book Reader, Phase 2 — Story Runtime, and Phase
-3A — Causality Foundation. Phase 3B development adds Choice Story Nodes,
-conditional Choice availability, Choice Effects, atomic causal commit,
-in-memory Choice History, an inline Choice UI, and session-level
-irreversibility. The Reader remains continuous and mobile-first.
+Phase 0 — Foundation, Phase 1 — Book Reader, Phase 2 — Story Runtime, Phase
+3A — Causality Foundation, and Phase 3B — Choice & Causal Commit. The Reader
+remains continuous and mobile-first.
+
+Phase 3B production supports:
+
+- Choice Story Nodes
+- Choice conditions
+- Choice effects
+- Atomic causal commit
+- Choice → World State
+- Choice → Conditional routing
+- In-memory Choice History
+- Inline Choice UI
+- Session-level irreversible commitment
 
 Phase 3B guarantees irreversible choice commitment within the active runtime.
-Cross-reload persistence remains out of scope. Reader Memory, New Game+,
-Journey81, and Phase 3C extended playable content are not implemented. See
-[the causality foundation](src/engine/causality/README.md).
+Cross-reload Runtime persistence is not implemented. Reader Memory, New Game+,
+Journey81, and Phase 3C extended playable content are not implemented. See [the
+causality foundation](src/engine/causality/README.md).
 
 ## Tech stack
 
@@ -59,8 +69,16 @@ base path from `GITHUB_REPOSITORY`, while local development uses `/`.
 
 ## Current scope
 
-This development branch keeps the [Reader boundary](src/reader/README.md)
+This production branch keeps the [Reader boundary](src/reader/README.md)
 independent of Choice, World State, Conditions, Effects, Conditional Story
 Nodes, and Story Runtime. Choice commitments and Choice History exist only in
-the active runtime. Reloading resets the story runtime; reading position does
-not persist Choice, World State, Choice History, or the Runtime cursor.
+the active runtime. Reloading resets the runtime. Reading position does not
+persist Choice, World State, Choice History, or the Runtime cursor.
+
+The following remain intentionally out of scope:
+
+- Cross-reload Runtime persistence
+- Reader Memory
+- New Game+
+- Journey81
+- Phase 3C extended playable content
