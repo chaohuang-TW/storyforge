@@ -39,21 +39,27 @@ test('appends runtime nodes and reaches the ending without removing prior text',
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false)
 })
 
-test('updates progress as runtime content expands and reaches 100% at the ending', async ({ page }) => {
+test('reaches 100% only after the actual ending', async ({ page }) => {
   await page.goto('/')
   const progress = page.getByRole('progressbar', { name: '閱讀進度' })
-  const initialProgress = Number(await progress.getAttribute('value'))
+  const prologueBottom = page.locator('#prologue-3')
+  await prologueBottom.scrollIntoViewIfNeeded()
+  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeGreaterThan(0)
+  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
+  await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeVisible()
 
   await page.getByRole('button', { name: '繼續閱讀' }).click()
-  const chapter = page.getByRole('heading', { level: 3, name: '霧中的郵亭' })
-  await chapter.scrollIntoViewIfNeeded()
-  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeGreaterThan(initialProgress)
+  const chapterBottom = page.locator('#chapter-3')
+  await chapterBottom.scrollIntoViewIfNeeded()
+  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeGreaterThan(0)
   await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
+  await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeVisible()
 
   await page.getByRole('button', { name: '繼續閱讀' }).click()
   const ending = page.getByText('閱讀完畢')
   await ending.scrollIntoViewIfNeeded()
   await expect.poll(async () => Number(await progress.getAttribute('value'))).toBe(100)
+  await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeHidden()
 })
 
 test('opens keyboard-accessible settings and applies reader preferences', async ({ page }) => {
@@ -105,11 +111,10 @@ test('preserves a saved reading position before the resume decision', async ({ p
   await page.reload()
 
   await expect(page.getByRole('button', { name: '回到上次閱讀處' })).toBeVisible()
-  await page.waitForTimeout(100)
-
-  const savedProgress = await page.evaluate(() => {
-    const stored = window.localStorage.getItem('storyforge.reader.position.story:runtime-demo')
-    return stored ? JSON.parse(stored).progress : null
-  })
-  expect(savedProgress).toBe(42)
+  await expect.poll(async () =>
+    page.evaluate(() => {
+      const stored = window.localStorage.getItem('storyforge.reader.position.story:runtime-demo')
+      return stored ? JSON.parse(stored).progress : null
+    }),
+  ).toBe(42)
 })

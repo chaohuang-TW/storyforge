@@ -10,9 +10,15 @@ type BookReaderProps = {
   document: ReaderDocument
   afterContent?: ReactNode
   endMessage?: string | null
+  contentComplete?: boolean
 }
 
-export function BookReader({ document, afterContent, endMessage = '本篇示例閱讀完畢' }: BookReaderProps) {
+export function BookReader({
+  document,
+  afterContent,
+  endMessage = '本篇示例閱讀完畢',
+  contentComplete = true,
+}: BookReaderProps) {
   const contentRef = useRef<HTMLElement>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const { preferences, setPreferences } = useReaderPreferences()
@@ -20,6 +26,7 @@ export function BookReader({ document, afterContent, endMessage = '本篇示例�
     document.id,
     contentRef,
     document.blocks.length,
+    contentComplete,
   )
   const closeSettings = useCallback(() => setSettingsOpen(false), [])
 

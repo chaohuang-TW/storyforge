@@ -23,6 +23,7 @@ export function StorySession({ story }: StorySessionProps) {
     <BookReader
       document={document}
       endMessage={ended ? '閱讀完畢' : null}
+      contentComplete={ended}
       afterContent={
         ended ? null : (
           <section className="story-session__advance" aria-label="故事推進">

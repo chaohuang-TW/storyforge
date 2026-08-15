@@ -3,6 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { App } from './App'
 import { READER_PREFERENCES_KEY } from '../reader/hooks/useReaderPreferences'
 import { readerPositionKey } from '../reader/hooks/useReaderProgress'
+import { BookReader } from '../reader/components/BookReader'
+import { demoDocument } from '../reader/fixtures/demoDocument'
 
 class TestIntersectionObserver {
   static instances: TestIntersectionObserver[] = []
@@ -132,11 +134,51 @@ describe('Book reader', () => {
     expect(progressValue()).toBeLessThan(100)
   })
 
+  it('keeps the loaded prologue bottom below 100 while continuation remains available', () => {
+    render(<App />)
+    const initialObserver = mainObserverFor('prologue-heading')
+    const incompleteEndObserver = [...TestIntersectionObserver.instances]
+      .reverse()
+      .find((instance) => instance.observed.some((marker) => marker.classList.contains('reader-end-marker')))
+
+    act(() => initialObserver.trigger(document.querySelector('#prologue-3')!))
+    expect(incompleteEndObserver).toBeDefined()
+    act(() => incompleteEndObserver!.trigger(document.querySelector('.reader-end-marker')!))
+
+    expect(progressValue()).toBeLessThan(100)
+    expect(screen.getByRole('button', { name: '繼續閱讀' })).toBeInTheDocument()
+  })
+
+  it('keeps the loaded chapter bottom below 100 before the ending is appended', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    const chapterObserver = mainObserverFor('chapter-heading')
+
+    act(() => chapterObserver.trigger(document.querySelector('#chapter-3')!))
+
+    expect(progressValue()).toBeLessThan(100)
+    expect(screen.getByRole('button', { name: '繼續閱讀' })).toBeInTheDocument()
+  })
+
   it('observes the ending marker and reaches 100% only when it is visible', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
     fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
 
+    const endingObserver = [...TestIntersectionObserver.instances]
+      .reverse()
+      .find((instance) => instance.observed.some((marker) => marker.classList.contains('reader-end')))
+    expect(endingObserver).toBeDefined()
+
+    act(() => endingObserver!.trigger(document.querySelector('.reader-end')!))
+
+    expect(progressValue()).toBe(100)
+    expect(screen.queryByRole('button', { name: '繼續閱讀' })).not.toBeInTheDocument()
+    expect(screen.getByText('閱讀完畢')).toBeInTheDocument()
+  })
+
+  it('treats a standalone ReaderDocument as complete by default', () => {
+    render(<BookReader document={demoDocument} />)
     const endingObserver = [...TestIntersectionObserver.instances]
       .reverse()
       .find((instance) => instance.observed.some((marker) => marker.classList.contains('reader-end')))
