@@ -2,7 +2,7 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 1 - Book Reader (development)**
+Status: **Phase 1 — Book Reader (complete)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Phase 1 adds a
 continuous, mobile-first book reader with presentation-only content blocks,
