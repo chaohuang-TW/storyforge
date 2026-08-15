@@ -72,7 +72,22 @@ export type ConditionalStoryNode = {
   fallback: string
 }
 
-export type StoryNode = NarrativeStoryNode | ConditionalStoryNode | EndingStoryNode
+export type StoryChoice = {
+  id: string
+  label: string
+  conditions?: Condition[]
+  effects?: Effect[]
+  next: string
+}
+
+export type ChoiceStoryNode = {
+  id: string
+  type: 'choice'
+  prompt?: string
+  choices: StoryChoice[]
+}
+
+export type StoryNode = NarrativeStoryNode | ChoiceStoryNode | ConditionalStoryNode | EndingStoryNode
 export type RenderableStoryNode = NarrativeStoryNode | EndingStoryNode
 
 export type StoryPackSource = {
@@ -90,4 +105,5 @@ export type LoadedStory = {
 export type StoryRuntimeState = {
   currentNodeId: string
   worldState: WorldState
+  pendingChoiceNodeId?: string
 }

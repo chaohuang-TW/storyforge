@@ -1,7 +1,7 @@
 # Story Packs
 
-Each Story Pack owns its content and assets. The Phase 3A shape extends the
-Phase 2 pack with optional node effects and invisible conditional routing:
+Each Story Pack owns its content and assets. The v0.1 shape supports optional
+node effects, invisible conditional routing, and non-rendered Choice boundaries:
 
 ```text
 story-pack/
@@ -28,3 +28,26 @@ Example conditional routing node:
   "fallback": "normal-path"
 }
 ```
+
+Example Choice node:
+
+```json
+{
+  "id": "letter-choice",
+  "type": "choice",
+  "prompt": "門縫裡卡著一封沒有署名的信。",
+  "choices": [
+    {
+      "id": "wind",
+      "label": "讓風把信吹進屋內",
+      "effects": [
+        { "type": "setFlag", "key": "letter-entered" }
+      ],
+      "next": "wind-path"
+    }
+  ]
+}
+```
+
+Each Choice item may define AND-combined `conditions`, `effects`, and one
+`next` target. Choice IDs are unique within their containing Choice node.

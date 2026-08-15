@@ -2,7 +2,7 @@
   "id": "chapter-01",
   "type": "narrative",
   "title": "第一章　霧中的郵亭",
-  "next": "ending",
+  "next": "letter-choice",
   "content": [
     { "id": "chapter-divider", "type": "divider" },
     { "id": "chapter-heading", "type": "heading", "level": 3, "text": "霧中的郵亭" },

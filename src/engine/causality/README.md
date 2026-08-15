@@ -27,5 +27,20 @@ flowchart LR
     E --> F["Choose Next Node"]
 ```
 
-World State is currently in-memory only. Choice, irreversible commit, Reader
-Memory, persistence, and work-specific story concepts remain out of scope.
+Choice causal commitment extends that order without adding a second mutation
+system:
+
+```mermaid
+flowchart LR
+    A["Choice"] --> B["Effects"]
+    B --> C["World State"]
+    C --> D["Conditional"]
+    D --> E["Consequence"]
+```
+
+The Runtime calculates the full post-choice state and route before committing
+any runtime-owned data. If an effect, target, or routed node fails, World State,
+Pending Choice, visible nodes, and Choice History remain unchanged.
+
+World State and Choice History are currently in-memory only. Reader Memory,
+cross-reload persistence, and work-specific story concepts remain out of scope.

@@ -91,4 +91,61 @@ describe('loadStory', () => {
     }
     expect(() => loadStory(source({ nodes: [{ ...startNode, next: 'route' }, conditional, endingNode] }))).toThrow('Story graph cycle detected')
   })
+
+  it('loads Choice targets in both conditional directions', () => {
+    const choice = {
+      id: 'choice',
+      type: 'choice',
+      choices: [{ id: 'continue', label: 'Continue', next: 'route' }],
+    }
+    const route = {
+      id: 'route',
+      type: 'conditional',
+      branches: [{ when: { type: 'hasFlag', key: 'signal' }, next: 'ending' }],
+      fallback: 'ending',
+    }
+    const loaded = loadStory(source({ nodes: [{ ...startNode, next: 'choice' }, choice, route, endingNode] }))
+
+    expect(loaded.nodes.get('choice')?.type).toBe('choice')
+
+    const conditionalToChoice = loadStory(
+      source({
+        nodes: [
+          { ...startNode, next: 'entry-route' },
+          { ...route, id: 'entry-route', branches: [{ when: { type: 'hasFlag', key: 'signal' }, next: 'choice' }], fallback: 'choice' },
+          { ...choice, choices: [{ id: 'continue', label: 'Continue', next: 'ending' }] },
+          endingNode,
+        ],
+      }),
+    )
+    expect(conditionalToChoice.nodes.get('entry-route')?.type).toBe('conditional')
+  })
+
+  it('rejects a missing Choice target with node and choice ids', () => {
+    expect(() =>
+      loadStory(
+        source({
+          nodes: [
+            { ...startNode, next: 'choice' },
+            { id: 'choice', type: 'choice', choices: [{ id: 'missing-path', label: 'Go', next: 'missing' }] },
+            endingNode,
+          ],
+        }),
+      ),
+    ).toThrow('Choice node choice choice missing-path references missing target: missing')
+  })
+
+  it('rejects a cycle through a Choice edge', () => {
+    expect(() =>
+      loadStory(
+        source({
+          nodes: [
+            { ...startNode, next: 'choice' },
+            { id: 'choice', type: 'choice', choices: [{ id: 'again', label: 'Again', next: 'start' }] },
+            endingNode,
+          ],
+        }),
+      ),
+    ).toThrow('Story graph cycle detected')
+  })
 })

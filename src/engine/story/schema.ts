@@ -1,5 +1,6 @@
 import type {
   Condition,
+  ChoiceStoryNode,
   ConditionalStoryNode,
   EndingStoryNode,
   Effect,
@@ -7,6 +8,7 @@ import type {
   StoryContent,
   StoryManifest,
   StoryNode,
+  StoryChoice,
 } from './types'
 import type { StateValue } from '../causality/types'
 
@@ -161,6 +163,26 @@ function parseEffects(value: unknown, label: string): Effect[] | undefined {
   return value.map((effect, index) => parseEffect(effect, `${label}[${index}]`))
 }
 
+function parseChoiceConditions(value: unknown, label: string): Condition[] | undefined {
+  if (value === undefined) return undefined
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new StoryLoadError(`${label} must contain at least one condition`)
+  }
+  return value.map((condition, index) => parseCondition(condition, `${label}[${index}]`))
+}
+
+function parseStoryChoice(value: unknown, nodeId: string, index: number): StoryChoice {
+  const label = `Choice node ${nodeId}.choices[${index}]`
+  const source = record(value, label)
+  return {
+    id: string(source.id, `${label}.id`),
+    label: string(source.label, `${label}.label`),
+    conditions: parseChoiceConditions(source.conditions, `${label}.conditions`),
+    effects: parseEffects(source.effects, `${label}.effects`),
+    next: string(source.next, `${label}.next`),
+  }
+}
+
 export function parseStoryManifest(value: unknown): StoryManifest {
   const source = record(value, 'manifest')
   const id = string(source.id, 'manifest.id')
@@ -214,6 +236,28 @@ export function parseStoryNode(value: unknown): StoryNode {
       fallback: string(source.fallback, `node ${id}.fallback`),
     }
     return parsedNode
+  }
+  if (type === 'choice') {
+    for (const forbiddenField of ['content', 'effects', 'title', 'next'] as const) {
+      if (forbiddenField in source) throw new StoryLoadError(`Choice node ${id} must not define ${forbiddenField}`)
+    }
+    if (!Array.isArray(source.choices) || source.choices.length === 0) {
+      throw new StoryLoadError(`Choice node ${id}.choices must contain at least one choice`)
+    }
+    const choices = source.choices.map((choice, index) => parseStoryChoice(choice, id, index))
+    const choiceIds = new Set<string>()
+    for (const choice of choices) {
+      if (choiceIds.has(choice.id)) {
+        throw new StoryLoadError(`Choice node ${id} has duplicate choice id: ${choice.id}`)
+      }
+      choiceIds.add(choice.id)
+    }
+    return {
+      id,
+      type,
+      prompt: optionalString(source.prompt, `Choice node ${id}.prompt`),
+      choices,
+    } satisfies ChoiceStoryNode
   }
   throw new StoryLoadError(`Unsupported story node type: ${type}`)
 }

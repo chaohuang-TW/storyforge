@@ -61,3 +61,90 @@ describe('Phase 3A story schema', () => {
     )
   })
 })
+
+describe('Phase 3B choice schema', () => {
+  const validChoice = {
+    id: 'letter-choice',
+    type: 'choice',
+    prompt: 'Choose.',
+    choices: [
+      {
+        id: 'open',
+        label: 'Open it',
+        conditions: [{ type: 'hasFlag', key: 'ready' }],
+        effects: [{ type: 'setFlag', key: 'opened' }],
+        next: 'ending',
+      },
+    ],
+  }
+
+  it('parses a valid choice node with conditions, effects, and prompt', () => {
+    expect(parseStoryNode(validChoice)).toEqual({
+      id: 'letter-choice',
+      type: 'choice',
+      prompt: 'Choose.',
+      choices: [
+        {
+          id: 'open',
+          label: 'Open it',
+          conditions: [{ type: 'hasFlag', key: 'ready' }],
+          effects: [{ type: 'setFlag', key: 'opened' }],
+          next: 'ending',
+        },
+      ],
+    })
+  })
+
+  it('rejects empty choices and duplicate choice ids within a node', () => {
+    expect(() => parseStoryNode({ id: 'empty', type: 'choice', choices: [] })).toThrow(
+      'Choice node empty.choices must contain at least one choice',
+    )
+    expect(() =>
+      parseStoryNode({
+        id: 'duplicate',
+        type: 'choice',
+        choices: [
+          { id: 'same', label: 'First', next: 'ending' },
+          { id: 'same', label: 'Second', next: 'ending' },
+        ],
+      }),
+    ).toThrow('Choice node duplicate has duplicate choice id: same')
+  })
+
+  it.each([
+    { choices: [{ id: '', label: 'Open', next: 'ending' }], message: '.id must be a non-empty string' },
+    { choices: [{ id: 'open', label: '', next: 'ending' }], message: '.label must be a non-empty string' },
+    { choices: [{ id: 'open', label: 'Open', next: '' }], message: '.next must be a non-empty string' },
+    { choices: [{ id: 'open', label: 'Open', conditions: [], next: 'ending' }], message: 'must contain at least one condition' },
+  ])('rejects an invalid choice item', ({ choices, message }) => {
+    expect(() => parseStoryNode({ id: 'invalid', type: 'choice', choices })).toThrow(message)
+  })
+
+  it('continues to reject unknown conditions and effects inside choices', () => {
+    expect(() =>
+      parseStoryNode({
+        id: 'invalid-condition',
+        type: 'choice',
+        choices: [{ id: 'a', label: 'A', conditions: [{ type: 'mystery' }], next: 'ending' }],
+      }),
+    ).toThrow('Unsupported condition type: mystery')
+    expect(() =>
+      parseStoryNode({
+        id: 'invalid-effect',
+        type: 'choice',
+        choices: [{ id: 'a', label: 'A', effects: [{ type: 'mystery' }], next: 'ending' }],
+      }),
+    ).toThrow('Unsupported effect type: mystery')
+  })
+
+  it.each(['content', 'effects', 'title', 'next'])('rejects Choice node field %s', (field) => {
+    expect(() =>
+      parseStoryNode({
+        id: 'invalid-node',
+        type: 'choice',
+        choices: [{ id: 'a', label: 'A', next: 'ending' }],
+        [field]: field === 'content' || field === 'effects' ? [] : 'invalid',
+      }),
+    ).toThrow(`Choice node invalid-node must not define ${field}`)
+  })
+})
