@@ -2,12 +2,13 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 2 — Story Runtime (development)**
+Status: **Phase 2 — Story Runtime (complete)**
 
-StoryForge is a reading-first Web Interactive Novel Engine. Phase 2 adds a
-Story Manifest, Narrative and Ending nodes, a static Story Loader, a linear
-runtime, and a Story-to-Reader adapter. The Reader remains continuous and
-mobile-first.
+StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
+Phase 0 — Foundation, Phase 1 — Book Reader, and Phase 2 — Story Runtime.
+Phase 2 adds Story Manifest and Story Content, Narrative and Ending nodes, a
+static Story Loader, a linear runtime, Story Pack assets, and a Story-to-Reader
+adapter. The Reader remains continuous and mobile-first.
 
 Choice, Condition, Effect, World State, Reader Memory, Runtime Save, and
 branching remain intentionally out of scope.
@@ -55,6 +56,6 @@ base path from `GITHUB_REPOSITORY`, while local development uses `/`.
 
 ## Current scope
 
-This branch is intentionally limited to the Book Reader. See the [Reader
-boundary](src/reader/README.md). Later phases may supply content to the Reader,
-but the Reader remains independent of narrative progression and causality.
+This release keeps the [Reader boundary](src/reader/README.md) independent of
+narrative progression and causality. Choice, Condition, Effect, World State,
+Reader Memory, Runtime Save, and branching remain out of scope.
