@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">櫃檯上的深藍信封</title><desc id="desc">深藍色信封停在霧白窗光下的木櫃檯</desc>
+  <defs><linearGradient id="wall" x2="0" y2="1"><stop stop-color="#d8e0dd"/><stop offset="1" stop-color="#9aadb1"/></linearGradient><linearGradient id="wood" x2="0" y2="1"><stop stop-color="#9a6d50"/><stop offset="1" stop-color="#4a3440"/></linearGradient></defs>
+  <rect width="1200" height="800" fill="url(#wall)"/><rect y="500" width="1200" height="300" fill="url(#wood)"/>
+  <rect x="120" y="95" width="360" height="340" rx="10" fill="#b9d0d0" stroke="#5d7580" stroke-width="18"/><path d="M300 95v340M120 265h360" stroke="#8099a0" stroke-width="12"/><path d="M180 205h130m30 0h95M180 330h210" stroke="#eaf0e8" stroke-width="12" opacity=".65"/>
+  <path d="M470 430 L960 430 L1060 650 L360 650 Z" fill="#172e55" stroke="#0c1c3c" stroke-width="16"/><path d="M370 470 L710 585 L1040 455" fill="#274a76" stroke="#547399" stroke-width="12"/><path d="M470 430 L710 585 L960 430" fill="#385c86" opacity=".8"/>
+  <path d="M260 720h670M300 750h520" stroke="#c29468" stroke-width="10" opacity=".55"/>
+</svg>

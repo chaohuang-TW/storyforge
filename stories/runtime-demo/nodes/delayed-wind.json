@@ -1,0 +1,14 @@
+{
+  "id": "delayed-wind",
+  "type": "narrative",
+  "title": "燈下的信",
+  "next": "second-intervention",
+  "content": [
+    { "id": "delayed-wind-divider", "type": "divider" },
+    { "id": "delayed-wind-heading", "type": "heading", "level": 3, "text": "燈下的信" },
+    { "id": "delayed-wind-illustration", "type": "illustration", "asset": "delayed-wind", "alt": "暖黃燈光下，深藍色信封靜靜放在木桌與窗邊", "variant": "full-bleed", "width": 1600, "height": 900 },
+    { "id": "delayed-wind-1", "type": "paragraph", "text": "夜色落下後，那封信仍在燈下。屋裡的人終於拆開它，讀完第一行便停了一會兒，像在確認某個久未聽見的聲音。" },
+    { "id": "delayed-wind-2", "type": "paragraph", "text": "他沒有把信收進抽屜，而是把它攤在窗邊。遠方潮聲一下一下靠近，紙面上的藍色在燈影裡變得柔和。" },
+    { "id": "delayed-wind-3", "type": "paragraph", "text": "等最後一盞船燈亮起，他走向碼頭，手裡仍握著那封已經被看見的信。" }
+  ]
+}

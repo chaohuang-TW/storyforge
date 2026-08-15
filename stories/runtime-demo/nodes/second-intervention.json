@@ -1,0 +1,14 @@
+{
+  "id": "second-intervention",
+  "type": "narrative",
+  "title": "最後一班渡船",
+  "next": "second-choice",
+  "content": [
+    { "id": "second-intervention-divider", "type": "divider" },
+    { "id": "second-intervention-heading", "type": "heading", "level": 3, "text": "最後一班渡船" },
+    { "id": "second-intervention-illustration", "type": "illustration", "asset": "harbor-ferry", "alt": "暮色港口的渡船靠在碼頭，鐘樓與纜繩映著零星燈火", "variant": "full-bleed", "width": 1600, "height": 900 },
+    { "id": "second-intervention-1", "type": "paragraph", "text": "碼頭比想像中安靜。渡船已經解開第一道纜繩，船身在潮水裡輕輕往外推，像一個還能挽回的念頭。" },
+    { "id": "second-intervention-2", "type": "paragraph", "text": "鐘樓的指針停在最後一拍以前。有人抬頭等鐘，有人低頭確認繫纜；我站在兩種等待之間，聽見夜風把霧吹薄。" },
+    { "id": "second-intervention-3", "type": "paragraph", "text": "只要再改變一個小小的時刻，這趟渡船就會用另一種姿勢離岸。" }
+  ]
+}

@@ -6,6 +6,16 @@ async function reachChoice(page: import('@playwright/test').Page) {
   await expect(page.getByRole('group', { name: '撥動因果' })).toBeVisible()
 }
 
+async function reachSecondChoice(page: import('@playwright/test').Page, firstChoice: string) {
+  await reachChoice(page)
+  await page.getByRole('button', { name: firstChoice }).click()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await expect(page.getByRole('group', { name: '撥動因果' })).toBeVisible()
+}
+
 test('loads only the runtime entry node in the continuous reader', async ({ page }) => {
   const response = await page.goto('/')
 
@@ -42,7 +52,7 @@ test('uses real mobile emulation for the mobile project', async ({ page }, testI
   expect(mobileEnvironment.userAgent).toContain('Mobile')
 })
 
-test('appends runtime nodes and reaches the ending without removing prior text', async ({ page }) => {
+test('appends runtime nodes and reaches the wind ending without removing prior text', async ({ page }) => {
   await page.goto('/')
   const prologue = page.getByText(/港口的鐘在天色尚未亮透時響了一次/)
 
@@ -59,12 +69,24 @@ test('appends runtime nodes and reaches the ending without removing prior text',
 
   await page.getByRole('button', { name: '讓風把信吹進屋內' }).click()
   await expect(page.getByRole('heading', { level: 3, name: '風進屋時' })).toBeVisible()
+  await expect(page.getByRole('img', { name: /風把深藍色信封吹過郵亭門檻/ })).toBeAttached()
   await expect(page.getByText('因果已定。')).toBeVisible()
   await expect(page.getByRole('button', { name: '讓風把信吹進屋內' })).toBeHidden()
   await expect(page.getByRole('button', { name: '讓雨水暈開信封上的墨' })).toBeHidden()
 
   await page.getByRole('button', { name: '繼續閱讀' }).click()
   await expect(page.getByRole('heading', { level: 3, name: '寄出以後' })).toBeVisible()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await expect(page.getByRole('heading', { level: 3, name: '燈下的信' })).toBeVisible()
+  await expect(page.getByRole('img', { name: /暖黃燈光下/ })).toBeAttached()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await expect(page.getByRole('heading', { level: 3, name: '最後一班渡船' })).toBeVisible()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await expect(page.getByRole('group', { name: '撥動因果' })).toBeVisible()
+  await page.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' }).click()
+  await expect(page.getByRole('heading', { level: 3, name: '鐘聲早了一拍' })).toBeVisible()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await expect(page.getByRole('heading', { level: 3, name: '潮線之後' })).toBeVisible()
   await expect(page.getByText('閱讀完畢')).toBeVisible()
   await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeHidden()
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false)
@@ -92,10 +114,23 @@ test('reaches 100% only after the actual ending', async ({ page }) => {
   await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
 
   await choiceButton.click()
-  const consequenceBottom = page.locator('#wind-2')
+  const consequenceBottom = page.locator('#wind-3')
   await consequenceBottom.scrollIntoViewIfNeeded()
   await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
 
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  const delayedBottom = page.locator('#delayed-wind-3')
+  await delayedBottom.scrollIntoViewIfNeeded()
+  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  const secondChoice = page.getByRole('group', { name: '撥動因果' })
+  await secondChoice.scrollIntoViewIfNeeded()
+  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
+  await page.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' }).click()
+  await page.locator('#bell-path-2').scrollIntoViewIfNeeded()
+  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
   await page.getByRole('button', { name: '繼續閱讀' }).click()
   const ending = page.getByText('閱讀完畢')
   await ending.scrollIntoViewIfNeeded()
@@ -110,9 +145,24 @@ test('chooses the rain consequence without rendering the wind consequence', asyn
   await page.getByRole('button', { name: '讓雨水暈開信封上的墨' }).click()
 
   await expect(page.getByRole('heading', { level: 3, name: '墨跡散開時' })).toBeVisible()
+  await expect(page.getByRole('img', { name: /雨落在郵亭石階/ })).toBeAttached()
   await expect(page.getByText(/雨沿著屋簷落下/)).toBeVisible()
   await expect(page.getByRole('heading', { level: 3, name: '風進屋時' })).toBeHidden()
   await expect(page.getByRole('group', { name: '撥動因果' })).toBeHidden()
+})
+
+test('follows the rain route through its delayed consequence and ferry rejoin', async ({ page }) => {
+  await page.goto('/')
+  await reachSecondChoice(page, '讓雨水暈開信封上的墨')
+
+  await expect(page.getByRole('heading', { level: 3, name: '石階上的藍痕' })).toBeVisible()
+  await expect(page.getByRole('img', { name: /雨後石階留著深藍色墨痕/ })).toBeAttached()
+  await page.getByRole('button', { name: '讓繫纜繩在木樁上多停半分鐘' }).click()
+  await expect(page.getByRole('heading', { level: 3, name: '繫纜多停半分鐘' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 3, name: '風進屋時' })).toBeHidden()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await expect(page.getByRole('heading', { level: 3, name: '潮線之後' })).toBeVisible()
+  await expect(page.getByRole('img', { name: /暮色港口的潮線交錯延伸/ })).toBeAttached()
 })
 
 test('keeps a committed Choice irreversible while revisiting earlier text and does not add browser history', async ({ page }) => {
@@ -126,7 +176,7 @@ test('keeps a committed Choice irreversible while revisiting earlier text and do
   expect(await page.evaluate(() => window.history.length)).toBe(historyBefore)
 
   await page.locator('#prologue-heading').scrollIntoViewIfNeeded()
-  await page.locator('#wind-2').scrollIntoViewIfNeeded()
+  await page.locator('#wind-3').scrollIntoViewIfNeeded()
 
   await expect(page.getByRole('button', { name: '讓風把信吹進屋內' })).toBeHidden()
   await expect(page.getByRole('button', { name: '讓雨水暈開信封上的墨' })).toBeHidden()
@@ -172,6 +222,11 @@ test('runs the Choice journey without console, page, or asset errors', async ({ 
   await page.goto('/')
   await reachChoice(page)
   await page.getByRole('button', { name: '讓風把信吹進屋內' }).click()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await page.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' }).click()
   await page.getByRole('button', { name: '繼續閱讀' }).click()
   await expect(page.getByText('閱讀完畢')).toBeVisible()
 

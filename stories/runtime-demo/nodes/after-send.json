@@ -1,0 +1,13 @@
+{
+  "id": "after-send",
+  "type": "narrative",
+  "title": "寄出以後",
+  "next": "delayed-letter-route",
+  "content": [
+    { "id": "after-send-divider", "type": "divider" },
+    { "id": "after-send-heading", "type": "heading", "level": 3, "text": "寄出以後" },
+    { "id": "after-send-1", "type": "paragraph", "text": "郵亭的門重新闔上，霧把剛才的腳印收進潮濕的路面。信已經離開手邊，卻沒有立刻離開這座港口。" },
+    { "id": "after-send-2", "type": "paragraph", "text": "我沿著堤岸往南走，聽見遠處有人整理船具。每一個細小的聲音都像在替尚未發生的事，先預留一個位置。" },
+    { "id": "after-send-3", "type": "paragraph", "text": "傍晚前，渡船會再靠岸一次。那時候，另一個選擇或許會從鐘聲與纜繩之間浮現。" }
+  ]
+}

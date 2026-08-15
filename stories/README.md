@@ -10,6 +10,11 @@ story-pack/
 └── assets/
 ```
 
+Illustration assets belong to the Story Pack that declares them; the Engine
+only validates and serves the generic asset reference. Branch-specific
+illustrations are attached to branch-specific narrative nodes, so the App and
+Reader do not contain story-path logic.
+
 `runtime-demo` is an Engine integration fixture, not a product story. Packs
 depend on the Engine; Engine modules must never import a specific pack.
 

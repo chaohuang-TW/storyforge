@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">燈下被讀過的信</title><desc id="desc">暖黃窗光照在攤開的深藍信封與木桌上</desc>
+  <defs><linearGradient id="night" x2="0" y2="1"><stop stop-color="#172b48"/><stop offset="1" stop-color="#4d5261"/></linearGradient><radialGradient id="lamp"><stop stop-color="#f7d58a" stop-opacity=".9"/><stop offset="1" stop-color="#f7d58a" stop-opacity="0"/></radialGradient></defs>
+  <rect width="1600" height="900" fill="url(#night)"/><rect x="170" y="100" width="470" height="430" fill="#182e45" stroke="#0b1e35" stroke-width="24"/><path d="M260 180h290v270H260z" fill="#e1ad67" opacity=".82"/><circle cx="830" cy="285" r="340" fill="url(#lamp)"/><path d="M300 570h1000v330H300z" fill="#674755"/><path d="M490 520 L1110 520 L1180 710 L410 710 Z" fill="#142f59" stroke="#091d40" stroke-width="18"/><path d="M420 565 L780 650 L1110 540" fill="#315781"/><path d="M805 160v150m-75-80h150" stroke="#8d6b4a" stroke-width="20"/><circle cx="805" cy="155" r="35" fill="#ffd88a"/>
+</svg>

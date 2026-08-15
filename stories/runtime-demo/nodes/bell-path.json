@@ -1,0 +1,12 @@
+{
+  "id": "bell-path",
+  "type": "narrative",
+  "title": "鐘聲早了一拍",
+  "next": "ending",
+  "content": [
+    { "id": "bell-path-divider", "type": "divider" },
+    { "id": "bell-path-heading", "type": "heading", "level": 3, "text": "鐘聲早了一拍" },
+    { "id": "bell-path-1", "type": "paragraph", "text": "鐘聲比預定早了一拍傳到碼頭。船上的人回頭，岸上的人也跟著抬起臉，短短一瞬間，兩邊都知道彼此還在等待。" },
+    { "id": "bell-path-2", "type": "paragraph", "text": "渡船沒有停下，卻把離岸的速度放慢了一點。那封信在掌心裡被握得更穩，像一個終於找回回音的句子。" }
+  ]
+}

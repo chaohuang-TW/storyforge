@@ -7,9 +7,11 @@
     { "id": "chapter-divider", "type": "divider" },
     { "id": "chapter-heading", "type": "heading", "level": 3, "text": "霧中的郵亭" },
     { "id": "chapter-1", "type": "paragraph", "text": "路在離港口不遠的地方分成兩條。一條貼著水走，另一條繞過長滿苔痕的矮牆。我選了後者，因為牆邊有一間小小的郵亭，窗裡亮著一盞不太確定的燈。" },
-    { "id": "chapter-illustration", "type": "illustration", "asset": "mist-path", "alt": "霧色山丘與海岸之間，一條淡色的小徑向遠方延伸", "caption": "示例插圖：由 runtime-demo Story Pack 提供。", "variant": "full-bleed", "width": 1600, "height": 900 },
+    { "id": "chapter-illustration", "type": "illustration", "asset": "mist-path", "alt": "霧色山丘與海岸之間，一條淡色的小徑向遠方延伸", "variant": "full-bleed", "width": 1600, "height": 900 },
     { "id": "chapter-2", "type": "paragraph", "text": "亭裡沒有郵差，只有一疊還沒寄出的明信片。每張卡片都朝著不同方向，字跡卻同樣克制，像寫信的人都明白，真正想說的話不會因為多寫幾句而更清楚。" },
     { "id": "chapter-dialogue", "type": "dialogue", "lines": ["「這裡還收信嗎？」", "窗後的人抬起頭，笑了一下。", "「只收已經準備好離開手邊的信。」"] },
-    { "id": "chapter-3", "type": "paragraph", "text": "我把那封信放到櫃檯上，沒有急著鬆手。霧從門外移進來，又慢慢退回去。等我終於收回手時，紙張已經被放進一只深藍色的信封，像替它換了一種更適合遠行的沉默。" }
+    { "id": "chapter-3", "type": "paragraph", "text": "我把那封信放到櫃檯上，沒有急著鬆手。霧從門外移進來，又慢慢退回去。等我終於收回手時，紙張已經被放進一只深藍色的信封，像替它換了一種更適合遠行的沉默。" },
+    { "id": "chapter-envelope", "type": "illustration", "asset": "blue-envelope", "alt": "深藍色信封放在郵亭木櫃檯上，窗外是霧白的港口", "width": 1200, "height": 800 },
+    { "id": "chapter-4", "type": "paragraph", "text": "窗外的風忽然轉了方向。那封信貼著門檻，像在等一個不必由我說出口的決定；屋裡的燈則安靜地亮著，替每種可能留下位置。" }
   ]
 }
