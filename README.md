@@ -2,12 +2,13 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 3C — Playable & Illustrated Vertical Slice (development)**
+Status: **Phase 3C — Playable & Illustrated Vertical Slice (complete)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 Phase 0 — Foundation, Phase 1 — Book Reader, Phase 2 — Story Runtime, Phase
-3A — Causality Foundation, and Phase 3B — Choice & Causal Commit. The Reader
-remains continuous and mobile-first.
+3A — Causality Foundation, Phase 3B — Choice & Causal Commit, and Phase 3C —
+Playable & Illustrated Vertical Slice. The Reader remains continuous and
+mobile-first.
 
 Phase 3B production supports:
 
@@ -21,18 +22,22 @@ Phase 3B production supports:
 - Inline Choice UI
 - Session-level irreversible commitment
 
-Phase 3C development adds the first illustrated playable slice inside the
-existing `runtime-demo` Story Pack:
+Phase 3C production supports the illustrated playable slice inside the existing
+`runtime-demo` Story Pack:
 
-- Illustrated narrative nodes with branch-specific Story Pack assets
-- Immediate wind/rain causal consequences followed by a shared narrative
-- Delayed conditional consequences that remain invisible to the Reader UI
-- A second intervention and Choice with branch consequences that rejoin
-- An end-to-end route from first Choice to the shared `潮線之後` ending
+- Illustrated Story Pack narrative
+- Nine Story Pack-owned illustrations
+- Branch-specific visual consequences
+- Immediate causal consequences
+- Delayed causal consequences
+- Second causal intervention
+- Branch → Consequence → Rejoin
+- Four coherent causal combinations
+- Shared ending
 
 Phase 3B guarantees irreversible choice commitment within the active runtime.
 Cross-reload Runtime persistence is not implemented. Reader Memory, New Game+,
-Journey81, and production release of the Phase 3C slice are not implemented. See [the
+and Journey81 are not implemented. See [the
 causality foundation](src/engine/causality/README.md).
 
 ## Tech stack
@@ -78,7 +83,7 @@ base path from `GITHUB_REPOSITORY`, while local development uses `/`.
 
 ## Current scope
 
-This development branch keeps the [Reader boundary](src/reader/README.md)
+This production branch keeps the [Reader boundary](src/reader/README.md)
 independent of Choice, World State, Conditions, Effects, Conditional Story
 Nodes, and Story Runtime. Choice commitments and Choice History exist only in
 the active runtime. Reloading resets the runtime. Reading position does not
@@ -90,4 +95,3 @@ The following remain intentionally out of scope:
 - Reader Memory
 - New Game+
 - Journey81
-- Production release of the Phase 3C slice
