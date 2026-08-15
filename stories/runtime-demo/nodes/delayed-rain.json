@@ -1,0 +1,14 @@
+{
+  "id": "delayed-rain",
+  "type": "narrative",
+  "title": "石階上的藍痕",
+  "next": "second-intervention",
+  "content": [
+    { "id": "delayed-rain-divider", "type": "divider" },
+    { "id": "delayed-rain-heading", "type": "heading", "level": 3, "text": "石階上的藍痕" },
+    { "id": "delayed-rain-illustration", "type": "illustration", "asset": "delayed-rain", "alt": "雨後石階留著深藍色墨痕，潮水在階腳反射微弱天光", "variant": "full-bleed", "width": 1600, "height": 900 },
+    { "id": "delayed-rain-1", "type": "paragraph", "text": "雨停以後，石階上還留著一條藍痕。它沿著縫隙往下，沒有拼回原來的字，卻替夜裡的路標出一條新的線。" },
+    { "id": "delayed-rain-2", "type": "paragraph", "text": "我回到郵亭門口，看見有人用布把信封收起。沒有人說那是失敗；有些話只是換成了更慢、更靠近地面的方式。" },
+    { "id": "delayed-rain-3", "type": "paragraph", "text": "遠處渡船準備離岸，鐘樓只剩最後一拍還沒有落下。" }
+  ]
+}

@@ -2,11 +2,13 @@
   "id": "wind-path",
   "type": "narrative",
   "title": "風進屋時",
-  "next": "ending",
+  "next": "after-send",
   "content": [
     { "id": "wind-divider", "type": "divider" },
     { "id": "wind-heading", "type": "heading", "level": 3, "text": "風進屋時" },
+    { "id": "wind-illustration", "type": "illustration", "asset": "wind-letter", "alt": "風把深藍色信封吹過郵亭門檻，窗邊燈光照亮旋起的紙頁", "variant": "full-bleed", "width": 1600, "height": 900 },
     { "id": "wind-1", "type": "paragraph", "text": "風從門縫裡抬起信封，讓它貼著地板滑進屋內。紙角停在燈下，像終於替自己選定了一個可以被看見的位置。" },
-    { "id": "wind-2", "type": "paragraph", "text": "屋裡的人沒有立刻拆信，只彎腰把它拾起。門外的霧仍在移動，但那封信已經越過門檻。" }
+    { "id": "wind-2", "type": "paragraph", "text": "屋裡的人沒有立刻拆信，只彎腰把它拾起。門外的霧仍在移動，但那封信已經越過門檻。" },
+    { "id": "wind-3", "type": "paragraph", "text": "他把信放在暖燈旁，沒有追問它從哪裡來。門軸輕響一聲，像替這個決定留下了可回望的標記。" }
   ]
 }

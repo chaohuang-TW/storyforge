@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">風把信送進屋內</title><desc id="desc">深藍信封越過郵亭門檻，風在燈下捲起紙頁</desc>
+  <defs><linearGradient id="bg" x2="0" y2="1"><stop stop-color="#7f9ba4"/><stop offset="1" stop-color="#d9c9ad"/></linearGradient><linearGradient id="floor" x2="0" y2="1"><stop stop-color="#795864"/><stop offset="1" stop-color="#273a50"/></linearGradient></defs>
+  <rect width="1600" height="900" fill="url(#bg)"/><rect y="610" width="1600" height="290" fill="url(#floor)"/><rect x="1020" y="95" width="360" height="450" fill="#283f54" stroke="#192d3f" stroke-width="24"/><rect x="1085" y="160" width="230" height="305" fill="#e4bc72" opacity=".9"/>
+  <path d="M0 610h1600" stroke="#cda982" stroke-width="14"/><path d="M560 620 L1000 620 L1110 755 L430 755 Z" fill="#142d54" stroke="#0b1b39" stroke-width="18"/><path d="M440 650 L780 715 L1010 635" fill="#31587f"/>
+  <path d="M120 350 C390 180 610 230 720 420 S1010 650 1280 520" fill="none" stroke="#e9f0eb" stroke-width="18" opacity=".65"/><path d="M210 520 C410 380 610 410 760 545" fill="none" stroke="#d5e5e0" stroke-width="10" opacity=".55"/><circle cx="1340" cy="205" r="34" fill="#f5d48b"/>
+</svg>

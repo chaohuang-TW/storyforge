@@ -1,0 +1,9 @@
+{
+  "id": "delayed-letter-route",
+  "type": "conditional",
+  "branches": [
+    { "when": { "type": "hasFlag", "key": "letter-entered" }, "next": "delayed-wind" },
+    { "when": { "type": "hasFlag", "key": "ink-washed" }, "next": "delayed-rain" }
+  ],
+  "fallback": "delayed-rain"
+}

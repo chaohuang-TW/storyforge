@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">石階上的藍痕</title><desc id="desc">雨後石階與深藍墨痕通向潮水</desc>
+  <defs><linearGradient id="wet" x2="0" y2="1"><stop stop-color="#536d7b"/><stop offset="1" stop-color="#1b3044"/></linearGradient></defs>
+  <rect width="1600" height="900" fill="url(#wet)"/><path d="M0 380h1600v520H0z" fill="#4c5c66"/><path d="M0 500h1600M0 640h1600M0 780h1600" stroke="#aab5b2" stroke-width="24" opacity=".35"/><path d="M810 320 C775 430 830 510 770 600 S820 735 720 885" fill="none" stroke="#4b9cc7" stroke-width="48" opacity=".85"/><path d="M180 120l200 210m120-230 180 230m160-260 190 240m150-270 200 240m120-230 170 210" stroke="#d2e1df" stroke-width="12" opacity=".35"/><circle cx="1200" cy="190" r="90" fill="#c2d8d5" opacity=".28"/>
+</svg>

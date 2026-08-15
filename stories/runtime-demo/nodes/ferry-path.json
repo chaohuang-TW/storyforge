@@ -1,0 +1,12 @@
+{
+  "id": "ferry-path",
+  "type": "narrative",
+  "title": "繫纜多停半分鐘",
+  "next": "ending",
+  "content": [
+    { "id": "ferry-path-divider", "type": "divider" },
+    { "id": "ferry-path-heading", "type": "heading", "level": 3, "text": "繫纜多停半分鐘" },
+    { "id": "ferry-path-1", "type": "paragraph", "text": "繫纜繩在木樁上多停了半分鐘。船身因此等到鐘聲落下，岸邊的人也有足夠的時間把最後一件物品交到船上。" },
+    { "id": "ferry-path-2", "type": "paragraph", "text": "那封信沒有被追回，也沒有重新回到原來的口袋。它只是和這座港口一起多停了半分鐘，讓潮水把告別說得完整。" }
+  ]
+}

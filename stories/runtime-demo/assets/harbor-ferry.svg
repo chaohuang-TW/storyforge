@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">暮色港口的渡船</title><desc id="desc">渡船停在鐘樓與碼頭燈火之間，纜繩仍繫在木樁</desc>
+  <defs><linearGradient id="dusk" x2="0" y2="1"><stop stop-color="#172b48"/><stop offset=".62" stop-color="#865f64"/><stop offset="1" stop-color="#d0a06f"/></linearGradient><linearGradient id="water" x2="0" y2="1"><stop stop-color="#27475b"/><stop offset="1" stop-color="#102b40"/></linearGradient></defs>
+  <rect width="1600" height="900" fill="url(#dusk)"/><path d="M0 550h1600v350H0z" fill="url(#water)"/><path d="M1060 540V180h130v360m-160-275h190" fill="#1b2c3f" stroke="#0e2034" stroke-width="20"/><circle cx="1125" cy="205" r="26" fill="#e7bd76"/>
+  <path d="M420 515h650l130 180H300z" fill="#172b43" stroke="#0b1b32" stroke-width="20"/><path d="M525 485h430l-65-95H590z" fill="#36546b" stroke="#102a43" stroke-width="16"/><rect x="650" y="445" width="48" height="68" fill="#e4ba70"/><rect x="720" y="445" width="48" height="68" fill="#e4ba70"/><path d="M330 690l-110 150m880-150 210 150M200 650h150m930 0h150" stroke="#c8a06f" stroke-width="12"/><path d="M1100 665 C960 620 890 600 750 580" fill="none" stroke="#d1b47d" stroke-width="10"/>
+</svg>

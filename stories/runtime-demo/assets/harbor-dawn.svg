@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">霧港的清晨</title><desc id="desc">霧氣中的港口、堤岸、倉庫與初亮的窗</desc>
+  <defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#24384c"/><stop offset=".62" stop-color="#8ea2ad"/><stop offset="1" stop-color="#d9c9ad"/></linearGradient><linearGradient id="sea" x2="0" y2="1"><stop stop-color="#38586a"/><stop offset="1" stop-color="#152f40"/></linearGradient></defs>
+  <rect width="1600" height="900" fill="url(#sky)"/><path d="M0 590 Q280 520 520 580 T1040 570 T1600 550 V900H0Z" fill="url(#sea)"/>
+  <path d="M0 650 Q280 600 560 650 T1110 635 T1600 625" fill="none" stroke="#afc4c7" stroke-width="8" opacity=".45"/>
+  <path d="M80 540h390l45 95H60zm520-52h355l72 147H560zM1110 510h340l80 130h-450z" fill="#1d3040" opacity=".88"/>
+  <path d="M170 535v-110m130 110V400m575 88V380m190 145V405m230 105V365" stroke="#172a39" stroke-width="14"/>
+  <path d="M150 485h18v25h-18zm58-8h18v25h-18zm610-17h22v32h-22zm240 23h20v27h-20zm245-37h24v34h-24z" fill="#e9bf75"/>
+  <path d="M0 500 C240 440 430 500 620 458 S1010 470 1210 430 S1450 430 1600 390" fill="none" stroke="#ecf0e7" stroke-width="70" opacity=".2"/>
+  <circle cx="1290" cy="230" r="88" fill="#e8c98f" opacity=".55"/>
+</svg>

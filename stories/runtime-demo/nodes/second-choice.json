@@ -1,0 +1,19 @@
+{
+  "id": "second-choice",
+  "type": "choice",
+  "prompt": "渡船已經解開第一道纜繩，遠處的鐘還差最後一拍。",
+  "choices": [
+    {
+      "id": "bell",
+      "label": "讓鐘聲早一拍傳到碼頭",
+      "effects": [{ "type": "setFlag", "key": "bell-early" }],
+      "next": "bell-path"
+    },
+    {
+      "id": "ferry",
+      "label": "讓繫纜繩在木樁上多停半分鐘",
+      "effects": [{ "type": "setFlag", "key": "ferry-held" }],
+      "next": "ferry-path"
+    }
+  ]
+}
