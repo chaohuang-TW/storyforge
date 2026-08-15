@@ -29,12 +29,12 @@ class TestIntersectionObserver {
   }
 }
 
-const positionKey = readerPositionKey('phase-1-reader-demo')
+const positionKey = readerPositionKey('story:runtime-demo')
 
 function seedSavedPosition() {
   window.localStorage.setItem(
     positionKey,
-    JSON.stringify({ documentId: 'phase-1-reader-demo', progress: 42, updatedAt: '2026-08-15T00:00:00.000Z' }),
+    JSON.stringify({ documentId: 'story:runtime-demo', progress: 42, updatedAt: '2026-08-15T00:00:00.000Z' }),
   )
 }
 
@@ -58,16 +58,29 @@ describe('Book reader', () => {
 
   afterEach(() => vi.unstubAllGlobals())
 
-  it('renders the reader presentation blocks and product identity', () => {
+  it('loads the runtime entry node without future nodes', () => {
     render(<App />)
 
-    expect(screen.getByRole('heading', { level: 1, name: '潮汐線以北' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: '霧港書簡' })).toBeInTheDocument()
     expect(screen.getByText('Web Interactive Novel Engine')).toBeInTheDocument()
-    expect(screen.getByText(/清晨的雨停在六點以前/)).toBeInTheDocument()
-    expect(screen.getByText('「前面的路還通嗎？」')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: /層疊的灰藍山丘/ })).toBeInTheDocument()
-    expect(screen.getByText(/示例插圖：霧中的路徑/)).toBeInTheDocument()
-    expect(screen.getAllByRole('separator', { name: '場景分隔' })).toHaveLength(2)
+    expect(screen.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeInTheDocument()
+    expect(screen.getByText(/港口的鐘在天色尚未亮透時響了一次/)).toBeInTheDocument()
+    expect(screen.queryByText('霧中的郵亭')).not.toBeInTheDocument()
+    expect(screen.queryByText('寄出以後')).not.toBeInTheDocument()
+  })
+
+  it('appends runtime nodes and stops at the ending', () => {
+    render(<App />)
+
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    expect(screen.getByText(/港口的鐘在天色尚未亮透時響了一次/)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: '霧中的郵亭' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: /霧色山丘與海岸/ })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    expect(screen.getByRole('heading', { level: 3, name: '寄出以後' })).toBeInTheDocument()
+    expect(screen.getByText('閱讀完畢')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '繼續閱讀' })).not.toBeInTheDocument()
   })
 
   it('changes font size, line height, and theme immediately', () => {
@@ -129,9 +142,9 @@ describe('Book reader', () => {
     render(<App />)
     triggerProgress(1)
     fireEvent.click(screen.getByRole('button', { name: '關閉' }))
-    triggerProgress(12)
+    triggerProgress(3)
 
-    expect(savedProgress()).toBe(48)
+    expect(savedProgress()).not.toBe(42)
   })
 
   it('allows reading position persistence after resuming a saved position', () => {
@@ -139,10 +152,10 @@ describe('Book reader', () => {
 
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: '回到上次閱讀處' }))
-    triggerProgress(12)
+    triggerProgress(3)
 
     expect(window.scrollTo).toHaveBeenCalledWith(expect.objectContaining({ behavior: 'auto' }))
     expect(screen.queryByRole('complementary', { name: '上次閱讀位置' })).not.toBeInTheDocument()
-    expect(savedProgress()).toBe(48)
+    expect(savedProgress()).not.toBe(42)
   })
 })

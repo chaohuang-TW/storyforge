@@ -1,0 +1,14 @@
+{
+  "id": "prologue",
+  "type": "narrative",
+  "title": "序章　潮線以外",
+  "next": "chapter-01",
+  "content": [
+    { "id": "prologue-heading", "type": "heading", "level": 2, "kicker": "序章", "text": "潮線以外" },
+    { "id": "prologue-1", "type": "paragraph", "text": "港口的鐘在天色尚未亮透時響了一次。聲音穿過倉庫與空著的巷道，落在石階上，像提醒每一扇窗：今天仍可以慢一點開始。" },
+    { "id": "prologue-2", "type": "paragraph", "text": "我把一封沒有署名的信放進外套口袋，沿著潮濕的堤岸往北走。海水退得很遠，留下細碎的光，讓人分不清那是清晨還是昨夜尚未散去的霧。" },
+    { "id": "prologue-dialogue", "type": "dialogue", "lines": ["「你要去哪裡？」", "守燈的人從門邊問。", "「去找一個能把信讀完的地方。」"] },
+    { "id": "prologue-quote", "type": "quote", "text": "有些訊息不急著抵達；它們先讓路途有了形狀。", "attribution": "港口筆記" },
+    { "id": "prologue-3", "type": "paragraph", "text": "守燈的人沒有追問，只替我把門推開一點。風從縫裡進來，帶著鹽與木頭的氣味。我踏上向北的路，知道第一頁已經翻開，卻還不必立刻知道下一頁寫了什麼。" }
+  ]
+}

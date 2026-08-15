@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, type ReactNode } from 'react'
 import type { ReaderDocument } from '../types/reader'
 import { useReaderPreferences } from '../hooks/useReaderPreferences'
 import { useReaderProgress } from '../hooks/useReaderProgress'
@@ -8,9 +8,11 @@ import { ReaderSettings } from './ReaderSettings'
 
 type BookReaderProps = {
   document: ReaderDocument
+  afterContent?: ReactNode
+  endMessage?: string | null
 }
 
-export function BookReader({ document }: BookReaderProps) {
+export function BookReader({ document, afterContent, endMessage = '本篇示例閱讀完畢' }: BookReaderProps) {
   const contentRef = useRef<HTMLElement>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const { preferences, setPreferences } = useReaderPreferences()
@@ -56,9 +58,14 @@ export function BookReader({ document }: BookReaderProps) {
           {document.blocks.map((block, index) => (
             <ReaderContentBlock key={block.id} block={block} progressIndex={index + 1} />
           ))}
-          <p className="reader-end" data-reader-progress-marker={document.blocks.length + 1}>
-            本篇示例閱讀完畢
-          </p>
+          {afterContent}
+          {endMessage ? (
+            <p className="reader-end" data-reader-progress-marker={document.blocks.length + 1}>
+              {endMessage}
+            </p>
+          ) : (
+            <div className="reader-end-marker" data-reader-progress-marker={document.blocks.length + 1} aria-hidden="true" />
+          )}
         </article>
       </main>
 

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="霧色山丘與海岸之間的小徑">
+  <rect width="1600" height="900" fill="#dbe4e5"/>
+  <path d="M0 410C170 320 330 355 480 430S760 500 930 405s355-75 670 15v480H0Z" fill="#aabdc0"/>
+  <path d="M0 550c180-100 330-70 500 30s330 100 530 0 375-105 570-20v340H0Z" fill="#7e999c"/>
+  <path d="M0 690c220-105 410-55 625 50s440 80 610-5 280-70 365-35v200H0Z" fill="#58767a"/>
+  <path d="M820 900c-100-110-95-190 20-265s80-140 170-225 110-160 50-265" fill="none" stroke="#f1f0e6" stroke-linecap="round" stroke-width="42"/>
+  <path d="M820 900c-100-110-95-190 20-265s80-140 170-225 110-160 50-265" fill="none" stroke="#d7e0dd" stroke-linecap="round" stroke-width="8"/>
+</svg>

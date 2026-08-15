@@ -274,6 +274,31 @@
   text-align: center;
 }
 
+.reader-end-marker {
+  height: 1px;
+}
+
+.story-session__advance {
+  display: flex;
+  justify-content: center;
+  margin: 4rem 0 2rem;
+}
+
+.story-session__advance button {
+  padding: 0.8rem 1.1rem;
+  border: 1px solid var(--reader-accent);
+  border-radius: 0.625rem;
+  background: var(--reader-accent);
+  color: var(--reader-accent-contrast);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.story-session__advance button:hover {
+  filter: brightness(0.96);
+}
+
 .reader-resume {
   position: fixed;
   z-index: 8;
