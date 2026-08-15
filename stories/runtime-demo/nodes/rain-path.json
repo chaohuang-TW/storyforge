@@ -1,0 +1,12 @@
+{
+  "id": "rain-path",
+  "type": "narrative",
+  "title": "墨跡散開時",
+  "next": "ending",
+  "content": [
+    { "id": "rain-divider", "type": "divider" },
+    { "id": "rain-heading", "type": "heading", "level": 3, "text": "墨跡散開時" },
+    { "id": "rain-1", "type": "paragraph", "text": "雨沿著屋簷落下，先碰到信封的一角，再慢慢帶走沒有署名的墨。字跡暈成一片淡藍，留下無法辨認的方向。" },
+    { "id": "rain-2", "type": "paragraph", "text": "我沒有把信撿回來。水痕替它改寫了抵達的方式，而門內的人只聽見雨聲，沒有聽見名字。" }
+  ]
+}

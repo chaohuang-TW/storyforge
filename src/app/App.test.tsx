@@ -100,6 +100,17 @@ describe('Book reader', () => {
     expect(screen.getByRole('img', { name: /霧色山丘與海岸/ })).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    expect(screen.getByText('撥動因果')).toBeInTheDocument()
+    expect(screen.getByText('門縫裡卡著一封沒有署名的信。')).toBeInTheDocument()
+    expect(screen.getByText('觀者可以回看已發生之事。')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '繼續閱讀' })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: '讓風把信吹進屋內' }))
+    expect(screen.getByRole('heading', { level: 3, name: '風進屋時' })).toBeInTheDocument()
+    expect(screen.getByText('因果已定。')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '讓風把信吹進屋內' })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
     expect(screen.getByRole('heading', { level: 3, name: '寄出以後' })).toBeInTheDocument()
     expect(screen.getByText('閱讀完畢')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '繼續閱讀' })).not.toBeInTheDocument()
@@ -164,6 +175,8 @@ describe('Book reader', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
     fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '讓風把信吹進屋內' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
 
     const endingObserver = [...TestIntersectionObserver.instances]
       .reverse()
@@ -175,6 +188,38 @@ describe('Book reader', () => {
     expect(progressValue()).toBe(100)
     expect(screen.queryByRole('button', { name: '繼續閱讀' })).not.toBeInTheDocument()
     expect(screen.getByText('閱讀完畢')).toBeInTheDocument()
+  })
+
+  it('renders an accessible inline Choice and commits only the selected consequence', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+
+    expect(screen.getByRole('group', { name: '撥動因果' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '讓風把信吹進屋內' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '讓雨水暈開信封上的墨' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: '讓雨水暈開信封上的墨' }))
+
+    expect(screen.getByRole('heading', { level: 3, name: '墨跡散開時' })).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { level: 3, name: '風進屋時' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: '撥動因果' })).not.toBeInTheDocument()
+    expect(screen.getByText('因果已定。')).toHaveAttribute('aria-live', 'polite')
+  })
+
+  it('keeps progress below 100 while a Choice is pending', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+
+    const incompleteEndObserver = [...TestIntersectionObserver.instances]
+      .reverse()
+      .find((instance) => instance.observed.some((marker) => marker.classList.contains('reader-end-marker')))
+    expect(incompleteEndObserver).toBeDefined()
+    act(() => incompleteEndObserver!.trigger(document.querySelector('.reader-end-marker')!))
+
+    expect(progressValue()).toBeLessThan(100)
+    expect(screen.getByRole('group', { name: '撥動因果' })).toBeInTheDocument()
   })
 
   it('treats a standalone ReaderDocument as complete by default', () => {

@@ -1,0 +1,19 @@
+{
+  "id": "letter-choice",
+  "type": "choice",
+  "prompt": "門縫裡卡著一封沒有署名的信。",
+  "choices": [
+    {
+      "id": "wind",
+      "label": "讓風把信吹進屋內",
+      "effects": [{ "type": "setFlag", "key": "letter-entered" }],
+      "next": "wind-path"
+    },
+    {
+      "id": "rain",
+      "label": "讓雨水暈開信封上的墨",
+      "effects": [{ "type": "setFlag", "key": "ink-washed" }],
+      "next": "rain-path"
+    }
+  ]
+}

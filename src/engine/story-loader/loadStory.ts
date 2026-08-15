@@ -4,6 +4,7 @@ import type { LoadedStory, StoryNode, StoryPackSource } from '../story/types'
 function outgoingNodeIds(node: StoryNode): string[] {
   if (node.type === 'narrative') return [node.next]
   if (node.type === 'conditional') return [...node.branches.map((branch) => branch.next), node.fallback]
+  if (node.type === 'choice') return node.choices.map((choice) => choice.next)
   return []
 }
 
@@ -50,6 +51,13 @@ export function loadStory(source: StoryPackSource): LoadedStory {
       }
       if (!nodes.has(node.fallback)) {
         throw new StoryLoadError(`Conditional node ${node.id} references missing fallback target: ${node.fallback}`)
+      }
+    }
+    if (node.type === 'choice') {
+      for (const choice of node.choices) {
+        if (!nodes.has(choice.next)) {
+          throw new StoryLoadError(`Choice node ${node.id} choice ${choice.id} references missing target: ${choice.next}`)
+        }
       }
     }
   }

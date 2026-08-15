@@ -2,7 +2,14 @@ import { evaluateCondition } from '../causality/conditionEngine'
 import { applyEffects } from '../causality/effectEngine'
 import type { WorldState } from '../causality/types'
 import { copyValidatedWorldState } from '../causality/worldState'
-import type { LoadedStory, RenderableStoryNode, StoryNode, StoryRuntimeState } from '../story/types'
+import type {
+  ChoiceStoryNode,
+  LoadedStory,
+  RenderableStoryNode,
+  StoryChoice,
+  StoryNode,
+  StoryRuntimeState,
+} from '../story/types'
 import { StoryRuntimeError } from './errors'
 
 export { StoryRuntimeError } from './errors'
@@ -11,14 +18,35 @@ export type StoryRuntimeOptions = {
   initialWorldState?: WorldState
 }
 
+export type AvailableChoice = {
+  id: string
+  label: string
+}
+
+export type PendingChoice = {
+  nodeId: string
+  prompt?: string
+  choices: AvailableChoice[]
+}
+
+export type ChoiceCommit = {
+  nodeId: string
+  choiceId: string
+}
+
 export type StoryRuntime = {
   getState: () => StoryRuntimeState
   getWorldState: () => WorldState
   getCurrentNode: () => RenderableStoryNode
   getVisibleNodes: () => RenderableStoryNode[]
+  getPendingChoice: () => PendingChoice | null
+  getChoiceHistory: () => ChoiceCommit[]
+  choose: (choiceId: string) => boolean
   advance: () => boolean
   isEnding: () => boolean
 }
+
+type RuntimeBoundary = RenderableStoryNode | ChoiceStoryNode
 
 function nodeAt(story: LoadedStory, nodeId: string): StoryNode {
   const node = story.nodes.get(nodeId)
@@ -26,7 +54,7 @@ function nodeAt(story: LoadedStory, nodeId: string): StoryNode {
   return node
 }
 
-function resolveVisibleNode(story: LoadedStory, targetNodeId: string, worldState: WorldState): RenderableStoryNode {
+function resolveRuntimeBoundary(story: LoadedStory, targetNodeId: string, worldState: WorldState): RuntimeBoundary {
   const visitedConditionalIds = new Set<string>()
   let nodeId = targetNodeId
 
@@ -43,40 +71,123 @@ function resolveVisibleNode(story: LoadedStory, targetNodeId: string, worldState
   }
 }
 
+function choiceIsAvailable(choice: StoryChoice, worldState: WorldState): boolean {
+  return (choice.conditions ?? []).every((condition) => evaluateCondition(condition, worldState))
+}
+
+function pendingChoiceFor(node: ChoiceStoryNode, worldState: WorldState): PendingChoice {
+  const choices = node.choices
+    .filter((choice) => choiceIsAvailable(choice, worldState))
+    .map(({ id, label }) => ({ id, label }))
+  if (choices.length === 0) {
+    throw new StoryRuntimeError(`Choice node ${node.id} has no available choices`)
+  }
+  return { nodeId: node.id, prompt: node.prompt, choices }
+}
+
 export function createStoryRuntime(story: LoadedStory, options: StoryRuntimeOptions = {}): StoryRuntime {
   const initialWorldState = copyValidatedWorldState(options.initialWorldState ?? {})
-  const entryNode = resolveVisibleNode(story, story.manifest.entryNode, initialWorldState)
-  let state: StoryRuntimeState = {
-    currentNodeId: entryNode.id,
-    worldState: applyEffects(initialWorldState, entryNode.effects ?? []),
+  const entryBoundary = resolveRuntimeBoundary(story, story.manifest.entryNode, initialWorldState)
+  if (entryBoundary.type === 'choice') {
+    throw new StoryRuntimeError(`Direct Choice entry is not supported in Phase 3B: ${entryBoundary.id}`)
   }
-  const visibleNodeIds = [entryNode.id]
+
+  let state: StoryRuntimeState = {
+    currentNodeId: entryBoundary.id,
+    worldState: applyEffects(initialWorldState, entryBoundary.effects ?? []),
+  }
+  let visibleNodeIds = [entryBoundary.id]
+  let choiceHistory: ChoiceCommit[] = []
 
   const getCurrentNode = (): RenderableStoryNode => {
     const node = nodeAt(story, state.currentNodeId)
-    if (node.type === 'conditional') {
+    if (node.type === 'conditional' || node.type === 'choice') {
       throw new StoryRuntimeError(`Runtime current node is not renderable: ${node.id}`)
     }
     return node
   }
 
+  const getPendingChoiceNode = (): ChoiceStoryNode | null => {
+    if (!state.pendingChoiceNodeId) return null
+    const node = nodeAt(story, state.pendingChoiceNodeId)
+    if (node.type !== 'choice') {
+      throw new StoryRuntimeError(`Runtime pending choice is not a Choice node: ${node.id}`)
+    }
+    return node
+  }
+
   return {
-    getState: () => ({ currentNodeId: state.currentNodeId, worldState: { ...state.worldState } }),
+    getState: () => ({
+      currentNodeId: state.currentNodeId,
+      worldState: { ...state.worldState },
+      ...(state.pendingChoiceNodeId ? { pendingChoiceNodeId: state.pendingChoiceNodeId } : {}),
+    }),
     getWorldState: () => ({ ...state.worldState }),
     getCurrentNode,
-    getVisibleNodes: () => visibleNodeIds.map((id) => nodeAt(story, id)).filter((node): node is RenderableStoryNode => node.type !== 'conditional'),
+    getVisibleNodes: () =>
+      visibleNodeIds
+        .map((id) => nodeAt(story, id))
+        .filter((node): node is RenderableStoryNode => node.type !== 'conditional' && node.type !== 'choice'),
+    getPendingChoice: () => {
+      const node = getPendingChoiceNode()
+      return node ? pendingChoiceFor(node, state.worldState) : null
+    },
+    getChoiceHistory: () => choiceHistory.map((commit) => ({ ...commit })),
+    choose: (choiceId: string) => {
+      const pendingNode = getPendingChoiceNode()
+      if (!pendingNode) return false
+
+      const choice = pendingNode.choices.find((candidate) => candidate.id === choiceId)
+      if (!choice) throw new StoryRuntimeError(`Choice node ${pendingNode.id} has no choice id: ${choiceId}`)
+      if (!choiceIsAvailable(choice, state.worldState)) {
+        throw new StoryRuntimeError(`Choice ${choiceId} is not available at choice node: ${pendingNode.id}`)
+      }
+
+      // Build the complete next snapshot before mutating runtime-owned data.
+      const stateAfterChoice = applyEffects(state.worldState, choice.effects ?? [])
+      const nextBoundary = resolveRuntimeBoundary(story, choice.next, stateAfterChoice)
+      let nextState: StoryRuntimeState
+      let nextVisibleNodeIds = visibleNodeIds
+
+      if (nextBoundary.type === 'choice') {
+        pendingChoiceFor(nextBoundary, stateAfterChoice)
+        nextState = {
+          currentNodeId: state.currentNodeId,
+          worldState: stateAfterChoice,
+          pendingChoiceNodeId: nextBoundary.id,
+        }
+      } else {
+        nextState = {
+          currentNodeId: nextBoundary.id,
+          worldState: applyEffects(stateAfterChoice, nextBoundary.effects ?? []),
+        }
+        nextVisibleNodeIds = [...visibleNodeIds, nextBoundary.id]
+      }
+
+      state = nextState
+      visibleNodeIds = nextVisibleNodeIds
+      choiceHistory = [...choiceHistory, { nodeId: pendingNode.id, choiceId }]
+      return true
+    },
     advance: () => {
+      if (state.pendingChoiceNodeId) return false
       const currentNode = getCurrentNode()
       if (currentNode.type === 'ending') return false
 
-      const nextNode = resolveVisibleNode(story, currentNode.next, state.worldState)
-      state = {
-        currentNodeId: nextNode.id,
-        worldState: applyEffects(state.worldState, nextNode.effects ?? []),
+      const nextBoundary = resolveRuntimeBoundary(story, currentNode.next, state.worldState)
+      if (nextBoundary.type === 'choice') {
+        pendingChoiceFor(nextBoundary, state.worldState)
+        state = { ...state, pendingChoiceNodeId: nextBoundary.id }
+        return true
       }
-      visibleNodeIds.push(nextNode.id)
+
+      state = {
+        currentNodeId: nextBoundary.id,
+        worldState: applyEffects(state.worldState, nextBoundary.effects ?? []),
+      }
+      visibleNodeIds = [...visibleNodeIds, nextBoundary.id]
       return true
     },
-    isEnding: () => getCurrentNode().type === 'ending',
+    isEnding: () => getCurrentNode().type === 'ending' && !state.pendingChoiceNodeId,
   }
 }
