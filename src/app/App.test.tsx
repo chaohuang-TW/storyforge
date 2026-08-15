@@ -6,14 +6,20 @@ import { readerPositionKey } from '../reader/hooks/useReaderProgress'
 
 class TestIntersectionObserver {
   static instances: TestIntersectionObserver[] = []
+  readonly observed: Element[] = []
+  disconnected = false
 
   constructor(private readonly callback: IntersectionObserverCallback) {
     TestIntersectionObserver.instances.push(this)
   }
 
-  disconnect() {}
+  disconnect() {
+    this.disconnected = true
+  }
 
-  observe() {}
+  observe(marker: Element) {
+    this.observed.push(marker)
+  }
 
   trigger(marker: Element) {
     this.callback(
@@ -48,6 +54,18 @@ function savedProgress() {
   return JSON.parse(window.localStorage.getItem(positionKey) ?? '{}').progress
 }
 
+function progressValue() {
+  return Number(screen.getByRole('progressbar').getAttribute('value'))
+}
+
+function mainObserverFor(markerId: string) {
+  const observer = [...TestIntersectionObserver.instances]
+    .reverse()
+    .find((instance) => instance.observed.some((marker) => marker.id === markerId))
+  expect(observer).toBeDefined()
+  return observer!
+}
+
 describe('Book reader', () => {
   beforeEach(() => {
     window.localStorage.clear()
@@ -63,6 +81,8 @@ describe('Book reader', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: '霧港書簡' })).toBeInTheDocument()
     expect(screen.getByText('Web Interactive Novel Engine')).toBeInTheDocument()
+    expect(screen.queryByText('由 Story Runtime 載入的線性示例')).not.toBeInTheDocument()
+    expect(document.querySelector('.reader-title-page__subtitle')).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeInTheDocument()
     expect(screen.getByText(/港口的鐘在天色尚未亮透時響了一次/)).toBeInTheDocument()
     expect(screen.queryByText('霧中的郵亭')).not.toBeInTheDocument()
@@ -81,6 +101,50 @@ describe('Book reader', () => {
     expect(screen.getByRole('heading', { level: 3, name: '寄出以後' })).toBeInTheDocument()
     expect(screen.getByText('閱讀完畢')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '繼續閱讀' })).not.toBeInTheDocument()
+  })
+
+  it('re-registers observers and observes markers from appended nodes', () => {
+    render(<App />)
+    const initialObserver = mainObserverFor('prologue-heading')
+
+    expect(initialObserver.observed.map((marker) => marker.id)).toContain('prologue-heading')
+
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    const expandedObserver = mainObserverFor('chapter-heading')
+
+    expect(initialObserver.disconnected).toBe(true)
+    expect(expandedObserver).not.toBe(initialObserver)
+    expect(expandedObserver.observed.map((marker) => marker.id)).toContain('chapter-heading')
+  })
+
+  it('calculates progress against the expanded content without reaching the ending', () => {
+    render(<App />)
+    const initialObserver = mainObserverFor('prologue-heading')
+
+    act(() => initialObserver.trigger(document.querySelector('#prologue-2')!))
+    const initialProgress = progressValue()
+
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    const expandedObserver = mainObserverFor('chapter-heading')
+    act(() => expandedObserver.trigger(document.querySelector('#chapter-heading')!))
+
+    expect(progressValue()).toBeGreaterThan(initialProgress)
+    expect(progressValue()).toBeLessThan(100)
+  })
+
+  it('observes the ending marker and reaches 100% only when it is visible', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+
+    const endingObserver = [...TestIntersectionObserver.instances]
+      .reverse()
+      .find((instance) => instance.observed.some((marker) => marker.classList.contains('reader-end')))
+    expect(endingObserver).toBeDefined()
+
+    act(() => endingObserver!.trigger(document.querySelector('.reader-end')!))
+
+    expect(progressValue()).toBe(100)
   })
 
   it('changes font size, line height, and theme immediately', () => {

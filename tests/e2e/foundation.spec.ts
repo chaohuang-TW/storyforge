@@ -39,6 +39,23 @@ test('appends runtime nodes and reaches the ending without removing prior text',
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false)
 })
 
+test('updates progress as runtime content expands and reaches 100% at the ending', async ({ page }) => {
+  await page.goto('/')
+  const progress = page.getByRole('progressbar', { name: '閱讀進度' })
+  const initialProgress = Number(await progress.getAttribute('value'))
+
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  const chapter = page.getByRole('heading', { level: 3, name: '霧中的郵亭' })
+  await chapter.scrollIntoViewIfNeeded()
+  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeGreaterThan(initialProgress)
+  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
+
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  const ending = page.getByText('閱讀完畢')
+  await ending.scrollIntoViewIfNeeded()
+  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBe(100)
+})
+
 test('opens keyboard-accessible settings and applies reader preferences', async ({ page }) => {
   await page.goto('/')
   const reader = page.locator('.book-reader')

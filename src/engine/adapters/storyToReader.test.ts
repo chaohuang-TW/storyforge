@@ -39,6 +39,7 @@ describe('Story-to-Reader adapter', () => {
     const document = storyNodesToReaderDocument(story, [story.nodes.get('one')!, story.nodes.get('two')!])
 
     expect(document.id).toBe('story:adapter-test')
+    expect(document.subtitle).toBeUndefined()
     expect(document.blocks.map((block) => block.id)).toEqual(['heading', 'paragraph'])
   })
 })

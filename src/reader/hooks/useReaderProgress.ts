@@ -21,7 +21,11 @@ function readPosition(documentId: string): ReaderPosition | null {
   }
 }
 
-export function useReaderProgress(documentId: string, contentRef: RefObject<HTMLElement | null>) {
+export function useReaderProgress(
+  documentId: string,
+  contentRef: RefObject<HTMLElement | null>,
+  contentRevision = 0,
+) {
   const initialPosition = useMemo(() => readPosition(documentId), [documentId])
   const endIsVisible = useRef(false)
   const [progress, setProgress] = useState(0)
@@ -30,6 +34,7 @@ export function useReaderProgress(documentId: string, contentRef: RefObject<HTML
   )
 
   useEffect(() => {
+    endIsVisible.current = false
     const content = contentRef.current
     if (!content || typeof IntersectionObserver === 'undefined') return
 
@@ -64,7 +69,7 @@ export function useReaderProgress(documentId: string, contentRef: RefObject<HTML
       observer.disconnect()
       endObserver.disconnect()
     }
-  }, [contentRef])
+  }, [contentRef, contentRevision])
 
   useEffect(() => {
     if (resumeAvailable) return

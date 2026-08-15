@@ -26,7 +26,6 @@ export function storyNodesToReaderDocument(story: LoadedStory, nodes: StoryNode[
   return {
     id: `story:${story.manifest.id}`,
     title: story.manifest.title,
-    subtitle: '由 Story Runtime 載入的線性示例',
     chapterLabel: currentNode?.title ?? story.manifest.title,
     blocks: nodes.flatMap((node) => node.content.map((content) => storyContentToReaderBlock(content, story.assets))),
   }

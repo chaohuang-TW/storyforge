@@ -16,7 +16,11 @@ export function BookReader({ document, afterContent, endMessage = '本篇示例�
   const contentRef = useRef<HTMLElement>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const { preferences, setPreferences } = useReaderPreferences()
-  const { progress, resumeAvailable, resume, dismissResume } = useReaderProgress(document.id, contentRef)
+  const { progress, resumeAvailable, resume, dismissResume } = useReaderProgress(
+    document.id,
+    contentRef,
+    document.blocks.length,
+  )
   const closeSettings = useCallback(() => setSettingsOpen(false), [])
 
   return (
@@ -50,7 +54,7 @@ export function BookReader({ document, afterContent, endMessage = '本篇示例�
         <header className="reader-title-page" data-reader-progress-marker="0">
           <p className="reader-title-page__product">StoryForge</p>
           <h1 id="reader-title">{document.title}</h1>
-          <p className="reader-title-page__subtitle">{document.subtitle}</p>
+          {document.subtitle ? <p className="reader-title-page__subtitle">{document.subtitle}</p> : null}
           <p className="reader-title-page__identity">Web Interactive Novel Engine</p>
         </header>
 
