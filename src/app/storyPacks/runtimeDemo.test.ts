@@ -26,6 +26,14 @@ function illustrationAssets(node: StoryNode): string[] {
   return node.content.flatMap((content: StoryContent) => content.type === 'illustration' ? [content.asset] : [])
 }
 
+function visibleStoryText(runtime: ReturnType<typeof createStoryRuntime>): string {
+  return runtime.getVisibleNodes().flatMap((node) => node.content.flatMap((content) => {
+    if (content.type === 'dialogue') return content.lines
+    if (content.type === 'heading' || content.type === 'paragraph' || content.type === 'quote') return [content.text]
+    return []
+  })).join('\n')
+}
+
 describe('runtime-demo illustrated causal slice', () => {
   it('loads every Story Pack node and resolves every illustration reference', () => {
     const story = loadStory(runtimeDemoPack)
@@ -71,6 +79,38 @@ describe('runtime-demo illustrated causal slice', () => {
     expect(runtime.getCurrentNode().id).toBe('ferry-path')
     runtime.advance()
     expect(runtime.isEnding()).toBe(true)
+  })
+
+  it('reaches the shared ending for all four causal combinations', () => {
+    const combinations: Array<['wind' | 'rain', 'bell' | 'ferry']> = [
+      ['wind', 'bell'],
+      ['wind', 'ferry'],
+      ['rain', 'bell'],
+      ['rain', 'ferry'],
+    ]
+
+    for (const [firstChoice, secondChoice] of combinations) {
+      const runtime = reachSecondChoice(firstChoice)
+      expect(runtime.getPendingChoice()?.nodeId).toBe('second-choice')
+      expect(() => runtime.choose(secondChoice)).not.toThrow()
+      expect(runtime.getCurrentNode().id).toBe(`${secondChoice}-path`)
+      expect(() => runtime.advance()).not.toThrow()
+      expect(runtime.isEnding()).toBe(true)
+      expect(runtime.getCurrentNode().id).toBe('ending')
+    }
+  })
+
+  it('keeps mutually exclusive continuity facts out of ferry and shared ending prose', () => {
+    const runtime = reachSecondChoice('wind')
+    runtime.choose('ferry')
+    runtime.advance()
+    runtime.advance()
+    const text = visibleStoryText(runtime)
+
+    expect(text).not.toContain('那封信沒有被打開')
+    expect(text).not.toContain('有人提早聽見鐘聲，也有人讓纜繩多留了半分鐘')
+    expect(text).toContain('那封信沒有被追回')
+    expect(text).toContain('潮線之後')
   })
 
   it('keeps branch-specific illustrations and narrative isolated', () => {

@@ -7,8 +7,8 @@
     { "id": "ending-heading", "type": "heading", "level": 3, "text": "潮線之後" },
     { "id": "ending-illustration", "type": "illustration", "asset": "ending-tide", "alt": "暮色港口的潮線交錯延伸，遠方渡船與岸邊燈火逐漸亮起", "variant": "full-bleed", "width": 1600, "height": 900 },
     { "id": "ending-1", "type": "paragraph", "text": "離開郵亭時，海上的霧正好散開一小段。遠方沒有出現答案，只有一艘緩慢前行的船，船尾把水面分成兩道安靜的線。" },
-    { "id": "ending-2", "type": "paragraph", "text": "我知道那封信未必會抵達某個確切的人手裡，但它已經不再需要停在口袋。有人提早聽見鐘聲，也有人讓纜繩多留了半分鐘；每個小小的改變，都讓潮水留下不同的邊緣。" },
-    { "id": "ending-3", "type": "paragraph", "text": "路仍往前延伸，港口也會在傍晚亮起燈。當我回頭時，門檻、石階與水面都已經各自安靜下來，只有被讀過的路，還在心裡保留方向。" },
+    { "id": "ending-2", "type": "paragraph", "text": "我不知道那封信最後會被誰保存，也不知道碼頭上的那一瞬間會被誰記住。鐘聲或纜繩、門檻或雨水，都只偏離了原本的位置一點點；可等潮水重新漫上石階時，世界留下的邊緣已經不再完全相同。" },
+    { "id": "ending-3", "type": "paragraph", "text": "路仍往前延伸，港口也會在傍晚亮起燈。當我回頭時，門檻、石階與水面都已經各自安靜下來，只有走過的路，還在心裡保留方向。" },
     { "id": "ending-quote", "type": "quote", "text": "故事沒有替人決定方向；它只是讓走過的路可以被好好讀完。" }
   ]
 }
