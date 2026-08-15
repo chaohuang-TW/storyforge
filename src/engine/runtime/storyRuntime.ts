@@ -1,6 +1,7 @@
 import { evaluateCondition } from '../causality/conditionEngine'
 import { applyEffects } from '../causality/effectEngine'
 import type { WorldState } from '../causality/types'
+import { copyValidatedWorldState } from '../causality/worldState'
 import type { LoadedStory, RenderableStoryNode, StoryNode, StoryRuntimeState } from '../story/types'
 import { StoryRuntimeError } from './errors'
 
@@ -42,12 +43,8 @@ function resolveVisibleNode(story: LoadedStory, targetNodeId: string, worldState
   }
 }
 
-function copyWorldState(worldState: WorldState): WorldState {
-  return { ...worldState }
-}
-
 export function createStoryRuntime(story: LoadedStory, options: StoryRuntimeOptions = {}): StoryRuntime {
-  const initialWorldState = copyWorldState(options.initialWorldState ?? {})
+  const initialWorldState = copyValidatedWorldState(options.initialWorldState ?? {})
   const entryNode = resolveVisibleNode(story, story.manifest.entryNode, initialWorldState)
   let state: StoryRuntimeState = {
     currentNodeId: entryNode.id,
@@ -64,8 +61,8 @@ export function createStoryRuntime(story: LoadedStory, options: StoryRuntimeOpti
   }
 
   return {
-    getState: () => ({ currentNodeId: state.currentNodeId, worldState: copyWorldState(state.worldState) }),
-    getWorldState: () => copyWorldState(state.worldState),
+    getState: () => ({ currentNodeId: state.currentNodeId, worldState: { ...state.worldState } }),
+    getWorldState: () => ({ ...state.worldState }),
     getCurrentNode,
     getVisibleNodes: () => visibleNodeIds.map((id) => nodeAt(story, id)).filter((node): node is RenderableStoryNode => node.type !== 'conditional'),
     advance: () => {

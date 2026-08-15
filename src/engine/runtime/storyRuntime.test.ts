@@ -58,6 +58,31 @@ describe('createStoryRuntime', () => {
     expect(runtime.getWorldState().counter).toBe(2)
   })
 
+  it('rejects an initial World State Infinity value', () => {
+    expect(() => createStoryRuntime(story, { initialWorldState: { score: Infinity } })).toThrow(
+      'World State key "score" contains a non-finite number',
+    )
+  })
+
+  it('rejects an initial World State NaN value', () => {
+    expect(() => createStoryRuntime(story, { initialWorldState: { score: NaN } })).toThrow(
+      'World State key "score" contains a non-finite number',
+    )
+  })
+
+  it('rejects an initial World State negative Infinity value', () => {
+    expect(() => createStoryRuntime(story, { initialWorldState: { score: -Infinity } })).toThrow(
+      'World State key "score" contains a non-finite number',
+    )
+  })
+
+  it('accepts valid finite initial World State values', () => {
+    const initialWorldState = { score: 10, trust: -2.5, flag: true, label: 'x', empty: null }
+    const runtime = createStoryRuntime(story, { initialWorldState })
+
+    expect(runtime.getWorldState()).toEqual(initialWorldState)
+  })
+
   it('routes to the first matching conditional branch without exposing the control node', () => {
     const conditionalStory = loadStory({
       manifest: { id: 'conditional-test', title: 'Conditional Test', version: '0.1.0', schemaVersion: '0.1', language: 'zh-TW', entryNode: 'start' },

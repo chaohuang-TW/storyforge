@@ -11,6 +11,10 @@ Reader to story state.
 - Conditional Story Nodes are invisible routing nodes. The Runtime evaluates
   their branches against the latest state and exposes only renderable nodes to
   the Reader.
+- World State numeric values must always be finite. The Runtime and Effect
+  Engine reject `NaN`, `Infinity`, and `-Infinity`.
+- World State invariants are primitive values only, finite numbers, immutable
+  effect application, defensive-copy getters, and no persistence.
 
 The transition order is:
 

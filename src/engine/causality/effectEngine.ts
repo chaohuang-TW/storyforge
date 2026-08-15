@@ -1,5 +1,6 @@
 import { StoryRuntimeError } from '../runtime/errors'
 import type { Effect, WorldState } from './types'
+import { assertValidWorldState, copyValidatedWorldState } from './worldState'
 
 function numericAmount(amount: number | undefined, effectType: string, key: string): number {
   const value = amount ?? 1
@@ -10,10 +11,13 @@ function numericAmount(amount: number | undefined, effectType: string, key: stri
 }
 
 export function applyEffect(state: WorldState, effect: Effect): WorldState {
-  const next = { ...state }
+  const next = copyValidatedWorldState(state)
 
   switch (effect.type) {
     case 'set':
+      if (typeof effect.value === 'number' && !Number.isFinite(effect.value)) {
+        assertValidWorldState({ [effect.key]: effect.value })
+      }
       next[effect.key] = effect.value
       return next
     case 'increment': {
@@ -21,7 +25,11 @@ export function applyEffect(state: WorldState, effect: Effect): WorldState {
       if (typeof current !== 'number' || !Number.isFinite(current)) {
         throw new StoryRuntimeError(`Cannot increment non-number state key: ${effect.key}`)
       }
-      next[effect.key] = current + numericAmount(effect.amount, 'increment', effect.key)
+      const result = current + numericAmount(effect.amount, 'increment', effect.key)
+      if (!Number.isFinite(result)) {
+        throw new StoryRuntimeError(`increment effect produced a non-finite value for key: ${effect.key}`)
+      }
+      next[effect.key] = result
       return next
     }
     case 'decrement': {
@@ -29,7 +37,11 @@ export function applyEffect(state: WorldState, effect: Effect): WorldState {
       if (typeof current !== 'number' || !Number.isFinite(current)) {
         throw new StoryRuntimeError(`Cannot decrement non-number state key: ${effect.key}`)
       }
-      next[effect.key] = current - numericAmount(effect.amount, 'decrement', effect.key)
+      const result = current - numericAmount(effect.amount, 'decrement', effect.key)
+      if (!Number.isFinite(result)) {
+        throw new StoryRuntimeError(`decrement effect produced a non-finite value for key: ${effect.key}`)
+      }
+      next[effect.key] = result
       return next
     }
     case 'setFlag':
@@ -42,5 +54,5 @@ export function applyEffect(state: WorldState, effect: Effect): WorldState {
 }
 
 export function applyEffects(state: WorldState, effects: Effect[]): WorldState {
-  return effects.reduce((current, effect) => applyEffect(current, effect), { ...state })
+  return effects.reduce((current, effect) => applyEffect(current, effect), copyValidatedWorldState(state))
 }

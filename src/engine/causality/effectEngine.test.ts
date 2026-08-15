@@ -37,4 +37,32 @@ describe('effect engine', () => {
     expect(() => applyEffect({ score: 'high' }, { type: 'increment', key: 'score' })).toThrow(StoryRuntimeError)
     expect(() => applyEffect({ score: 'high' }, { type: 'decrement', key: 'score' })).toThrow('Cannot decrement non-number state key: score')
   })
+
+  it('rejects increment overflow', () => {
+    expect(() => applyEffect({ score: 1e308 }, { type: 'increment', key: 'score', amount: 1e308 })).toThrow(
+      'increment effect produced a non-finite value for key: score',
+    )
+  })
+
+  it('rejects decrement overflow', () => {
+    expect(() => applyEffect({ score: -1e308 }, { type: 'decrement', key: 'score', amount: 1e308 })).toThrow(
+      'decrement effect produced a non-finite value for key: score',
+    )
+  })
+
+  it('rejects a direct set of a non-finite number', () => {
+    expect(() => applyEffect({}, { type: 'set', key: 'score', value: Infinity })).toThrow(
+      'World State key "score" contains a non-finite number',
+    )
+  })
+
+  it('preserves the input state when an effect sequence fails', () => {
+    const before = { score: 1e308, untouched: true }
+
+    expect(() => applyEffects(before, [
+      { type: 'setFlag', key: 'started' },
+      { type: 'increment', key: 'score', amount: 1e308 },
+    ])).toThrow(StoryRuntimeError)
+    expect(before).toEqual({ score: 1e308, untouched: true })
+  })
 })
