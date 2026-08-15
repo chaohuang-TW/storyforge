@@ -1,5 +1,5 @@
 import type { ReaderBlock, ReaderDocument } from '../../reader/types/reader'
-import type { LoadedStory, StoryContent, StoryNode } from '../story/types'
+import type { LoadedStory, RenderableStoryNode, StoryContent } from '../story/types'
 
 export function storyContentToReaderBlock(content: StoryContent, assets: Map<string, string>): ReaderBlock {
   switch (content.type) {
@@ -21,7 +21,7 @@ export function storyContentToReaderBlock(content: StoryContent, assets: Map<str
   }
 }
 
-export function storyNodesToReaderDocument(story: LoadedStory, nodes: StoryNode[]): ReaderDocument {
+export function storyNodesToReaderDocument(story: LoadedStory, nodes: RenderableStoryNode[]): ReaderDocument {
   const currentNode = nodes[nodes.length - 1]
   return {
     id: `story:${story.manifest.id}`,

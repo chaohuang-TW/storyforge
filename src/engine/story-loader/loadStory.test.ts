@@ -64,4 +64,31 @@ describe('loadStory', () => {
   it('rejects a linear cycle with a clear StoryLoadError', () => {
     expect(() => loadStory(source({ nodes: [{ ...startNode, next: 'start' }] }))).toThrow(StoryLoadError)
   })
+
+  it('loads conditional targets and rejects missing branch or fallback targets', () => {
+    const conditional = {
+      id: 'route',
+      type: 'conditional',
+      branches: [{ when: { type: 'hasFlag', key: 'signal' }, next: 'ending' }],
+      fallback: 'ending',
+    }
+    const loaded = loadStory(source({ manifest: { ...manifest, entryNode: 'route' }, nodes: [conditional, endingNode] }))
+    expect(loaded.nodes.get('route')?.type).toBe('conditional')
+    expect(() => loadStory(source({ manifest: { ...manifest, entryNode: 'route' }, nodes: [{ ...conditional, branches: [{ ...conditional.branches[0], next: 'missing' }] }, endingNode] }))).toThrow(
+      'Conditional node route references missing branch target: missing',
+    )
+    expect(() => loadStory(source({ manifest: { ...manifest, entryNode: 'route' }, nodes: [{ ...conditional, fallback: 'missing' }, endingNode] }))).toThrow(
+      'Conditional node route references missing fallback target: missing',
+    )
+  })
+
+  it('rejects a cycle that passes through a conditional node', () => {
+    const conditional = {
+      id: 'route',
+      type: 'conditional',
+      branches: [{ when: { type: 'hasFlag', key: 'signal' }, next: 'start' }],
+      fallback: 'ending',
+    }
+    expect(() => loadStory(source({ nodes: [{ ...startNode, next: 'route' }, conditional, endingNode] }))).toThrow('Story graph cycle detected')
+  })
 })

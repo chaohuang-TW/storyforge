@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { loadStory } from '../story-loader/loadStory'
-import type { StoryContent } from '../story/types'
+import type { RenderableStoryNode, StoryContent } from '../story/types'
 import { storyContentToReaderBlock, storyNodesToReaderDocument } from './storyToReader'
 
 const assets = new Map([['image', '/story-image.svg']])
@@ -36,7 +36,10 @@ describe('Story-to-Reader adapter', () => {
       ],
       assets: { image: '/story-image.svg' },
     })
-    const document = storyNodesToReaderDocument(story, [story.nodes.get('one')!, story.nodes.get('two')!])
+    const nodes = [story.nodes.get('one')!, story.nodes.get('two')!].filter(
+      (node): node is RenderableStoryNode => node.type !== 'conditional',
+    )
+    const document = storyNodesToReaderDocument(story, nodes)
 
     expect(document.id).toBe('story:adapter-test')
     expect(document.subtitle).toBeUndefined()
