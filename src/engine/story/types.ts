@@ -40,11 +40,15 @@ export type StoryContent =
   | StoryQuote
   | StoryDivider
 
+export type { Condition, Effect, StateValue, WorldState } from '../causality/types'
+import type { Condition, Effect, WorldState } from '../causality/types'
+
 export type NarrativeStoryNode = {
   id: string
   type: 'narrative'
   title?: string
   content: StoryContent[]
+  effects?: Effect[]
   next: string
 }
 
@@ -53,9 +57,23 @@ export type EndingStoryNode = {
   type: 'ending'
   title?: string
   content: StoryContent[]
+  effects?: Effect[]
 }
 
-export type StoryNode = NarrativeStoryNode | EndingStoryNode
+export type ConditionalBranch = {
+  when: Condition
+  next: string
+}
+
+export type ConditionalStoryNode = {
+  id: string
+  type: 'conditional'
+  branches: ConditionalBranch[]
+  fallback: string
+}
+
+export type StoryNode = NarrativeStoryNode | ConditionalStoryNode | EndingStoryNode
+export type RenderableStoryNode = NarrativeStoryNode | EndingStoryNode
 
 export type StoryPackSource = {
   manifest: unknown
@@ -71,4 +89,5 @@ export type LoadedStory = {
 
 export type StoryRuntimeState = {
   currentNodeId: string
+  worldState: WorldState
 }

@@ -1,10 +1,14 @@
 import type {
+  Condition,
+  ConditionalStoryNode,
   EndingStoryNode,
+  Effect,
   NarrativeStoryNode,
   StoryContent,
   StoryManifest,
   StoryNode,
 } from './types'
+import type { StateValue } from '../causality/types'
 
 export class StoryLoadError extends Error {
   constructor(message: string) {
@@ -33,6 +37,12 @@ function optionalString(value: unknown, label: string): string | undefined {
 function number(value: unknown, label: string): number {
   if (typeof value !== 'number' || !Number.isFinite(value)) throw new StoryLoadError(`${label} must be a number`)
   return value
+}
+
+function stateValue(value: unknown, label: string): StateValue {
+  if (value === null || typeof value === 'string' || typeof value === 'boolean') return value
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  throw new StoryLoadError(`${label} must be a JSON-safe primitive value`)
 }
 
 function contentId(source: UnknownRecord, label: string) {
@@ -88,6 +98,69 @@ function parseContentList(value: unknown): StoryContent[] {
   return value.map(parseContent)
 }
 
+export function parseCondition(value: unknown, label = 'condition'): Condition {
+  const source = record(value, label)
+  const type = string(source.type, `${label}.type`)
+
+  switch (type) {
+    case 'equals':
+      return { type, key: string(source.key, `${label}.key`), value: stateValue(source.value, `${label}.value`) }
+    case 'notEquals':
+      return { type, key: string(source.key, `${label}.key`), value: stateValue(source.value, `${label}.value`) }
+    case 'greaterThan':
+    case 'greaterThanOrEqual':
+    case 'lessThan':
+    case 'lessThanOrEqual':
+      return { type, key: string(source.key, `${label}.key`), value: number(source.value, `${label}.value`) }
+    case 'exists':
+      return { type, key: string(source.key, `${label}.key`) }
+    case 'notExists':
+      return { type, key: string(source.key, `${label}.key`) }
+    case 'hasFlag':
+      return { type, key: string(source.key, `${label}.key`) }
+    case 'notFlag':
+      return { type, key: string(source.key, `${label}.key`) }
+    case 'all':
+    case 'any': {
+      if (!Array.isArray(source.conditions) || source.conditions.length === 0) {
+        throw new StoryLoadError(`${label}.conditions must contain at least one condition`)
+      }
+      return { type, conditions: source.conditions.map((nested, index) => parseCondition(nested, `${label}.conditions[${index}]`)) }
+    }
+    default:
+      throw new StoryLoadError(`Unsupported condition type: ${type}`)
+  }
+}
+
+export function parseEffect(value: unknown, label = 'effect'): Effect {
+  const source = record(value, label)
+  const type = string(source.type, `${label}.type`)
+
+  switch (type) {
+    case 'set':
+      return { type, key: string(source.key, `${label}.key`), value: stateValue(source.value, `${label}.value`) }
+    case 'increment':
+    case 'decrement':
+      return {
+        type,
+        key: string(source.key, `${label}.key`),
+        amount: source.amount === undefined ? undefined : number(source.amount, `${label}.amount`),
+      }
+    case 'setFlag':
+      return { type, key: string(source.key, `${label}.key`) }
+    case 'clearFlag':
+      return { type, key: string(source.key, `${label}.key`) }
+    default:
+      throw new StoryLoadError(`Unsupported effect type: ${type}`)
+  }
+}
+
+function parseEffects(value: unknown, label: string): Effect[] | undefined {
+  if (value === undefined) return undefined
+  if (!Array.isArray(value)) throw new StoryLoadError(`${label} must be an array`)
+  return value.map((effect, index) => parseEffect(effect, `${label}[${index}]`))
+}
+
 export function parseStoryManifest(value: unknown): StoryManifest {
   const source = record(value, 'manifest')
   const id = string(source.id, 'manifest.id')
@@ -106,16 +179,41 @@ export function parseStoryManifest(value: unknown): StoryManifest {
 export function parseStoryNode(value: unknown): StoryNode {
   const source = record(value, 'node')
   const id = string(source.id, 'node.id')
-  const title = optionalString(source.title, 'node.title')
-  const content = parseContentList(source.content)
   const type = string(source.type, 'node.type')
 
   if (type === 'narrative') {
-    return { id, type, title, content, next: string(source.next, `node ${id}.next`) } satisfies NarrativeStoryNode
+    const title = optionalString(source.title, 'node.title')
+    const content = parseContentList(source.content)
+    return { id, type, title, content, effects: parseEffects(source.effects, `node ${id}.effects`), next: string(source.next, `node ${id}.next`) } satisfies NarrativeStoryNode
   }
   if (type === 'ending') {
+    const title = optionalString(source.title, 'node.title')
+    const content = parseContentList(source.content)
     if ('next' in source) throw new StoryLoadError(`Ending node ${id} must not define next`)
-    return { id, type, title, content } satisfies EndingStoryNode
+    return { id, type, title, content, effects: parseEffects(source.effects, `node ${id}.effects`) } satisfies EndingStoryNode
+  }
+  if (type === 'conditional') {
+    if ('content' in source) throw new StoryLoadError(`Conditional node ${id} must not define content`)
+    if ('effects' in source) throw new StoryLoadError(`Conditional node ${id} must not define effects`)
+    if ('title' in source) throw new StoryLoadError(`Conditional node ${id} must not define title`)
+    if ('next' in source) throw new StoryLoadError(`Conditional node ${id} must not define next`)
+    if (!Array.isArray(source.branches) || source.branches.length === 0) {
+      throw new StoryLoadError(`Conditional node ${id}.branches must contain at least one branch`)
+    }
+    const branches = source.branches.map((branch, index) => {
+      const parsed = record(branch, `node ${id}.branches[${index}]`)
+      return {
+        when: parseCondition(parsed.when, `node ${id}.branches[${index}].when`),
+        next: string(parsed.next, `node ${id}.branches[${index}].next`),
+      }
+    })
+    const parsedNode: ConditionalStoryNode = {
+      id,
+      type,
+      branches,
+      fallback: string(source.fallback, `node ${id}.fallback`),
+    }
+    return parsedNode
   }
   throw new StoryLoadError(`Unsupported story node type: ${type}`)
 }

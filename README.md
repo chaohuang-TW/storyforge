@@ -2,16 +2,16 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 2 — Story Runtime (complete)**
+Status: **Phase 3A — Causality Foundation (development)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 Phase 0 — Foundation, Phase 1 — Book Reader, and Phase 2 — Story Runtime.
-Phase 2 adds Story Manifest and Story Content, Narrative and Ending nodes, a
-static Story Loader, a linear runtime, Story Pack assets, and a Story-to-Reader
-adapter. The Reader remains continuous and mobile-first.
+Phase 3A adds World State, a Condition Engine, an Effect Engine, Conditional
+Story Nodes, and state-aware Runtime routing. The Reader remains continuous and
+mobile-first.
 
-Choice, Condition, Effect, World State, Reader Memory, Runtime Save, and
-branching remain intentionally out of scope.
+Choice, irreversible commit, Reader Memory, Runtime persistence, and Journey81
+remain intentionally out of scope. See [the causality foundation](src/engine/causality/README.md).
 
 ## Tech stack
 
@@ -57,5 +57,6 @@ base path from `GITHUB_REPOSITORY`, while local development uses `/`.
 ## Current scope
 
 This release keeps the [Reader boundary](src/reader/README.md) independent of
-narrative progression and causality. Choice, Condition, Effect, World State,
-Reader Memory, Runtime Save, and branching remain out of scope.
+World State, Conditions, Effects, and Conditional Story Nodes. Runtime state is
+in-memory only; Choice, irreversible commit, Reader Memory, persistence, and
+Journey81 remain out of scope.
