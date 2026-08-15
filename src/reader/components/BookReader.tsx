@@ -1,0 +1,73 @@
+import { useCallback, useRef, useState } from 'react'
+import type { ReaderDocument } from '../types/reader'
+import { useReaderPreferences } from '../hooks/useReaderPreferences'
+import { useReaderProgress } from '../hooks/useReaderProgress'
+import { ReaderContentBlock } from './content/ReaderContentBlock'
+import { ReaderHeader } from './ReaderHeader'
+import { ReaderSettings } from './ReaderSettings'
+
+type BookReaderProps = {
+  document: ReaderDocument
+}
+
+export function BookReader({ document }: BookReaderProps) {
+  const contentRef = useRef<HTMLElement>(null)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const { preferences, setPreferences } = useReaderPreferences()
+  const { progress, resumeAvailable, resume, dismissResume } = useReaderProgress(document.id, contentRef)
+  const closeSettings = useCallback(() => setSettingsOpen(false), [])
+
+  return (
+    <div
+      className="book-reader"
+      data-font-size={preferences.fontSize}
+      data-line-height={preferences.lineHeight}
+      data-theme={preferences.theme}
+    >
+      <ReaderHeader
+        chapterLabel={document.chapterLabel}
+        progress={progress}
+        onOpenSettings={() => setSettingsOpen(true)}
+      />
+
+      {resumeAvailable ? (
+        <aside className="reader-resume" aria-label="上次閱讀位置">
+          <p>這個瀏覽器保留了上次的閱讀位置。</p>
+          <div>
+            <button type="button" onClick={resume}>
+              回到上次閱讀處
+            </button>
+            <button type="button" onClick={dismissResume}>
+              關閉
+            </button>
+          </div>
+        </aside>
+      ) : null}
+
+      <main className="reader-main" aria-labelledby="reader-title">
+        <header className="reader-title-page" data-reader-progress-marker="0">
+          <p className="reader-title-page__product">StoryForge</p>
+          <h1 id="reader-title">{document.title}</h1>
+          <p className="reader-title-page__subtitle">{document.subtitle}</p>
+          <p className="reader-title-page__identity">Web Interactive Novel Engine</p>
+        </header>
+
+        <article ref={contentRef} className="reader-content">
+          {document.blocks.map((block, index) => (
+            <ReaderContentBlock key={block.id} block={block} progressIndex={index + 1} />
+          ))}
+          <p className="reader-end" data-reader-progress-marker={document.blocks.length + 1}>
+            本篇示例閱讀完畢
+          </p>
+        </article>
+      </main>
+
+      <ReaderSettings
+        open={settingsOpen}
+        preferences={preferences}
+        onChange={setPreferences}
+        onClose={closeSettings}
+      />
+    </div>
+  )
+}
