@@ -10,7 +10,7 @@ test('loads only the runtime entry node in the continuous reader', async ({ page
   const response = await page.goto('/')
 
   expect(response?.ok()).toBeTruthy()
-  await expect(page).toHaveTitle('StoryForge - Web Interactive Novel Engine')
+  await expect(page).toHaveTitle('StoryForge — Web Interactive Novel Engine')
   await expect(page.getByRole('heading', { level: 1, name: '霧港書簡' })).toBeVisible()
   await expect(page.getByRole('main')).toBeVisible()
   await expect(page.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeVisible()
@@ -26,6 +26,20 @@ test('loads only the runtime entry node in the continuous reader', async ({ page
 
   const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)
   expect(hasHorizontalOverflow).toBe(false)
+})
+
+test('uses real mobile emulation for the mobile project', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile-chromium', 'Mobile profile assertion')
+
+  const mobileEnvironment = await page.evaluate(() => ({
+    maxTouchPoints: navigator.maxTouchPoints,
+    userAgent: navigator.userAgent,
+  }))
+  const mobileViewport = page.viewportSize()
+
+  expect(mobileViewport).toEqual({ width: 390, height: 844 })
+  expect(mobileEnvironment.maxTouchPoints).toBeGreaterThan(0)
+  expect(mobileEnvironment.userAgent).toContain('Mobile')
 })
 
 test('appends runtime nodes and reaches the ending without removing prior text', async ({ page }) => {

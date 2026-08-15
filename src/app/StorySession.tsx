@@ -33,31 +33,36 @@ export function StorySession({ story }: StorySessionProps) {
     }
   }
 
+  const afterContent = (
+    <>
+      {causalFeedback ? (
+        <p className="story-session__causal-feedback" aria-live="polite">
+          因果已定。
+        </p>
+      ) : null}
+
+      {pendingChoice ? (
+        <ChoicePrompt
+          choice={pendingChoice}
+          showIrreversibilityNotice={choiceHistory.length === 0}
+          onChoose={choose}
+        />
+      ) : ended ? null : (
+        <section className="story-session__advance" aria-label="故事推進">
+          <button type="button" onClick={advance}>
+            繼續閱讀
+          </button>
+        </section>
+      )}
+    </>
+  )
+
   return (
     <BookReader
       document={document}
       endMessage={ended ? '閱讀完畢' : null}
       contentComplete={ended}
-      afterContent={
-        ended ? null : pendingChoice ? (
-          <ChoicePrompt
-            choice={pendingChoice}
-            showIrreversibilityNotice={choiceHistory.length === 0}
-            onChoose={choose}
-          />
-        ) : (
-          <section className="story-session__advance" aria-label="故事推進">
-            {causalFeedback ? (
-              <p className="story-session__causal-feedback" aria-live="polite">
-                因果已定。
-              </p>
-            ) : null}
-            <button type="button" onClick={advance}>
-              繼續閱讀
-            </button>
-          </section>
-        )
-      }
+      afterContent={causalFeedback || pendingChoice || !ended ? afterContent : null}
     />
   )
 }

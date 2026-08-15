@@ -5,6 +5,8 @@ import { READER_PREFERENCES_KEY } from '../reader/hooks/useReaderPreferences'
 import { readerPositionKey } from '../reader/hooks/useReaderProgress'
 import { BookReader } from '../reader/components/BookReader'
 import { demoDocument } from '../reader/fixtures/demoDocument'
+import { StorySession } from './StorySession'
+import { loadStory } from '../engine/story-loader/loadStory'
 
 class TestIntersectionObserver {
   static instances: TestIntersectionObserver[] = []
@@ -220,6 +222,45 @@ describe('Book reader', () => {
 
     expect(progressValue()).toBeLessThan(100)
     expect(screen.getByRole('group', { name: '撥動因果' })).toBeInTheDocument()
+  })
+
+  it('shows causal feedback when a Choice commits directly to Ending', () => {
+    const story = loadStory({
+      manifest: { id: 'choice-ending-ui', title: 'Choice Ending UI', version: '0.1.0', schemaVersion: '0.1', language: 'zh-TW', entryNode: 'start' },
+      nodes: [
+        { id: 'start', type: 'narrative', content: [{ id: 'start-copy', type: 'paragraph', text: '開始。' }], next: 'choice' },
+        { id: 'choice', type: 'choice', choices: [{ id: 'finish', label: '直接結束', next: 'ending' }] },
+        { id: 'ending', type: 'ending', content: [{ id: 'ending-copy', type: 'paragraph', text: '結束。' }] },
+      ],
+    })
+    render(<StorySession story={story} />)
+
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '直接結束' }))
+
+    expect(screen.getByText('因果已定。')).toBeVisible()
+    expect(screen.getByText('閱讀完畢')).toBeVisible()
+    expect(screen.queryByRole('button', { name: '直接結束' })).not.toBeInTheDocument()
+  })
+
+  it('keeps causal feedback visible when a Choice commits into another Choice', () => {
+    const story = loadStory({
+      manifest: { id: 'choice-choice-ui', title: 'Choice Choice UI', version: '0.1.0', schemaVersion: '0.1', language: 'zh-TW', entryNode: 'start' },
+      nodes: [
+        { id: 'start', type: 'narrative', content: [{ id: 'start-copy', type: 'paragraph', text: '開始。' }], next: 'choice-a' },
+        { id: 'choice-a', type: 'choice', choices: [{ id: 'a', label: '先做 A', next: 'choice-b' }] },
+        { id: 'choice-b', type: 'choice', choices: [{ id: 'b', label: '再做 B', next: 'ending' }] },
+        { id: 'ending', type: 'ending', content: [{ id: 'ending-copy', type: 'paragraph', text: '結束。' }] },
+      ],
+    })
+    render(<StorySession story={story} />)
+
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '先做 A' }))
+
+    expect(screen.getByText('因果已定。')).toBeVisible()
+    expect(screen.getByRole('button', { name: '再做 B' })).toBeVisible()
+    expect(screen.queryByRole('button', { name: '先做 A' })).not.toBeInTheDocument()
   })
 
   it('treats a standalone ReaderDocument as complete by default', () => {

@@ -308,12 +308,13 @@
 }
 
 .story-session__causal-feedback {
-  margin: 0;
+  margin: 4rem 0 0;
   color: var(--reader-muted);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
   font-size: 0.82rem;
   font-weight: 650;
   letter-spacing: 0.04em;
+  text-align: center;
 }
 
 .choice-prompt {
