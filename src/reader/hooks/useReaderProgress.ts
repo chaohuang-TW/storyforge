@@ -21,7 +21,12 @@ function readPosition(documentId: string): ReaderPosition | null {
   }
 }
 
-export function useReaderProgress(documentId: string, contentRef: RefObject<HTMLElement | null>) {
+export function useReaderProgress(
+  documentId: string,
+  contentRef: RefObject<HTMLElement | null>,
+  contentRevision = 0,
+  contentComplete = true,
+) {
   const initialPosition = useMemo(() => readPosition(documentId), [documentId])
   const endIsVisible = useRef(false)
   const [progress, setProgress] = useState(0)
@@ -30,6 +35,7 @@ export function useReaderProgress(documentId: string, contentRef: RefObject<HTML
   )
 
   useEffect(() => {
+    endIsVisible.current = false
     const content = contentRef.current
     if (!content || typeof IntersectionObserver === 'undefined') return
 
@@ -38,14 +44,15 @@ export function useReaderProgress(documentId: string, contentRef: RefObject<HTML
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (endIsVisible.current) return
+        if (contentComplete && endIsVisible.current) return
         const visible = entries
           .filter((entry) => entry.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
         if (!visible) return
 
         const index = Number((visible.target as HTMLElement).dataset.readerProgressMarker ?? 0)
-        setProgress(Math.round((index / Math.max(1, markers.length - 1)) * 100))
+        const calculatedProgress = Math.round((index / Math.max(1, markers.length - 1)) * 100)
+        setProgress(contentComplete ? calculatedProgress : Math.min(calculatedProgress, 99))
       },
       { rootMargin: '-18% 0px -68% 0px', threshold: [0, 0.25, 0.75] },
     )
@@ -53,7 +60,7 @@ export function useReaderProgress(documentId: string, contentRef: RefObject<HTML
     const endObserver = new IntersectionObserver(
       (entries) => {
         endIsVisible.current = entries.some((entry) => entry.isIntersecting)
-        if (endIsVisible.current) setProgress(100)
+        if (contentComplete && endIsVisible.current) setProgress(100)
       },
       { threshold: 0.5 },
     )
@@ -64,7 +71,7 @@ export function useReaderProgress(documentId: string, contentRef: RefObject<HTML
       observer.disconnect()
       endObserver.disconnect()
     }
-  }, [contentRef])
+  }, [contentRef, contentRevision, contentComplete])
 
   useEffect(() => {
     if (resumeAvailable) return

@@ -1,0 +1,12 @@
+{
+  "id": "ending",
+  "type": "ending",
+  "title": "終章　寄出以後",
+  "content": [
+    { "id": "ending-divider", "type": "divider" },
+    { "id": "ending-heading", "type": "heading", "level": 3, "text": "寄出以後" },
+    { "id": "ending-1", "type": "paragraph", "text": "離開郵亭時，海上的霧正好散開一小段。遠方沒有出現答案，只有一艘緩慢前行的船，船尾把水面分成兩道安靜的線。" },
+    { "id": "ending-2", "type": "paragraph", "text": "我知道那封信未必會抵達某個確切的人手裡，但它已經不再需要停在口袋。路仍往前延伸，港口也會在傍晚亮起燈。這樣就足夠了。" },
+    { "id": "ending-quote", "type": "quote", "text": "故事沒有替人決定方向；它只是讓走過的路可以被好好讀完。" }
+  ]
+}

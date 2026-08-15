@@ -1,25 +1,65 @@
 import { expect, test } from '@playwright/test'
 
-test('renders the continuous reader and all presentation content', async ({ page }) => {
+test('loads only the runtime entry node in the continuous reader', async ({ page }) => {
   const response = await page.goto('/')
 
   expect(response?.ok()).toBeTruthy()
   await expect(page).toHaveTitle('StoryForge — Web Interactive Novel Engine')
-  await expect(page.getByRole('heading', { level: 1, name: '潮汐線以北' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: '霧港書簡' })).toBeVisible()
   await expect(page.getByRole('main')).toBeVisible()
-  await expect(page.getByText(/清晨的雨停在六點以前/)).toBeVisible()
-  await expect(page.getByText('「前面的路還通嗎？」')).toBeAttached()
-  await expect(page.getByRole('img', { name: /層疊的灰藍山丘/ })).toBeAttached()
-  await expect(page.getByText(/示例插圖：霧中的路徑/)).toBeAttached()
+  await expect(page.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeVisible()
+  await expect(page.getByText(/港口的鐘在天色尚未亮透時響了一次/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: '霧中的郵亭' })).toBeHidden()
+  await expect(page.getByRole('heading', { name: '寄出以後' })).toBeHidden()
 
   const isLongForm = await page.evaluate(() => {
-    const minimumScreens = window.innerWidth <= 430 ? 4 : 2
+    const minimumScreens = window.innerWidth <= 430 ? 1.5 : 1
     return document.documentElement.scrollHeight > window.innerHeight * minimumScreens
   })
   expect(isLongForm).toBe(true)
 
   const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)
   expect(hasHorizontalOverflow).toBe(false)
+})
+
+test('appends runtime nodes and reaches the ending without removing prior text', async ({ page }) => {
+  await page.goto('/')
+  const prologue = page.getByText(/港口的鐘在天色尚未亮透時響了一次/)
+
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await expect(prologue).toBeVisible()
+  await expect(page.getByRole('heading', { level: 3, name: '霧中的郵亭' })).toBeVisible()
+  await expect(page.getByRole('img', { name: /霧色山丘與海岸/ })).toBeAttached()
+
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await expect(prologue).toBeVisible()
+  await expect(page.getByRole('heading', { level: 3, name: '寄出以後' })).toBeVisible()
+  await expect(page.getByText('閱讀完畢')).toBeVisible()
+  await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeHidden()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false)
+})
+
+test('reaches 100% only after the actual ending', async ({ page }) => {
+  await page.goto('/')
+  const progress = page.getByRole('progressbar', { name: '閱讀進度' })
+  const prologueBottom = page.locator('#prologue-3')
+  await prologueBottom.scrollIntoViewIfNeeded()
+  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeGreaterThan(0)
+  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
+  await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeVisible()
+
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  const chapterBottom = page.locator('#chapter-3')
+  await chapterBottom.scrollIntoViewIfNeeded()
+  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeGreaterThan(0)
+  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
+  await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeVisible()
+
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  const ending = page.getByText('閱讀完畢')
+  await ending.scrollIntoViewIfNeeded()
+  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBe(100)
+  await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeHidden()
 })
 
 test('opens keyboard-accessible settings and applies reader preferences', async ({ page }) => {
@@ -45,7 +85,7 @@ test('opens keyboard-accessible settings and applies reader preferences', async 
   await expect(page.getByRole('button', { name: '閱讀設定' })).toBeFocused()
 })
 
-test('persists preferences across reload and reaches the end without overflow', async ({ page }) => {
+test('persists reader preferences across a runtime reload', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: '閱讀設定' }).click()
   const dialog = page.getByRole('dialog', { name: '閱讀設定' })
@@ -57,8 +97,6 @@ test('persists preferences across reload and reaches the end without overflow', 
   await expect(page.locator('.book-reader')).toHaveAttribute('data-font-size', 'x-large')
   await expect(page.locator('.book-reader')).toHaveAttribute('data-theme', 'light')
 
-  await page.getByText('本篇示例閱讀完畢').scrollIntoViewIfNeeded()
-  await expect(page.getByRole('progressbar', { name: '閱讀進度' })).toHaveAttribute('value', '100')
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false)
 })
 
@@ -66,18 +104,17 @@ test('preserves a saved reading position before the resume decision', async ({ p
   await page.goto('/')
   await page.evaluate(() => {
     window.localStorage.setItem(
-      'storyforge.reader.position.phase-1-reader-demo',
-      JSON.stringify({ documentId: 'phase-1-reader-demo', progress: 42, updatedAt: '2026-08-15T00:00:00.000Z' }),
+      'storyforge.reader.position.story:runtime-demo',
+      JSON.stringify({ documentId: 'story:runtime-demo', progress: 42, updatedAt: '2026-08-15T00:00:00.000Z' }),
     )
   })
   await page.reload()
 
   await expect(page.getByRole('button', { name: '回到上次閱讀處' })).toBeVisible()
-  await page.waitForTimeout(100)
-
-  const savedProgress = await page.evaluate(() => {
-    const stored = window.localStorage.getItem('storyforge.reader.position.phase-1-reader-demo')
-    return stored ? JSON.parse(stored).progress : null
-  })
-  expect(savedProgress).toBe(42)
+  await expect.poll(async () =>
+    page.evaluate(() => {
+      const stored = window.localStorage.getItem('storyforge.reader.position.story:runtime-demo')
+      return stored ? JSON.parse(stored).progress : null
+    }),
+  ).toBe(42)
 })

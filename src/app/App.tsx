@@ -1,6 +1,9 @@
-import { BookReader } from '../reader/components/BookReader'
-import { demoDocument } from '../reader/fixtures/demoDocument'
+import { loadStory } from '../engine/story-loader/loadStory'
+import { StorySession } from './StorySession'
+import { runtimeDemoPack } from './storyPacks/runtimeDemo'
+
+const runtimeDemoStory = loadStory(runtimeDemoPack)
 
 export function App() {
-  return <BookReader document={demoDocument} />
+  return <StorySession story={runtimeDemoStory} />
 }

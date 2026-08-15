@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, type ReactNode } from 'react'
 import type { ReaderDocument } from '../types/reader'
 import { useReaderPreferences } from '../hooks/useReaderPreferences'
 import { useReaderProgress } from '../hooks/useReaderProgress'
@@ -8,13 +8,26 @@ import { ReaderSettings } from './ReaderSettings'
 
 type BookReaderProps = {
   document: ReaderDocument
+  afterContent?: ReactNode
+  endMessage?: string | null
+  contentComplete?: boolean
 }
 
-export function BookReader({ document }: BookReaderProps) {
+export function BookReader({
+  document,
+  afterContent,
+  endMessage = '本篇示例閱讀完畢',
+  contentComplete = true,
+}: BookReaderProps) {
   const contentRef = useRef<HTMLElement>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const { preferences, setPreferences } = useReaderPreferences()
-  const { progress, resumeAvailable, resume, dismissResume } = useReaderProgress(document.id, contentRef)
+  const { progress, resumeAvailable, resume, dismissResume } = useReaderProgress(
+    document.id,
+    contentRef,
+    document.blocks.length,
+    contentComplete,
+  )
   const closeSettings = useCallback(() => setSettingsOpen(false), [])
 
   return (
@@ -48,7 +61,7 @@ export function BookReader({ document }: BookReaderProps) {
         <header className="reader-title-page" data-reader-progress-marker="0">
           <p className="reader-title-page__product">StoryForge</p>
           <h1 id="reader-title">{document.title}</h1>
-          <p className="reader-title-page__subtitle">{document.subtitle}</p>
+          {document.subtitle ? <p className="reader-title-page__subtitle">{document.subtitle}</p> : null}
           <p className="reader-title-page__identity">Web Interactive Novel Engine</p>
         </header>
 
@@ -56,9 +69,14 @@ export function BookReader({ document }: BookReaderProps) {
           {document.blocks.map((block, index) => (
             <ReaderContentBlock key={block.id} block={block} progressIndex={index + 1} />
           ))}
-          <p className="reader-end" data-reader-progress-marker={document.blocks.length + 1}>
-            本篇示例閱讀完畢
-          </p>
+          {afterContent}
+          {endMessage ? (
+            <p className="reader-end" data-reader-progress-marker={document.blocks.length + 1}>
+              {endMessage}
+            </p>
+          ) : (
+            <div className="reader-end-marker" data-reader-progress-marker={document.blocks.length + 1} aria-hidden="true" />
+          )}
         </article>
       </main>
 

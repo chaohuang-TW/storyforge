@@ -52,7 +52,7 @@ export type ReaderBlock =
 export type ReaderDocument = {
   id: string
   title: string
-  subtitle: string
+  subtitle?: string
   chapterLabel: string
   blocks: ReaderBlock[]
 }

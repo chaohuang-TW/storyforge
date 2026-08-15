@@ -2,12 +2,15 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 1 — Book Reader (complete)**
+Status: **Phase 2 — Story Runtime (development)**
 
-StoryForge is a reading-first Web Interactive Novel Engine. Phase 1 adds a
-continuous, mobile-first book reader with presentation-only content blocks,
-reader preferences, reading progress, and approximate position restoration.
-It does not implement a story runtime, branching, causal state, or Story Pack.
+StoryForge is a reading-first Web Interactive Novel Engine. Phase 2 adds a
+Story Manifest, Narrative and Ending nodes, a static Story Loader, a linear
+runtime, and a Story-to-Reader adapter. The Reader remains continuous and
+mobile-first.
+
+Choice, Condition, Effect, World State, Reader Memory, Runtime Save, and
+branching remain intentionally out of scope.
 
 ## Tech stack
 
