@@ -1,0 +1,65 @@
+.book-reader {
+  --reader-bg: #f3f5f6;
+  --reader-surface: #e9edef;
+  --reader-surface-strong: #dce3e6;
+  --reader-text: #1b2428;
+  --reader-muted: #58666d;
+  --reader-border: #c9d2d6;
+  --reader-accent: #3e6873;
+  --reader-accent-contrast: #f7fafb;
+  --reader-focus: #356f80;
+  --reader-overlay: rgb(13 22 26 / 0.52);
+  --reader-font-size: 1.125rem;
+  --reader-line-height: 1.92;
+  color-scheme: light;
+}
+
+.book-reader[data-theme="dark"] {
+  --reader-bg: #151b1e;
+  --reader-surface: #1d262a;
+  --reader-surface-strong: #263237;
+  --reader-text: #e8edef;
+  --reader-muted: #a9b6bc;
+  --reader-border: #3b494f;
+  --reader-accent: #89b7c2;
+  --reader-accent-contrast: #101719;
+  --reader-focus: #8dc7d5;
+  --reader-overlay: rgb(3 7 9 / 0.72);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  .book-reader[data-theme="system"] {
+    --reader-bg: #151b1e;
+    --reader-surface: #1d262a;
+    --reader-surface-strong: #263237;
+    --reader-text: #e8edef;
+    --reader-muted: #a9b6bc;
+    --reader-border: #3b494f;
+    --reader-accent: #89b7c2;
+    --reader-accent-contrast: #101719;
+    --reader-focus: #8dc7d5;
+    --reader-overlay: rgb(3 7 9 / 0.72);
+    color-scheme: dark;
+  }
+}
+
+.book-reader[data-font-size="small"] {
+  --reader-font-size: 1rem;
+}
+
+.book-reader[data-font-size="large"] {
+  --reader-font-size: 1.25rem;
+}
+
+.book-reader[data-font-size="x-large"] {
+  --reader-font-size: 1.375rem;
+}
+
+.book-reader[data-line-height="compact"] {
+  --reader-line-height: 1.72;
+}
+
+.book-reader[data-line-height="relaxed"] {
+  --reader-line-height: 2.08;
+}

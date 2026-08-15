@@ -2,12 +2,12 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 0 — Foundation**
+Status: **Phase 1 - Book Reader (development)**
 
-StoryForge is a reading-first, static web foundation for a future interactive
-novel engine. Phase 0 establishes engineering boundaries and delivery quality;
-it does not implement a reader, story engine, story schema, choices, saves, or
-any Story Pack.
+StoryForge is a reading-first Web Interactive Novel Engine. Phase 1 adds a
+continuous, mobile-first book reader with presentation-only content blocks,
+reader preferences, reading progress, and approximate position restoration.
+It does not implement a story runtime, branching, causal state, or Story Pack.
 
 ## Tech stack
 
@@ -50,8 +50,8 @@ architecture](docs/architecture/foundation.md).
 The Pages workflow deploys `dist/` from `main`. Vite derives a project-pages
 base path from `GITHUB_REPOSITORY`, while local development uses `/`.
 
-## Current scope and next phase
+## Current scope
 
-This repository is intentionally limited to Phase 0. A later, explicitly
-approved phase may introduce product capabilities while preserving the
-architecture documented here.
+This branch is intentionally limited to the Book Reader. See the [Reader
+boundary](src/reader/README.md). Later phases may supply content to the Reader,
+but the Reader remains independent of narrative progression and causality.
