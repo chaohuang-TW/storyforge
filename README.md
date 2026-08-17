@@ -2,7 +2,7 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 4B — Bookmark & Run Lifecycle UX (complete)**
+Status: **Phase 5 — Story Validator (development)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 Phase 0 — Foundation, Phase 1 — Book Reader, Phase 2 — Story Runtime, Phase
@@ -66,6 +66,45 @@ never restores earlier World State, Choice History, or Runtime state.
 A new run is available after the ending and clears the active Runtime save,
 Bookmark, and reading position while preserving Reader preferences. Phase 4B
 does not retain completed runs as loadable history.
+
+## Story validation
+
+The Story Validator runs independently of the Reader and Runtime and rejects
+structurally invalid Story Packs before production build or deployment:
+
+```text
+Push
+→ CI
+→ lint
+→ typecheck
+→ test
+→ Story Validate
+→ build
+→ E2E
+→ Pages
+```
+
+Run it locally with:
+
+```bash
+npm run story:validate
+```
+
+Phase 5 reuses the existing Story schema parser and validates manifest and
+schema compatibility, node references, structural reachability, non-ending
+dead ends, cycles, reachable endings, and Story Pack-local asset references.
+Reachability is structural: it follows every declared graph edge and does not
+attempt symbolic evaluation of every possible World State. The current Story
+graph contract remains acyclic, so any structural cycle is an error. Story
+illustration assets are logical keys: every key must resolve through the
+Story Pack asset map used by Runtime. The filesystem CLI derives one canonical
+key per repository-local asset using its extensionless path relative to the
+Story Pack `assets/` directory. Asset keys may not escape the Story Pack root;
+the validator does not fetch network URLs or bypass exact-key resolution for
+URL-looking references.
+
+The validator is a read-only build-time check. It does not auto-fix Story Pack
+files, execute Runtime choices, mutate World State, or run in the browser.
 
 In normal LocalStorage conditions, committed causality, the currently visible
 story, Choice History, pending Choice, and World State survive reload and
@@ -135,4 +174,8 @@ The following remain intentionally out of scope:
 - Achievements — NOT IMPLEMENTED
 - Journey81 — NOT IMPLEMENTED
 - Multiple Bookmarks — NOT IMPLEMENTED
-- Phase 5 — NOT STARTED
+- Story Studio — NOT IMPLEMENTED
+- Graph Editor — NOT IMPLEMENTED
+- AI authoring — NOT IMPLEMENTED
+- Phase 5 — IN DEVELOPMENT
+- Phase 6 — NOT STARTED
