@@ -1,0 +1,14 @@
+{
+  "id": "wuxing-mist",
+  "type": "narrative",
+  "title": "五行山・霧裡的聲音",
+  "content": [
+    { "id": "wuxing-mist-p1", "type": "paragraph", "text": "霧沒有散。它把石縫、僧人的手和那雙眼睛分成幾個不完整的形狀。唐僧先聽見石下的人呼吸，再聽見他笑，最後才在霧後看見一點抬起的下巴。" },
+    { "id": "wuxing-mist-dialogue", "type": "dialogue", "lines": ["你看不清我。", "我先聽清你。", "聽見之後呢？", "之後再走近。"] },
+    { "id": "wuxing-mist-p2", "type": "paragraph", "text": "霧讓相遇慢了一刻。那一刻沒有把誰變成好人，也沒有替誰洗去過去，只讓唐僧知道：一個人的聲音可以在臉以前抵達，而抵達並不等於理解。" },
+    { "id": "wuxing-mist-p3", "type": "paragraph", "text": "等霧稍微鬆開，唐僧才看見那雙眼睛。它們比傳聞更近，也比任何答案更難安放。" },
+    { "id": "wuxing-mist-p4", "type": "paragraph", "text": "悟空問他是不是怕了。唐僧說，怕與不怕都不該搶在看清楚以前。悟空哼了一聲，像不認同；可他把伸出石縫的手收慢了一點，沒有讓那個動作變成挑釁。" },
+    { "id": "wuxing-mist-p5", "type": "paragraph", "text": "霧的邊緣掛在兩人之間，並不替誰說話。它只讓每一步都必須自己承擔，讓一個聲音先抵達之後，還有一段路要由眼睛與心各走一次。" }
+  ],
+  "next": "wuxing-rejoin"
+}

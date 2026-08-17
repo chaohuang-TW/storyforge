@@ -1,0 +1,14 @@
+{
+  "id": "whitebone-outcome-canon",
+  "type": "narrative",
+  "title": "白骨嶺・看不見的證詞",
+  "content": [
+    { "id": "whitebone-outcome-canon-p1", "type": "paragraph", "text": "最初的水面已經乾了。唐僧仍記得悟空說她是妖，卻沒有一件可以放在八戒與沙悟淨面前的證物。對其他人來說，這只是一個突然出現又突然離開的婦人。" },
+    { "id": "whitebone-outcome-canon-p2", "type": "paragraph", "text": "悟空說得越快，唐僧越難跟上。他把危險看成一條已經伸到眼前的蛇，唐僧卻只看見一個人走進山裡。兩種看見沒有誰比較高明，但它們不能永遠由同一雙手決定。" },
+    { "id": "whitebone-outcome-canon-dialogue", "type": "dialogue", "lines": ["你先離開隊伍。", "師父，你叫我走？", "我叫你離開，不是因為我認定你錯。", "可你還是不肯認定我對。", "我不能只把判斷交給一個人的棍子。"] },
+    { "id": "whitebone-outcome-canon-p3", "type": "paragraph", "text": "悟空看了唐僧很久。他最後把棒扛回肩上，轉身走向沒有水聲的山路。唐僧沒有追，因為他知道自己要求的不是悟空停止看見，而是停止用看見替所有人做完決定。" },
+    { "id": "whitebone-outcome-canon-p4", "type": "paragraph", "text": "悟空走出十步，回頭問唐僧有沒有記住那個婦人。唐僧說記住了。悟空又問記住的是她的臉，還是自己沒有證明的判斷。唐僧沉默很久，說兩者都會留在心裡。" },
+    { "id": "whitebone-outcome-canon-p5", "type": "paragraph", "text": "這個回答沒有挽留他。悟空把目光移開，腳步越走越快，像只要快一點，便能讓自己不必聽見身後那個沒有追上來的聲音。" }
+  ],
+  "next": "whitebone-rejoin"
+}

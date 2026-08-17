@@ -1,0 +1,13 @@
+{
+  "id": "wuxing-light",
+  "type": "narrative",
+  "title": "五行山・一線天光",
+  "content": [
+    { "id": "wuxing-light-p1", "type": "paragraph", "text": "雲縫被光撐開一瞬。那一瞬並不壯觀，只夠照亮石下人的半張臉，照亮眉骨旁多年風霜留下的細線，也照亮他看向僧人時沒有閃避的目光。" },
+    { "id": "wuxing-light-illustration", "type": "illustration", "asset": "wuxing-release", "alt": "一線天光穿過雲縫落在五行山石台，僧人與石下的眼睛隔光相望", "width": 1200, "height": 700 },
+    { "id": "wuxing-light-dialogue", "type": "dialogue", "lines": ["你看起來不像傳聞裡那麼遠。", "傳聞若能替人看路，就不必有腳了。", "我會想辦法讓你走。"] },
+    { "id": "wuxing-light-p2", "type": "paragraph", "text": "僧人說完才發現自己說得太快。他沒有承諾怎麼做，也沒有問對方是否願意跟隨。可光已經先替他們留下了一個共同的畫面：唐僧記住了那雙眼睛，也記住了眼睛後面那個不肯低頭的人。" },
+    { "id": "wuxing-light-p3", "type": "paragraph", "text": "光退回雲後，悟空仍朝唐僧站著。那張臉又有一半回到陰影，可唐僧不能把剛才看見的清楚也一併還回去。看見過就是看見過，正如一個人聽見自己的名字被喊過，之後再安靜也不會真的沒有聲音。" }
+  ],
+  "next": "wuxing-rejoin"
+}

@@ -1,0 +1,30 @@
+{
+  "id": "whitebone-outcome-memory",
+  "type": "narrative",
+  "title": "白骨嶺・提前看見的人",
+  "content": [
+    { "id": "whitebone-outcome-memory-p1", "type": "paragraph", "text": "這一次，唐僧很早就知道那不是凡人。水光替所有人拉開一點時間，讓他不必只在悟空的怒氣與婦人的笑容之間選邊。他有了較完整的資訊，卻仍然沒有一個不會傷人的決定。" },
+    { "id": "whitebone-outcome-memory-p2", "type": "paragraph", "text": "悟空以為自己終於被證明，於是更快地向前。唐僧伸手擋住他，手指在棒身前停得很近。這個動作沒有否定悟空看見的真相，卻讓悟空感到自己的方法再次被拒絕。" },
+    { "id": "whitebone-outcome-memory-illustration", "type": "illustration", "asset": "monkey-departure", "alt": "悟空在白骨嶺夜色中背起金箍棒轉身離去，唐僧留在泉邊的微光裡", "width": 1200, "height": 700 },
+    { "id": "whitebone-outcome-memory-dialogue", "type": "dialogue", "lines": ["師父，你既然知道，為什麼還要攔？", "因為我不想用你的怒氣替我完成慈悲。", "那你自己留下。", "我會留下。你可以先走。"] },
+    { "id": "whitebone-outcome-memory-p3", "type": "paragraph", "text": "悟空沒有再爭。他把所有想解釋的話壓回去，轉身離開。知道更多沒有救下所有人，只讓衝突提早到來，也讓每個人更清楚自己願意付出什麼代價。" },
+    { "id": "whitebone-outcome-memory-p4", "type": "paragraph", "text": "唐僧站在原地，忽然想起那個沒有人看見的破綻。並不是有人在樹後注視，而是每一個細節都像被山風替它留下位置。這個念頭沒有名字，他也沒有把它說出來。" },
+    { "id": "whitebone-outcome-memory-p5", "type": "paragraph", "text": "他只對八戒與沙悟淨說，明天仍然向西。兩人都知道這句話不是對悟空的否定，也不是對自己的安慰；它只是讓隊伍在失去一個人之後，還有一條可以開始走的路。" },
+    { "id": "whitebone-outcome-memory-p6", "type": "paragraph", "text": "八戒在悟空消失的方向站了很久。他說，如果早知道水會照出骨頭，自己也許會看得更仔細。沙悟淨問他上一輪是不是沒有看見，八戒說，沒有看見不代表沒有在那裡，只代表那一次自己只顧著找吃的。" },
+    { "id": "whitebone-outcome-memory-p7", "type": "paragraph", "text": "唐僧沒有責備他。每個人都只能在自己看見的範圍裡行動，這也是他與悟空爭執的根源：悟空要的是別人相信他的眼睛，唐僧要的是所有人都承認眼睛會有邊界。" },
+    { "id": "whitebone-outcome-memory-p8", "type": "paragraph", "text": "遠處傳來金箍棒碰石的聲音，一下，又一下，最後消失在山後。那不是召喚，也不是道別，只是悟空走路時留下的節奏。唐僧聽著它，知道自己已經無法把這一夜改回上一輪。" },
+    { "id": "whitebone-outcome-memory-p9", "type": "paragraph", "text": "記憶讓這一輪多了一個選項，卻沒有給他們一個比較輕的結局。它只讓白骨精的破綻早一點被共享，讓唐僧與悟空更早抵達彼此不能讓步的地方。書頁往後翻，留下的不是獎賞，而是一道更清楚的裂縫。" },
+    { "id": "whitebone-outcome-memory-p10", "type": "paragraph", "text": "悟空離開前，把一小段乾糧丟給八戒。八戒接住後說，這算賠罪還是道別。悟空說都不是，只是他不想帶著。八戒把乾糧收好，沒有再追問，因為有些關心說得越清楚，越像要求對方回頭。" },
+    { "id": "whitebone-outcome-memory-p11", "type": "paragraph", "text": "唐僧看著悟空的背影縮成山路上的一點黑。他知道記憶讓真相來得更早，也讓自己沒有地方躲；如果沒有那道水光，他或許還能把一切歸回悟空的偏執，現在卻必須承認自己看見了，仍然選擇攔下他。" },
+    { "id": "whitebone-outcome-memory-p12", "type": "paragraph", "text": "八戒說，這樣算不算所有人都輸了。沙悟淨說，還沒有到可以下結論的地方。唐僧說，西行本來就不是一條等著公布答案的路。三個人的聲音在夜裡交疊，少了一個人，卻沒有因此變得比較一致。" },
+    { "id": "whitebone-outcome-memory-p13", "type": "paragraph", "text": "水面最後一次映出骨白，接著只剩月亮。你知道上一輪曾經看過它，所以這一次的提前並不等於作弊；它更像一本書允許讀者帶著讀過的頁面回來，看看同一個人是否會在不同條件下做出不同的選擇。" },
+    { "id": "whitebone-outcome-memory-p14", "type": "paragraph", "text": "八戒說，若下次還遇到那個婦人，自己要先把菜籃翻過來看。唐僧說，不能把每個陌生人都當成籃底有骨頭的人。八戒說，那至少可以先看水。" },
+    { "id": "whitebone-outcome-memory-p15", "type": "paragraph", "text": "沙悟淨沒有加入爭論。他把悟空的水囊掛好，讓皮革在行走時一下一下碰著行李。那個聲音很輕，卻像替離隊的人保留一個仍然可能回來的節拍。" },
+    { "id": "whitebone-outcome-memory-p16", "type": "paragraph", "text": "唐僧最後看向泉面。骨相已經不在，破綻也不在，只有一片被月光分開又合上的水。他知道記得一件事，不代表永遠能控制它；記憶只是讓下一次相遇不必從空白開始。" },
+    { "id": "whitebone-outcome-memory-p17", "type": "paragraph", "text": "隊伍向西走去。你仍然沒有走進他們中間，只在書頁邊緣保留那個知道：下一次翻回來，這片水也許會以另一種方式發光。" },
+    { "id": "whitebone-outcome-memory-p18", "type": "paragraph", "text": "路邊的草被夜露壓低，像一群沒有發言的人。唐僧走過時，沒有把它們扶起來；他只知道它們曾經承受過重量，明天會在自己的時間裡重新抬頭。" },
+    { "id": "whitebone-outcome-memory-p19", "type": "paragraph", "text": "你也一樣。你沒有得到一個可以替角色收好一切的結局，只得到一個會在下一輪仍然存在的記得。書頁不替誰保管答案，只把那道裂縫留在原處，等下一次閱讀時，讓你看見自己曾經如何走到這裡。" },
+    { "id": "whitebone-outcome-memory-p20", "type": "paragraph", "text": "當最後一點水光熄滅，沒有人替這場相遇蓋章。留下來的是各自帶走的重量：悟空帶走未被採用的判斷，唐僧帶走不能再假裝沒看見的責任，八戒與沙悟淨則帶走一條仍要繼續走的路。" }
+  ],
+  "next": "whitebone-rejoin"
+}

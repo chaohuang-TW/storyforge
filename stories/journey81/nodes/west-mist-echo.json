@@ -1,0 +1,13 @@
+{
+  "id": "west-mist-echo",
+  "type": "narrative",
+  "title": "西行・聲音留下的路",
+  "content": [
+    { "id": "west-mist-echo-p1", "type": "paragraph", "text": "唐僧記得的不是悟空的臉，而是霧裡先傳來的聲音。那個聲音在看見之前就已經有了重量，讓他明白理解一個人不能只靠一眼。" },
+    { "id": "west-mist-echo-p2", "type": "paragraph", "text": "所以當悟空又用一句太快的話把八戒噎回去，唐僧沒有立刻責備。他先聽完話裡的急，再去看急從哪裡來。悟空皺了皺眉，像不習慣有人把他的沉默也算進來。" },
+    { "id": "west-mist-echo-p3", "type": "paragraph", "text": "風從林外穿過，霧的記憶沒有散去，只是換成另一種慢。" },
+    { "id": "west-mist-echo-p4", "type": "paragraph", "text": "唐僧問悟空，如果當時先看見的是一張怒著的臉，他還會不會跟著自己走。悟空說，自己跟的是路，不是人。說完他又補了一句：路若走錯，人也會一起錯。" },
+    { "id": "west-mist-echo-p5", "type": "paragraph", "text": "唐僧沒有說他同意。霧裡的聲音總是先抵達，真正的回答卻常常要等很久才找到形狀。" }
+  ],
+  "next": "west-rejoin"
+}

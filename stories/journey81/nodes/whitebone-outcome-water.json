@@ -1,0 +1,14 @@
+{
+  "id": "whitebone-outcome-water",
+  "type": "narrative",
+  "title": "白骨嶺・部分證據",
+  "content": [
+    { "id": "whitebone-outcome-water-p1", "type": "paragraph", "text": "唐僧看過水裡的破綻，所以不能再把一切歸回悟空看錯。他知道婦人身上有異，也知道這個異不能自動推出下一個命令。證據讓他的語氣更穩，卻沒有替他的手找出答案。" },
+    { "id": "whitebone-outcome-water-p2", "type": "paragraph", "text": "悟空聽見了這個差別，卻只聽見前半句。當唐僧說「先讓她走」，悟空的怒氣立刻把後半句撞散：就算對方是妖，力量是不是只能用一種方式落下？" },
+    { "id": "whitebone-outcome-water-dialogue", "type": "dialogue", "lines": ["你已經看見她不是凡人。", "我看見了。", "那為什麼還攔我？", "因為看見真相，和決定如何使用力量，是兩件事。", "你總要把兩件事分開。", "不分開，真相也會變成另一種傷人。"] },
+    { "id": "whitebone-outcome-water-p3", "type": "paragraph", "text": "悟空把目光移向泉底。水已經恢復平靜，像什麼都沒有發生。他把棒背到身後，卻沒有再留下。" },
+    { "id": "whitebone-outcome-water-p4", "type": "paragraph", "text": "唐僧想把那句「我知道」再說一次，卻發現重複不會讓它更有力。悟空已經知道自己被看見，也知道被看見的只是判斷的一半。另一半是手段，是每一次出手時願意承擔的後果。" },
+    { "id": "whitebone-outcome-water-p5", "type": "paragraph", "text": "八戒追了兩步，又停下。他說悟空回來時記得帶些吃的；悟空沒有回頭，只把手臂抬了一下，算是聽見。" }
+  ],
+  "next": "whitebone-rejoin"
+}

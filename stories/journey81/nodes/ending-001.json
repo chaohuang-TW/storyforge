@@ -1,0 +1,13 @@
+{
+  "id": "ending-001",
+  "type": "ending",
+  "title": "卷一・路還向西",
+  "content": [
+    { "id": "ending-001-heading", "type": "heading", "level": 2, "kicker": "卷一", "text": "路還向西" },
+    { "id": "ending-001-p1", "type": "paragraph", "text": "夜裡，取經隊伍重新上路。泉水聲退到身後，白骨嶺的山影伏在雲下。悟空走向另一條路，唐僧走向西方；兩邊都沒有得到一個能把事情說完的結論。" },
+    { "id": "ending-001-illustration", "type": "illustration", "asset": "westward-afterglow", "alt": "夜色與微亮交界的西行古道向遠方延伸，離隊的身影與取經隊伍各自走向地平線", "caption": "路仍然向西，問題也仍然在路上。", "width": 1200, "height": 700 },
+    { "id": "ending-001-p2", "type": "paragraph", "text": "你沒有替任何人選擇原諒，也沒有把誰救成故事裡唯一正確的人。你只讓一束光、一片霧、一圈水光，或一個被記得的破綻，提早抵達某個人的眼前。" },
+    { "id": "ending-001-p3", "type": "paragraph", "text": "走遠之後，唐僧回頭看了一次。那裡沒有答案，只有一頁在夜風裡沒有被吹走的空白。" },
+    { "id": "ending-001-p4", "type": "paragraph", "text": "空白上或許會留下新的字，或許仍然什麼都沒有。你不能替它決定。你只能記得，曾經有一刻，某個人看見了另一個人，而那個看見既沒有拯救他們，也沒有白白經過。" }
+  ]
+}

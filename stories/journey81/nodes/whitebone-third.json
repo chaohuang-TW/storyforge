@@ -1,0 +1,16 @@
+{
+  "id": "whitebone-third",
+  "type": "narrative",
+  "title": "白骨嶺・骨相",
+  "content": [
+    { "id": "whitebone-third-p1", "type": "paragraph", "text": "那個人走到泉邊，仍是灰衣婦人的臉，卻沒有帶竹籃。她伸手想碰水，水面先退開了一小圈。這一次，所有人都看見了水下的白：不是腕骨的輪廓，而是一具骨架短暫映在不該有影子的地方。" },
+    { "id": "whitebone-third-illustration", "type": "illustration", "asset": "bone-reflection", "alt": "白骨精的骨相在泉水倒影中短暫顯現，四個人都看見了同一個破綻", "width": 1200, "height": 700 },
+    { "id": "whitebone-third-p2", "type": "paragraph", "text": "悟空的棒抬起又停住。唐僧向前半步又停住。八戒咽了口氣，沙悟淨把手放在行李上。每個人都知道發生了什麼，卻沒有人因此獲得一個沒有代價的選擇。" },
+    { "id": "whitebone-third-dialogue", "type": "dialogue", "lines": ["現在你們都看見了。", "看見不是允許你傷人。", "那什麼才是允許？", "也許先是讓我們活著想完。"] },
+    { "id": "whitebone-third-p3", "type": "paragraph", "text": "白骨精的臉在水面上碎了一下。她沒有大笑，也沒有急著逃。她只是看著唐僧，像在等待他把慈悲與恐懼分清楚。" },
+    { "id": "whitebone-third-p4", "type": "paragraph", "text": "她說自己沒有騙人，因為她從未答應過要成為凡人。她只是借了一張凡人的臉，借了一個人會相信的理由。這句話讓八戒生氣，因為它聽起來像在嘲笑所有想把世界分清楚的人。" },
+    { "id": "whitebone-third-p5", "type": "paragraph", "text": "悟空的棍影落在水邊，沒有落在她身上。地面裂開一道細縫，水便從縫裡繞過去。那不是寬容，也不是失手，只是一個仍然由悟空自己做出的停頓。" }
+  ],
+  "effects": [{ "type": "remember", "key": "journey81.white-bone-truth" }],
+  "next": "whitebone-truth"
+}

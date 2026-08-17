@@ -1,0 +1,14 @@
+{
+  "id": "west-rejoin",
+  "type": "narrative",
+  "title": "西行・水聲靠近",
+  "content": [
+    { "id": "west-rejoin-p1", "type": "paragraph", "text": "傍晚時，他們終於看見水。山泉從白骨嶺的石縫裡流下來，繞過枯樹與一籃剛摘的野菜。籃子的主人是個披著灰衣的婦人，站在泉邊，像早已知道有人會經過。" },
+    { "id": "west-rejoin-illustration", "type": "illustration", "asset": "whitebone-ridge", "alt": "白骨嶺的山泉沿著灰白山脊流下，遠處四名旅人走向泉邊的婦人", "width": 1200, "height": 700 },
+    { "id": "west-rejoin-dialogue", "type": "dialogue", "lines": ["幾位長途跋涉，喝口水吧。", "水可以喝，來處要問。", "猴子說話倒是直。", "他不是猴子，是我徒弟。", "那便更該知道，直話有時會割傷人。"] },
+    { "id": "west-rejoin-p2", "type": "paragraph", "text": "婦人笑得恰到好處。悟空的手已經握上棒身，唐僧卻先看向泉水。水面平靜得太整齊，連一片落葉都沒有。" },
+    { "id": "west-rejoin-p3", "type": "paragraph", "text": "八戒伸手想拿果子，被悟空用棒尾擋住。八戒嚷著自己只是確認有沒有毒，悟空說確認的方法不是把它咬一口。沙悟淨默默把水袋往後挪，讓每個人都能看見水面。" },
+    { "id": "west-rejoin-p4", "type": "paragraph", "text": "婦人看著這些小動作，像在讀一篇沒有標點的文章。她知道誰會先餓、誰會先怒、誰會先替別人收拾，也知道唐僧最想保住的不是一個陌生人的清白，而是隊伍仍然能一起走下去的可能。" }
+  ],
+  "next": "whitebone-001"
+}

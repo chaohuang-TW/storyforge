@@ -1,0 +1,17 @@
+{
+  "id": "whitebone-002",
+  "type": "narrative",
+  "title": "白骨嶺・水面的不合理",
+  "content": [
+    { "id": "whitebone-002-p1", "type": "paragraph", "text": "泉水繞過竹籃底部。籃子裡的菜葉沒有濕，籃底的影子卻先在水面上晃了一下。唐僧走近，想替婦人把籃子扶穩；悟空伸手攔住他，動作太快，水面因此起了第二圈波紋。" },
+    { "id": "whitebone-002-illustration", "type": "illustration", "asset": "basket-stream", "alt": "清澈山泉漫過竹籃底部，水面倒影短暫露出不合理的骨白輪廓", "caption": "真相有時只肯在倒影裡停一瞬。", "width": 1200, "height": 700 },
+    { "id": "whitebone-002-p2", "type": "paragraph", "text": "婦人把籃子往後收了一點。她沒有生氣，只把一枚果子放到掌心，像要讓所有人看見自己手指的溫度。唐僧看見的是一個受驚的凡人；悟空看見的是一個把慌張演得太熟的人。" },
+    { "id": "whitebone-002-dialogue", "type": "dialogue", "lines": ["悟空，先放下棒。", "她要是再往前一步，就不是一籃菜的事。", "可我現在只看見一個人。", "所以你要我相信你的眼睛，還是相信我眼前的路？"] },
+    { "id": "whitebone-002-p3", "type": "paragraph", "text": "悟空的指節收緊。八戒看看婦人，又看看水，最後小聲說：" },
+    { "id": "whitebone-002-dialogue-2", "type": "dialogue", "lines": ["我只想知道那籃子裡有沒有能吃的。可是現在看起來，先吃虧的可能是我們。"] },
+    { "id": "whitebone-002-p4", "type": "paragraph", "text": "沒有人笑。山泉把遠處的聲音帶近，也把每個人的看法分成幾道水紋。你能碰到的只有其中一件事，不能替任何人宣布誰才是對的。" },
+    { "id": "whitebone-002-p5", "type": "paragraph", "text": "悟空把棒尖貼在地面，沒有敲下去。他的手背繃出一條青筋，像把整座山的危險先壓在自己身上。唐僧看見了那條青筋，卻不知道悟空是在保護誰，還是在等待自己終於承認他沒有看錯。" },
+    { "id": "whitebone-002-p6", "type": "paragraph", "text": "婦人把水倒進木碗。水流出的聲音很普通，普通到近乎刻意。八戒低頭看著碗沿，忽然說，真正奇怪的東西常常會先學會普通。" }
+  ],
+  "next": "whitebone-choice"
+}

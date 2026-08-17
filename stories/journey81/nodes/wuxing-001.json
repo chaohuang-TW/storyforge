@@ -1,0 +1,16 @@
+{
+  "id": "wuxing-001",
+  "type": "narrative",
+  "title": "五行山・石下的聲音",
+  "content": [
+    { "id": "wuxing-001-heading", "type": "heading", "level": 3, "kicker": "五行山", "text": "石下的聲音" },
+    { "id": "wuxing-001-p1", "type": "paragraph", "text": "五行山不像一座山，更像一件被時間壓住的器物。五色石層層疊在山腰，縫隙裡長出細瘦的草。僧人走近時，山腹傳出一聲短促的笑，笑意裡沒有歡迎，只有多年不曾被問起的耐心。" },
+    { "id": "wuxing-001-illustration", "type": "illustration", "asset": "wuxing-mountain", "alt": "五行山的層疊岩壁壓住山腰，細草在水墨石縫間向風低伏", "width": 1200, "height": 700 },
+    { "id": "wuxing-001-dialogue", "type": "dialogue", "lines": ["山下有人？", "有人。你走得太慢了。", "我不急著趕路。"] },
+    { "id": "wuxing-001-p2", "type": "paragraph", "text": "石縫裡的聲音沉默了一會兒。那不是一個願意把自己交給陌生人的聲音，卻也不是拒絕。僧人將手掌貼在粗糙的石面上，隔著石頭，聽見另一個人也在那裡聽。" },
+    { "id": "wuxing-001-p3", "type": "paragraph", "text": "他們還沒有真正看見彼此。可一場取經，往往在看見之前就已經開始：先是一個聲音，一次停步，和一個不知道該不該再靠近的空隙。" },
+    { "id": "wuxing-001-p4", "type": "paragraph", "text": "石下的人問起外面的天氣，唐僧說有雲。問起山下的路，唐僧說有風。悟空笑他回答得像一本沒寫完的書，唐僧卻說，沒寫完的書才有地方讓人走進去。" },
+    { "id": "wuxing-001-p5", "type": "paragraph", "text": "這句話沒有讓悟空立刻相信他。只是石縫裡的呼吸從防備變成了等待，像一個被困得太久的人，還不願承認自己正在盼望。" }
+  ],
+  "next": "wuxing-002"
+}

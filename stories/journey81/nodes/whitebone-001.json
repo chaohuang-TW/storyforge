@@ -1,0 +1,16 @@
+{
+  "id": "whitebone-001",
+  "type": "narrative",
+  "title": "白骨嶺・來喝水的人",
+  "content": [
+    { "id": "whitebone-001-heading", "type": "heading", "level": 3, "kicker": "白骨嶺", "text": "來喝水的人" },
+    { "id": "whitebone-001-p1", "type": "paragraph", "text": "那婦人看起來並不特別。她的灰衣沾著山塵，籃裡有幾把青菜和幾枚還沒有熟透的果子。她先向唐僧行禮，再看八戒的肚子，最後才看悟空握棒的手。每一眼都像有自己的次序。" },
+    { "id": "whitebone-001-illustration", "type": "illustration", "asset": "three-disguises", "alt": "白骨嶺泉邊的婦人、遠處的山路與三個取經人的影子交疊在水墨霧光中", "width": 1200, "height": 700 },
+    { "id": "whitebone-001-p2", "type": "paragraph", "text": "悟空看見她身後的影子沒有跟著夕光走。影子只慢了一瞬，便回到腳邊。那一瞬短得連八戒都沒注意，卻足以讓悟空把棒端往地上壓深一點。" },
+    { "id": "whitebone-001-dialogue", "type": "dialogue", "lines": ["師父，她不是凡人。", "你看見了什麼？", "不是看見，是聞到。", "那就把你聞到的說清楚。"] },
+    { "id": "whitebone-001-p3", "type": "paragraph", "text": "悟空張了張嘴。他能指出妖氣，能指出她的步子沒有重量，卻不能把那種只在自己眼裡成立的危險遞給別人。婦人安靜地等著，像知道裂縫不必自己打開。" },
+    { "id": "whitebone-001-p4", "type": "paragraph", "text": "唐僧請婦人坐下。她坐在泉邊一塊乾石上，裙角離水只有半寸。這個距離讓悟空的眉頭更緊；若她真是凡人，不該對濕衣如此小心，若她不是凡人，便更不該讓她靠近師父。" },
+    { "id": "whitebone-001-p5", "type": "paragraph", "text": "唐僧問她從哪裡來。婦人說山那邊。問她要去哪裡，她說有一個家。兩個回答都沒有錯，卻像門上兩把互不相同的鎖，誰也不知道哪一把能打開真正的方向。" }
+  ],
+  "next": "whitebone-002"
+}

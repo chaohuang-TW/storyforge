@@ -1,0 +1,15 @@
+{
+  "id": "whitebone-truth",
+  "type": "narrative",
+  "title": "白骨嶺・知道之後",
+  "content": [
+    { "id": "whitebone-truth-p1", "type": "paragraph", "text": "真相沒有把泉水變成清澈，也沒有讓山路忽然出現第二條。它只是把一件不能再否認的事放到眾人中間：那不是凡人。" },
+    { "id": "whitebone-truth-p2", "type": "paragraph", "text": "唐僧的手仍然按在佛珠上。他可以承認悟空看對了，卻不能因此承認悟空接下來做什麼都對。悟空看見了這份遲疑，怒氣從眼底往上升；那怒氣是真的，保護也是真的，兩件事沒有互相抵消。" },
+    { "id": "whitebone-truth-dialogue", "type": "dialogue", "lines": ["師父，她要走了。", "我知道。", "你知道她是妖，還要讓她走？", "我知道她是妖，也知道你不是只因為她是妖才想打她。"] },
+    { "id": "whitebone-truth-p3", "type": "paragraph", "text": "悟空沒有回答。他的棒尖落在地上，敲出一聲很輕的脆響。白骨精退進山影，留下的不是勝負，而是一個所有人都必須帶著走的問題：知道更多之後，是否就更有資格改變別人的命運？" },
+    { "id": "whitebone-truth-illustration", "type": "illustration", "asset": "whitebone-ridge", "alt": "白骨嶺夜色壓低，取經人與山影之間留著無法立即填平的距離", "width": 1200, "height": 700 },
+    { "id": "whitebone-truth-p4", "type": "paragraph", "text": "白骨精沒有留下來聽完。她比任何人都懂得什麼時候該退，什麼時候該讓一句話在對方心裡自己發酵。她走進黑暗時，唐僧忽然明白，真正危險的不一定是妖怪有多強，也可能是它知道人會在哪裡彼此誤解。" },
+    { "id": "whitebone-truth-p5", "type": "paragraph", "text": "八戒蹲下來看水裡的骨影，骨影已經不見了。他說，知道真相以前，他只怕遇到妖怪；知道真相以後，他開始怕自己明明知道，卻仍然只能眼睜睜看著隊伍走散。" }
+  ],
+  "next": "whitebone-outcome-router"
+}

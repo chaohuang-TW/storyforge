@@ -1,0 +1,13 @@
+{
+  "id": "wuxing-release",
+  "type": "narrative",
+  "title": "五行山・向西",
+  "content": [
+    { "id": "wuxing-release-p1", "type": "paragraph", "text": "孫悟空終於站直。石頭留下的重量還在肩背裡，卻沒有再把他按回去。他接過唐僧遞來的斗笠，先嫌太小，後來還是戴上。唐僧沒有笑，只把散在地上的經卷一卷卷收好。" },
+    { "id": "wuxing-release-dialogue", "type": "dialogue", "lines": ["師父，你走得真慢。", "你若嫌慢，就別把路走在我前面。", "我只是不想讓你掉隊。"] },
+    { "id": "wuxing-release-p2", "type": "paragraph", "text": "遠處的紙頁終於被風捲起。它越過山脊，落進無人看守的草叢。沒有人追它，也沒有人知道它是否仍然空白。四個人的腳步從山下開始分成不同的重量，卻往同一個方向去。" },
+    { "id": "wuxing-release-p3", "type": "paragraph", "text": "走出五行山後，悟空回頭看了一次。山還是那座山，石頭還是把舊日的聲音壓在裡面。唐僧問他在看什麼，他說看自己有沒有把山的重量帶出來。" },
+    { "id": "wuxing-release-p4", "type": "paragraph", "text": "唐僧沒有回答。他知道有些重量不能由旁人替你放下，只能在路上慢慢辨認：哪一部分是罪，哪一部分是記得，哪一部分只是還沒有找到合適的名字。" }
+  ],
+  "next": "west-001"
+}

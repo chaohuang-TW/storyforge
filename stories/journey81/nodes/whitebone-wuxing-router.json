@@ -1,0 +1,9 @@
+{
+  "id": "whitebone-wuxing-router",
+  "type": "conditional",
+  "branches": [
+    { "when": { "type": "equals", "key": "wuxing_first_touch", "value": "light" }, "next": "whitebone-light-delay" },
+    { "when": { "type": "equals", "key": "wuxing_first_touch", "value": "mist" }, "next": "whitebone-mist-delay" }
+  ],
+  "fallback": "whitebone-mist-delay"
+}

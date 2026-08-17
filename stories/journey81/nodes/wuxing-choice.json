@@ -1,0 +1,19 @@
+{
+  "id": "wuxing-choice",
+  "type": "choice",
+  "prompt": "山風正要換一個方向。你只能碰其中一件事。",
+  "choices": [
+    {
+      "id": "light",
+      "label": "讓一線天光穿過雲縫。",
+      "effects": [{ "type": "set", "key": "wuxing_first_touch", "value": "light" }],
+      "next": "wuxing-light"
+    },
+    {
+      "id": "mist",
+      "label": "讓山霧再停一刻。",
+      "effects": [{ "type": "set", "key": "wuxing_first_touch", "value": "mist" }],
+      "next": "wuxing-mist"
+    }
+  ]
+}
