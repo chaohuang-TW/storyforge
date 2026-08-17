@@ -11,3 +11,8 @@ never contain visible content or node-level effects.
 Choice is a backward-compatible schema `0.1` extension. Choice IDs need only be
 unique within one Choice node. Choice and Conditional edges participate in
 generic target validation and graph cycle detection.
+
+The Phase 5 Story Validator reuses this schema parser but remains a separate,
+read-only build-time boundary. Its structural reachability and cycle checks do
+not execute Runtime choices or evaluate symbolic World State combinations; the
+Node-only CLI supplies Story Pack-local asset files for existence checks.
