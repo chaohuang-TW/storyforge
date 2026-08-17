@@ -11,7 +11,7 @@ StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 - Phase 2 — Story Runtime
 - Phase 3A — Causality Foundation
 - Phase 3B — Choice & Causal Commit
-- Phase 3C — Illustrated Playable Vertical Slice
+- Phase 3C — Playable & Illustrated Vertical Slice
 - Phase 4A — Runtime Persistence
 - Phase 4B — Bookmark & Run Lifecycle UX
 - Phase 5 — Story Validator
