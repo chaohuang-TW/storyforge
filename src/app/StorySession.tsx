@@ -162,11 +162,15 @@ export function StorySession({ story }: StorySessionProps) {
   }
 
   const confirmNewRun = () => {
-    setNewRunWarning(false)
-    const bookmarkRemoved = storage ? removeStoryBookmark(storage, story.manifest.id) : false
-    const readerPositionRemoved = removeReadingPosition(document.id)
-    const runtimeRemoved = storage ? removeRuntimeSave(storage, story.manifest.id) : false
-    if (!bookmarkRemoved || !readerPositionRemoved || !runtimeRemoved) {
+    if (!removeReadingPosition(document.id)) {
+      setNewRunWarning(true)
+      return
+    }
+    if (!storage || !removeStoryBookmark(storage, story.manifest.id)) {
+      setNewRunWarning(true)
+      return
+    }
+    if (!removeRuntimeSave(storage, story.manifest.id)) {
       setNewRunWarning(true)
       return
     }
@@ -182,6 +186,7 @@ export function StorySession({ story }: StorySessionProps) {
     setPersistenceWarning(false)
     setBookmarkWarning(false)
     setBookmarkFeedback(false)
+    setNewRunWarning(false)
     setNewRunConfirmOpen(false)
     setRevision((value) => value + 1)
   }
