@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { storyNodesToReaderDocument } from '../engine/adapters/storyToReader'
 import { createStoryRuntime } from '../engine/runtime/storyRuntime'
+import { createReaderMemory } from '../engine/memory/readerMemory'
 import type { LoadedStory } from '../engine/story/types'
 import {
   createRuntimeSaveEnvelope,
@@ -10,6 +11,12 @@ import {
   saveRuntimeSave,
   type RuntimeStorage,
 } from '../persistence/runtimeSave'
+import {
+  createReaderMemoryEnvelope,
+  getBrowserReaderMemoryStorage,
+  loadReaderMemory,
+  saveReaderMemory,
+} from '../persistence/readerMemory'
 import {
   createStoryBookmarkEnvelope,
   loadStoryBookmark,
@@ -31,6 +38,7 @@ type RuntimeSession = {
   runtime: ReturnType<typeof createStoryRuntime>
   storage: RuntimeStorage | null
   storageUnavailable: boolean
+  memoryUnavailable: boolean
   bookmark: StoryBookmarkEnvelope | null
   bookmarkUnavailable: boolean
 }
@@ -44,23 +52,26 @@ function storyIdentity(story: LoadedStory) {
 }
 
 function initializeRuntimeSession(story: LoadedStory): RuntimeSession {
-  const storage = getBrowserRuntimeStorage()
+  const storage = getBrowserRuntimeStorage() ?? getBrowserReaderMemoryStorage()
   if (!storage) {
     return {
-      runtime: createStoryRuntime(story),
+      runtime: createStoryRuntime(story, { readerMemory: createReaderMemory() }),
       storage,
       storageUnavailable: true,
+      memoryUnavailable: true,
       bookmark: null,
       bookmarkUnavailable: true,
     }
   }
 
   const identity = storyIdentity(story)
+  const memoryResult = loadReaderMemory(storage, identity)
+  const readerMemory = memoryResult.status === 'valid' ? memoryResult.envelope.memory : createReaderMemory()
   const saved = loadRuntimeSave(storage, identity)
-  let runtime = createStoryRuntime(story)
+  let runtime = createStoryRuntime(story, { readerMemory })
   if (saved.status === 'valid') {
     try {
-      runtime = createStoryRuntime(story, { snapshot: saved.envelope.snapshot })
+      runtime = createStoryRuntime(story, { snapshot: saved.envelope.snapshot, readerMemory })
     } catch {
       removeRuntimeSave(storage, story.manifest.id)
     }
@@ -71,6 +82,7 @@ function initializeRuntimeSession(story: LoadedStory): RuntimeSession {
     runtime,
     storage,
     storageUnavailable: saved.status === 'error',
+    memoryUnavailable: memoryResult.status === 'error',
     bookmark: bookmarkResult.status === 'valid' ? bookmarkResult.envelope : null,
     bookmarkUnavailable: bookmarkResult.status === 'error',
   }
@@ -88,6 +100,7 @@ export function StorySession({ story }: StorySessionProps) {
   const [requestedLocation, setRequestedLocation] = useState<ReaderLocation | null>(null)
   const [causalFeedback, setCausalFeedback] = useState(false)
   const [persistenceWarning, setPersistenceWarning] = useState(session.storageUnavailable)
+  const [memoryWarning, setMemoryWarning] = useState(session.memoryUnavailable)
   const [bookmarkWarning, setBookmarkWarning] = useState(session.bookmarkUnavailable)
   const [bookmarkFeedback, setBookmarkFeedback] = useState(false)
   const [newRunConfirmOpen, setNewRunConfirmOpen] = useState(false)
@@ -107,8 +120,18 @@ export function StorySession({ story }: StorySessionProps) {
     }
   }, [bookmarkLocationValid, session.bookmark, storage, story.manifest.id])
 
-  const persistRuntime = (): boolean => {
+  const persistRuntimeAndMemory = (): boolean => {
     if (!storage) {
+      setMemoryWarning(true)
+      setPersistenceWarning(true)
+      return false
+    }
+    const memoryResult = saveReaderMemory(
+      storage,
+      createReaderMemoryEnvelope(identity, runtime.getReaderMemory()),
+    )
+    if (!memoryResult.ok) {
+      setMemoryWarning(true)
       setPersistenceWarning(true)
       return false
     }
@@ -122,7 +145,7 @@ export function StorySession({ story }: StorySessionProps) {
 
   const advance = () => {
     if (runtime.advance()) {
-      persistRuntime()
+      persistRuntimeAndMemory()
       setCausalFeedback(false)
       setRevision((value) => value + 1)
     }
@@ -130,7 +153,7 @@ export function StorySession({ story }: StorySessionProps) {
 
   const choose = (choiceId: string) => {
     if (runtime.choose(choiceId)) {
-      persistRuntime()
+      persistRuntimeAndMemory()
       setCausalFeedback(true)
       setRevision((value) => value + 1)
     }
@@ -144,7 +167,7 @@ export function StorySession({ story }: StorySessionProps) {
     const location = readerLocation && isReaderLocationValid(document, readerLocation)
       ? readerLocation
       : getReaderStartLocation(document)
-    if (!location || !persistRuntime()) return
+    if (!location || !persistRuntimeAndMemory()) return
 
     const envelope = createStoryBookmarkEnvelope(identity, location)
     const result = saveStoryBookmark(storage, envelope)
@@ -175,7 +198,7 @@ export function StorySession({ story }: StorySessionProps) {
       return
     }
 
-    const freshRuntime = createStoryRuntime(story)
+    const freshRuntime = createStoryRuntime(story, { readerMemory: runtime.getReaderMemory() })
     const freshDocument = storyNodesToReaderDocument(story, freshRuntime.getVisibleNodes())
     const startLocation = getReaderStartLocation(freshDocument)
     setRuntime(freshRuntime)
@@ -184,6 +207,7 @@ export function StorySession({ story }: StorySessionProps) {
     setRequestedLocation(startLocation ? { ...startLocation } : null)
     setCausalFeedback(false)
     setPersistenceWarning(false)
+    setMemoryWarning(false)
     setBookmarkWarning(false)
     setBookmarkFeedback(false)
     setNewRunWarning(false)
@@ -236,6 +260,12 @@ export function StorySession({ story }: StorySessionProps) {
       {persistenceWarning ? (
         <p className="story-session__persistence-warning" aria-live="polite">
           此瀏覽器目前無法保存因果。重新整理後進度可能遺失。
+        </p>
+      ) : null}
+
+      {memoryWarning ? (
+        <p className="story-session__memory-warning" aria-live="polite">
+          此瀏覽器目前無法保存觀者記憶。重新整理後跨周目記憶可能遺失。
         </p>
       ) : null}
 

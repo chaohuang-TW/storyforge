@@ -1,7 +1,9 @@
 import { evaluateCondition } from '../causality/conditionEngine'
-import { applyEffects } from '../causality/effectEngine'
+import { applyStoryEffects } from '../causality/effectEngine'
 import type { WorldState } from '../causality/types'
 import { copyValidatedWorldState } from '../causality/worldState'
+import { copyReaderMemory } from '../memory/readerMemory'
+import type { ReaderMemory } from '../memory/types'
 import type {
   ChoiceStoryNode,
   LoadedStory,
@@ -19,6 +21,7 @@ export type { RuntimeChoiceRecord, StoryRuntimeSnapshot } from './runtimeSnapsho
 export type StoryRuntimeOptions = {
   initialWorldState?: WorldState
   snapshot?: StoryRuntimeSnapshot
+  readerMemory?: ReaderMemory
 }
 
 export type AvailableChoice = {
@@ -37,6 +40,7 @@ export type ChoiceCommit = RuntimeChoiceRecord
 export type StoryRuntime = {
   getState: () => StoryRuntimeState
   getWorldState: () => WorldState
+  getReaderMemory: () => ReaderMemory
   getCurrentNode: () => RenderableStoryNode
   getVisibleNodes: () => RenderableStoryNode[]
   getPendingChoice: () => PendingChoice | null
@@ -55,7 +59,12 @@ function nodeAt(story: LoadedStory, nodeId: string): StoryNode {
   return node
 }
 
-function resolveRuntimeBoundary(story: LoadedStory, targetNodeId: string, worldState: WorldState): RuntimeBoundary {
+function resolveRuntimeBoundary(
+  story: LoadedStory,
+  targetNodeId: string,
+  worldState: WorldState,
+  readerMemory: ReaderMemory,
+): RuntimeBoundary {
   const visitedConditionalIds = new Set<string>()
   let nodeId = targetNodeId
 
@@ -67,18 +76,18 @@ function resolveRuntimeBoundary(story: LoadedStory, targetNodeId: string, worldS
     }
     visitedConditionalIds.add(node.id)
 
-    const matchingBranch = node.branches.find((branch) => evaluateCondition(branch.when, worldState))
+    const matchingBranch = node.branches.find((branch) => evaluateCondition(branch.when, worldState, readerMemory))
     nodeId = matchingBranch?.next ?? node.fallback
   }
 }
 
-function choiceIsAvailable(choice: StoryChoice, worldState: WorldState): boolean {
-  return (choice.conditions ?? []).every((condition) => evaluateCondition(condition, worldState))
+function choiceIsAvailable(choice: StoryChoice, worldState: WorldState, readerMemory: ReaderMemory): boolean {
+  return (choice.conditions ?? []).every((condition) => evaluateCondition(condition, worldState, readerMemory))
 }
 
-function pendingChoiceFor(node: ChoiceStoryNode, worldState: WorldState): PendingChoice {
+function pendingChoiceFor(node: ChoiceStoryNode, worldState: WorldState, readerMemory: ReaderMemory): PendingChoice {
   const choices = node.choices
-    .filter((choice) => choiceIsAvailable(choice, worldState))
+    .filter((choice) => choiceIsAvailable(choice, worldState, readerMemory))
     .map(({ id, label }) => ({ id, label }))
   if (choices.length === 0) {
     throw new StoryRuntimeError(`Choice node ${node.id} has no available choices`)
@@ -96,7 +105,8 @@ export function createStoryRuntime(story: LoadedStory, options: StoryRuntimeOpti
     const pendingNode = restoredSnapshot.pendingChoiceNodeId
       ? nodeAt(story, restoredSnapshot.pendingChoiceNodeId)
       : null
-    if (pendingNode?.type === 'choice') pendingChoiceFor(pendingNode, restoredSnapshot.worldState)
+    const readerMemory = copyReaderMemory(options.readerMemory ?? {})
+    if (pendingNode?.type === 'choice') pendingChoiceFor(pendingNode, restoredSnapshot.worldState, readerMemory)
 
     const state: StoryRuntimeState = {
       currentNodeId: restoredSnapshot.currentNodeId,
@@ -106,23 +116,25 @@ export function createStoryRuntime(story: LoadedStory, options: StoryRuntimeOpti
     const visibleNodeIds = [...restoredSnapshot.visibleNodeIds]
     const choiceHistory: ChoiceCommit[] = restoredSnapshot.choiceHistory.map((record) => ({ ...record }))
 
-    return createRuntimeApi(story, state, visibleNodeIds, choiceHistory)
+    return createRuntimeApi(story, state, visibleNodeIds, choiceHistory, readerMemory)
   }
 
   const initialWorldState = copyValidatedWorldState(options.initialWorldState ?? {})
-  const entryBoundary = resolveRuntimeBoundary(story, story.manifest.entryNode, initialWorldState)
+  const readerMemory = copyReaderMemory(options.readerMemory ?? {})
+  const entryBoundary = resolveRuntimeBoundary(story, story.manifest.entryNode, initialWorldState, readerMemory)
   if (entryBoundary.type === 'choice') {
     throw new StoryRuntimeError(`Direct Choice entry is not supported in Phase 3B: ${entryBoundary.id}`)
   }
 
+  const entryContext = applyStoryEffects({ worldState: initialWorldState, readerMemory }, entryBoundary.effects ?? [])
   const state: StoryRuntimeState = {
     currentNodeId: entryBoundary.id,
-    worldState: applyEffects(initialWorldState, entryBoundary.effects ?? []),
+    worldState: entryContext.worldState,
   }
   const visibleNodeIds = [entryBoundary.id]
   const choiceHistory: ChoiceCommit[] = []
 
-  return createRuntimeApi(story, state, visibleNodeIds, choiceHistory)
+  return createRuntimeApi(story, state, visibleNodeIds, choiceHistory, entryContext.readerMemory)
 }
 
 function createRuntimeApi(
@@ -130,6 +142,7 @@ function createRuntimeApi(
   state: StoryRuntimeState,
   visibleNodeIds: string[],
   choiceHistory: ChoiceCommit[],
+  readerMemory: ReaderMemory,
 ): StoryRuntime {
 
   const getCurrentNode = (): RenderableStoryNode => {
@@ -156,6 +169,7 @@ function createRuntimeApi(
       ...(state.pendingChoiceNodeId ? { pendingChoiceNodeId: state.pendingChoiceNodeId } : {}),
     }),
     getWorldState: () => ({ ...state.worldState }),
+    getReaderMemory: () => copyReaderMemory(readerMemory),
     getCurrentNode,
     getVisibleNodes: () =>
       visibleNodeIds
@@ -163,7 +177,7 @@ function createRuntimeApi(
         .filter((node): node is RenderableStoryNode => node.type !== 'conditional' && node.type !== 'choice'),
     getPendingChoice: () => {
       const node = getPendingChoiceNode()
-      return node ? pendingChoiceFor(node, state.worldState) : null
+      return node ? pendingChoiceFor(node, state.worldState, readerMemory) : null
     },
     getChoiceHistory: () => choiceHistory.map((commit) => ({ ...commit })),
     exportSnapshot: () => copyRuntimeSnapshot({
@@ -179,30 +193,35 @@ function createRuntimeApi(
 
       const choice = pendingNode.choices.find((candidate) => candidate.id === choiceId)
       if (!choice) throw new StoryRuntimeError(`Choice node ${pendingNode.id} has no choice id: ${choiceId}`)
-      if (!choiceIsAvailable(choice, state.worldState)) {
+      if (!choiceIsAvailable(choice, state.worldState, readerMemory)) {
         throw new StoryRuntimeError(`Choice ${choiceId} is not available at choice node: ${pendingNode.id}`)
       }
 
       // Build the complete next snapshot before mutating runtime-owned data.
-      const stateAfterChoice = applyEffects(state.worldState, choice.effects ?? [])
-      const nextBoundary = resolveRuntimeBoundary(story, choice.next, stateAfterChoice)
+      const contextAfterChoice = applyStoryEffects({ worldState: state.worldState, readerMemory }, choice.effects ?? [])
+      const nextBoundary = resolveRuntimeBoundary(story, choice.next, contextAfterChoice.worldState, contextAfterChoice.readerMemory)
       let nextState: StoryRuntimeState
       let nextVisibleNodeIds = visibleNodeIds
 
       if (nextBoundary.type === 'choice') {
-        pendingChoiceFor(nextBoundary, stateAfterChoice)
+        pendingChoiceFor(nextBoundary, contextAfterChoice.worldState, contextAfterChoice.readerMemory)
         nextState = {
           currentNodeId: state.currentNodeId,
-          worldState: stateAfterChoice,
+          worldState: contextAfterChoice.worldState,
           pendingChoiceNodeId: nextBoundary.id,
         }
       } else {
         nextState = {
           currentNodeId: nextBoundary.id,
-          worldState: applyEffects(stateAfterChoice, nextBoundary.effects ?? []),
+          worldState: contextAfterChoice.worldState,
         }
+        const nextContext = applyStoryEffects(contextAfterChoice, nextBoundary.effects ?? [])
+        nextState.worldState = nextContext.worldState
+        readerMemory = nextContext.readerMemory
         nextVisibleNodeIds = [...visibleNodeIds, nextBoundary.id]
       }
+
+      if (nextBoundary.type === 'choice') readerMemory = contextAfterChoice.readerMemory
 
       state = nextState
       visibleNodeIds = nextVisibleNodeIds
@@ -214,17 +233,19 @@ function createRuntimeApi(
       const currentNode = getCurrentNode()
       if (currentNode.type === 'ending') return false
 
-      const nextBoundary = resolveRuntimeBoundary(story, currentNode.next, state.worldState)
+      const nextBoundary = resolveRuntimeBoundary(story, currentNode.next, state.worldState, readerMemory)
       if (nextBoundary.type === 'choice') {
-        pendingChoiceFor(nextBoundary, state.worldState)
+        pendingChoiceFor(nextBoundary, state.worldState, readerMemory)
         state = { ...state, pendingChoiceNodeId: nextBoundary.id }
         return true
       }
 
+      const nextContext = applyStoryEffects({ worldState: state.worldState, readerMemory }, nextBoundary.effects ?? [])
       state = {
         currentNodeId: nextBoundary.id,
-        worldState: applyEffects(state.worldState, nextBoundary.effects ?? []),
+        worldState: nextContext.worldState,
       }
+      readerMemory = nextContext.readerMemory
       visibleNodeIds = [...visibleNodeIds, nextBoundary.id]
       return true
     },

@@ -83,6 +83,13 @@ describe('runtime persistence save manager', () => {
     storage.values.set(key, JSON.stringify({ formatVersion: 1, storyId: identity.storyId }))
     expect(loadRuntimeSave(storage, identity)).toEqual({ status: 'invalid', reason: 'envelope' })
     expect(storage.values.has(key)).toBe(false)
+
+    storage.values.set(key, JSON.stringify({
+      ...createRuntimeSaveEnvelope(identity, snapshot),
+      snapshot: { ...snapshot, readerMemory: { known: true } },
+    }))
+    expect(loadRuntimeSave(storage, identity)).toEqual({ status: 'invalid', reason: 'envelope' })
+    expect(storage.values.has(key)).toBe(false)
   })
 
   it.each([

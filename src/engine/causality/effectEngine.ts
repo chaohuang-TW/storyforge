@@ -1,5 +1,8 @@
 import { StoryRuntimeError } from '../runtime/errors'
 import type { Effect, WorldState } from './types'
+import { remember } from '../memory/readerMemory'
+import { copyReaderMemory } from '../memory/readerMemory'
+import type { ReaderMemory } from '../memory/types'
 import { assertValidWorldState, copyValidatedWorldState } from './worldState'
 
 function numericAmount(amount: number | undefined, effectType: string, key: string): number {
@@ -14,6 +17,8 @@ export function applyEffect(state: WorldState, effect: Effect): WorldState {
   const next = copyValidatedWorldState(state)
 
   switch (effect.type) {
+    case 'remember':
+      return next
     case 'set':
       if (typeof effect.value === 'number' && !Number.isFinite(effect.value)) {
         assertValidWorldState({ [effect.key]: effect.value })
@@ -55,4 +60,25 @@ export function applyEffect(state: WorldState, effect: Effect): WorldState {
 
 export function applyEffects(state: WorldState, effects: Effect[]): WorldState {
   return effects.reduce((current, effect) => applyEffect(current, effect), copyValidatedWorldState(state))
+}
+
+export type StoryStateContext = {
+  worldState: WorldState
+  readerMemory: ReaderMemory
+}
+
+/** Apply both explicit World State effects and monotonic Reader Memory effects. */
+export function applyStoryEffects(context: StoryStateContext, effects: Effect[]): StoryStateContext {
+  let worldState = copyValidatedWorldState(context.worldState)
+  let readerMemory = copyReaderMemory(context.readerMemory)
+
+  for (const effect of effects) {
+    if (effect.type === 'remember') {
+      readerMemory = remember(readerMemory, effect.key)
+    } else {
+      worldState = applyEffect(worldState, effect)
+    }
+  }
+
+  return { worldState, readerMemory }
 }

@@ -48,6 +48,15 @@ describe('Phase 3A story schema', () => {
     expect(() => parseEffect({ type: 'increment', key: 'x', amount: '2' })).toThrow('amount must be a number')
   })
 
+  it('parses Reader Memory conditions and effects while retaining schema 0.1', () => {
+    expect(parseCondition({ type: 'readerRemembers', key: 'saw-signal' })).toEqual({ type: 'readerRemembers', key: 'saw-signal' })
+    expect(parseEffect({ type: 'remember', key: 'saw-signal' })).toEqual({ type: 'remember', key: 'saw-signal' })
+    expect(() => parseCondition({ type: 'readerRemembers', key: '' })).toThrow('non-empty string')
+    expect(() => parseEffect({ type: 'remember', key: '' })).toThrow('non-empty string')
+    expect(() => parseCondition({ type: 'readerMemory', key: 'saw-signal' })).toThrow('Unsupported condition type')
+    expect(() => parseEffect({ type: 'remembered', key: 'saw-signal' })).toThrow('Unsupported effect type')
+  })
+
   it('rejects empty or side-effectful conditional nodes', () => {
     expect(() => parseStoryNode({ id: 'route', type: 'conditional', branches: [], fallback: 'end' })).toThrow('at least one branch')
     expect(() => parseStoryNode({ id: 'route', type: 'conditional', branches: [{ when: { type: 'exists', key: 'x' } }], fallback: 'end' })).toThrow(

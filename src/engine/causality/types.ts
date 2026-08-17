@@ -2,6 +2,13 @@ export type StateValue = string | number | boolean | null
 
 export type WorldState = Record<string, StateValue>
 
+export type WorldEffect =
+  | { type: 'set'; key: string; value: StateValue }
+  | { type: 'increment'; key: string; amount?: number }
+  | { type: 'decrement'; key: string; amount?: number }
+  | { type: 'setFlag'; key: string }
+  | { type: 'clearFlag'; key: string }
+
 export type Condition =
   | { type: 'equals'; key: string; value: StateValue }
   | { type: 'notEquals'; key: string; value: StateValue }
@@ -13,12 +20,8 @@ export type Condition =
   | { type: 'notExists'; key: string }
   | { type: 'hasFlag'; key: string }
   | { type: 'notFlag'; key: string }
+  | { type: 'readerRemembers'; key: string }
   | { type: 'all'; conditions: Condition[] }
   | { type: 'any'; conditions: Condition[] }
 
-export type Effect =
-  | { type: 'set'; key: string; value: StateValue }
-  | { type: 'increment'; key: string; amount?: number }
-  | { type: 'decrement'; key: string; amount?: number }
-  | { type: 'setFlag'; key: string }
-  | { type: 'clearFlag'; key: string }
+export type Effect = WorldEffect | { type: 'remember'; key: string }

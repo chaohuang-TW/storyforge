@@ -1,4 +1,6 @@
 import type { Condition, WorldState } from './types'
+import { readerRemembers } from '../memory/readerMemory'
+import type { ReaderMemory } from '../memory/types'
 
 const hasOwn = (state: WorldState, key: string) => Object.prototype.hasOwnProperty.call(state, key)
 
@@ -7,7 +9,7 @@ function numericValue(state: WorldState, key: string): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null
 }
 
-export function evaluateCondition(condition: Condition, state: WorldState): boolean {
+export function evaluateCondition(condition: Condition, state: WorldState, memory: ReaderMemory = {}): boolean {
   switch (condition.type) {
     case 'equals':
       return hasOwn(state, condition.key) && state[condition.key] === condition.value
@@ -37,9 +39,11 @@ export function evaluateCondition(condition: Condition, state: WorldState): bool
       return state[condition.key] === true
     case 'notFlag':
       return state[condition.key] !== true
+    case 'readerRemembers':
+      return readerRemembers(memory, condition.key)
     case 'all':
-      return condition.conditions.every((nested) => evaluateCondition(nested, state))
+      return condition.conditions.every((nested) => evaluateCondition(nested, state, memory))
     case 'any':
-      return condition.conditions.some((nested) => evaluateCondition(nested, state))
+      return condition.conditions.some((nested) => evaluateCondition(nested, state, memory))
   }
 }

@@ -60,6 +60,7 @@ function isReaderLocation(value: unknown): value is ReaderLocation {
 
 function isStoryBookmarkEnvelope(value: unknown): value is StoryBookmarkEnvelope {
   if (!isRecord(value)) return false
+  if ('readerMemory' in value || 'memory' in value) return false
   return (
     value.formatVersion === 1 &&
     typeof value.storyId === 'string' &&
