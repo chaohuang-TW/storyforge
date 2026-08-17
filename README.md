@@ -2,13 +2,13 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 4B — Bookmark & Run Lifecycle UX (development)**
+Status: **Phase 4B — Bookmark & Run Lifecycle UX (complete)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 Phase 0 — Foundation, Phase 1 — Book Reader, Phase 2 — Story Runtime, Phase
 3A — Causality Foundation, Phase 3B — Choice & Causal Commit, Phase 3C —
-Illustrated Playable Slice, and Phase 4A — Runtime Persistence. The Reader
-remains continuous and mobile-first.
+Illustrated Playable Slice, Phase 4A — Runtime Persistence, and Phase 4B —
+Bookmark & Run Lifecycle UX. The Reader remains continuous and mobile-first.
 
 Phase 3B production supports:
 
@@ -47,13 +47,25 @@ LocalStorage:
 - Non-blocking Storage failure warning
 - Reader preference and reading-position separation from story fate
 
-Phase 4B development adds the first lifecycle controls without changing the
-causal Engine or Story Pack schema:
+Phase 4B production adds lifecycle controls without changing the causal Engine
+or Story Pack schema:
 
 - One per-story Bookmark containing only a generic Reader Location
 - Bookmark save after a successful Runtime snapshot write
+- Bookmark navigation changes only the Reader viewport and never restores World State, Choice History, Runtime state, or a Choice
+- Bookmark persistence across reload and close/reopen
 - Ending-only, two-step `開始新一輪` reset for Runtime save, Bookmark, and Reader position
 - Reader preferences remain untouched by a new run
+- New Run cleanup is fail-fast: Reader position, then Bookmark, then Runtime save
+- Runtime save is removed last; failed cleanup preserves the active run
+- A second run can choose another route without cross-run memory
+
+Bookmarks store a Reader location for the active run. Returning to a Bookmark
+never restores earlier World State, Choice History, or Runtime state.
+
+A new run is available after the ending and clears the active Runtime save,
+Bookmark, and reading position while preserving Reader preferences. Phase 4B
+does not retain completed runs as loadable history.
 
 In normal LocalStorage conditions, committed causality, the currently visible
 story, Choice History, pending Choice, and World State survive reload and
@@ -119,6 +131,8 @@ The following remain intentionally out of scope:
 - Manual Save Slots — NOT IMPLEMENTED
 - Manual Load — NOT IMPLEMENTED
 - Cloud Save — NOT IMPLEMENTED
+- Run archive/history — NOT IMPLEMENTED
+- Achievements — NOT IMPLEMENTED
 - Journey81 — NOT IMPLEMENTED
-- Multiple Bookmarks, archive/history UI, achievements, account sync, and undo — NOT IMPLEMENTED
+- Multiple Bookmarks — NOT IMPLEMENTED
 - Phase 5 — NOT STARTED
