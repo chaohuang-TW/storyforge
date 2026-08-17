@@ -117,6 +117,15 @@ export function saveRuntimeSave(storage: RuntimeStorage, envelope: RuntimeSaveEn
   }
 }
 
+export function removeRuntimeSave(storage: RuntimeStorage, storyId: string): boolean {
+  try {
+    storage.removeItem(runtimeStorageKey(storyId))
+    return true
+  } catch {
+    return false
+  }
+}
+
 export function getBrowserRuntimeStorage(): RuntimeStorage | null {
   try {
     return typeof window === 'undefined' ? null : window.localStorage

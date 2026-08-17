@@ -8,6 +8,7 @@ import { demoDocument } from '../reader/fixtures/demoDocument'
 import { StorySession } from './StorySession'
 import { loadStory } from '../engine/story-loader/loadStory'
 import { runtimeStorageKey } from '../persistence/runtimeSave'
+import { storyBookmarkKey } from '../persistence/storyBookmark'
 
 class TestIntersectionObserver {
   static instances: TestIntersectionObserver[] = []
@@ -63,6 +64,18 @@ function progressValue() {
   return Number(screen.getByRole('progressbar').getAttribute('value'))
 }
 
+function reachWindEndingInApp() {
+  fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+  fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+  fireEvent.click(screen.getByRole('button', { name: '讓風把信吹進屋內' }))
+  fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+  fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+  fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+  fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+  fireEvent.click(screen.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' }))
+  fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+}
+
 function mainObserverFor(markerId: string) {
   const observer = [...TestIntersectionObserver.instances]
     .reverse()
@@ -77,6 +90,9 @@ describe('Book reader', () => {
       runtimeStorageKey('runtime-demo'),
       runtimeStorageKey('choice-ending-ui'),
       runtimeStorageKey('choice-choice-ui'),
+      storyBookmarkKey('runtime-demo'),
+      storyBookmarkKey('choice-ending-ui'),
+      storyBookmarkKey('choice-choice-ui'),
       READER_PREFERENCES_KEY,
       positionKey,
     ]
@@ -460,5 +476,164 @@ describe('Book reader', () => {
     expect(window.scrollTo).toHaveBeenCalledWith(expect.objectContaining({ behavior: 'auto' }))
     expect(screen.queryByRole('complementary', { name: '上次閱讀位置' })).not.toBeInTheDocument()
     expect(savedProgress()).not.toBe(42)
+  })
+
+  it('saves one Reader location before a Choice and never rolls back committed causality', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '加入書籤' }))
+    expect(screen.getByText('書籤已更新。')).toHaveAttribute('aria-live', 'polite')
+    expect(JSON.parse(window.localStorage.getItem(storyBookmarkKey('runtime-demo')) ?? '{}')).toMatchObject({
+      formatVersion: 1,
+      storyId: 'runtime-demo',
+      location: { documentId: 'story:runtime-demo', markerId: 'prologue-heading' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '讓風把信吹進屋內' }))
+    fireEvent.click(screen.getByRole('button', { name: '回到書籤' }))
+
+    expect(screen.getByRole('heading', { level: 3, name: '風進屋時' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '讓風把信吹進屋內' })).not.toBeInTheDocument()
+    expect(JSON.parse(window.localStorage.getItem(runtimeStorageKey('runtime-demo')) ?? '{}').snapshot.choiceHistory).toHaveLength(1)
+  })
+
+  it('restores the Bookmark controls after a remount without restoring runtime through the bookmark', () => {
+    const firstRender = render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '加入書籤' }))
+    firstRender.unmount()
+
+    render(<App />)
+    expect(screen.getByRole('button', { name: '更新書籤' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '回到書籤' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '讓風把信吹進屋內' })).not.toBeInTheDocument()
+  })
+
+  it('shows a polite warning and keeps the runtime when Bookmark storage writes fail', () => {
+    const originalSetItem = Storage.prototype.setItem
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (this: Storage, key, value) {
+      if (key.startsWith('storyforge.bookmark.')) throw new Error('quota exceeded')
+      originalSetItem.call(this, key, value)
+    })
+
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '加入書籤' }))
+
+    expect(screen.getByText('此瀏覽器目前無法保存書籤。')).toHaveAttribute('aria-live', 'polite')
+    expect(window.localStorage.getItem(storyBookmarkKey('runtime-demo'))).toBeNull()
+    expect(window.localStorage.getItem(runtimeStorageKey('runtime-demo'))).not.toBeNull()
+  })
+
+  it('requires inline confirmation for New Run and preserves preferences after reset', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '閱讀設定' }))
+    fireEvent.click(screen.getByRole('radio', { name: '深色' }))
+
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '讓風把信吹進屋內' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+
+    expect(screen.getByText('閱讀完畢')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '開始新一輪' }))
+    expect(screen.getByText('這會清除目前這一輪的因果與書籤，從序章重新開始。閱讀偏好不受影響。')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '取消' }))
+    expect(screen.getByText('閱讀完畢')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: '開始新一輪' }))
+    fireEvent.click(screen.getByRole('button', { name: '確認開始新一輪' }))
+    expect(screen.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeInTheDocument()
+    expect(screen.queryByText('閱讀完畢')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '加入書籤' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '閱讀設定' })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: '深色' })).toBeInTheDocument()
+    expect(window.localStorage.getItem(runtimeStorageKey('runtime-demo'))).toBeNull()
+    expect(window.localStorage.getItem(storyBookmarkKey('runtime-demo'))).toBeNull()
+    expect(window.localStorage.getItem(positionKey)).toBeNull()
+  })
+
+  it('keeps the active run when Reader position cleanup fails before New Run', () => {
+    const firstRender = render(<App />)
+    reachWindEndingInApp()
+    expect(screen.getByRole('heading', { level: 3, name: '潮線之後' })).toBeInTheDocument()
+
+    const originalRemoveItem = Storage.prototype.removeItem
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(function (this: Storage, key) {
+      if (key.startsWith('storyforge.reader.position.')) throw new Error('blocked')
+      originalRemoveItem.call(this, key)
+    })
+    fireEvent.click(screen.getByRole('button', { name: '開始新一輪' }))
+    fireEvent.click(screen.getByRole('button', { name: '確認開始新一輪' }))
+
+    expect(screen.getByText('閱讀完畢')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: '潮線之後' })).toBeInTheDocument()
+    expect(screen.getByText('目前無法開始新一輪，請確認瀏覽器儲存空間可用。')).toHaveAttribute('aria-live', 'polite')
+    expect(screen.getByRole('button', { name: '確認開始新一輪' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '繼續閱讀' })).not.toBeInTheDocument()
+    expect(window.localStorage.getItem(runtimeStorageKey('runtime-demo'))).not.toBeNull()
+
+    vi.restoreAllMocks()
+    firstRender.unmount()
+    render(<App />)
+    expect(screen.getByRole('heading', { level: 3, name: '潮線之後' })).toBeInTheDocument()
+    expect(screen.getByText('閱讀完畢')).toBeInTheDocument()
+  })
+
+  it('keeps the active run when Bookmark cleanup fails before Runtime removal', () => {
+    const firstRender = render(<App />)
+    reachWindEndingInApp()
+    fireEvent.click(screen.getByRole('button', { name: '加入書籤' }))
+    expect(window.localStorage.getItem(storyBookmarkKey('runtime-demo'))).not.toBeNull()
+
+    const originalRemoveItem = Storage.prototype.removeItem
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(function (this: Storage, key) {
+      if (key.startsWith('storyforge.bookmark.')) throw new Error('blocked')
+      originalRemoveItem.call(this, key)
+    })
+    fireEvent.click(screen.getByRole('button', { name: '開始新一輪' }))
+    fireEvent.click(screen.getByRole('button', { name: '確認開始新一輪' }))
+
+    expect(screen.getByText('閱讀完畢')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: '潮線之後' })).toBeInTheDocument()
+    expect(screen.getByText('目前無法開始新一輪，請確認瀏覽器儲存空間可用。')).toHaveAttribute('aria-live', 'polite')
+    expect(window.localStorage.getItem(runtimeStorageKey('runtime-demo'))).not.toBeNull()
+    expect(window.localStorage.getItem(storyBookmarkKey('runtime-demo'))).not.toBeNull()
+
+    vi.restoreAllMocks()
+    firstRender.unmount()
+    render(<App />)
+    expect(screen.getByRole('heading', { level: 3, name: '潮線之後' })).toBeInTheDocument()
+    expect(screen.getByText('閱讀完畢')).toBeInTheDocument()
+  })
+
+  it('keeps Ending and causal state when New Run storage cleanup fails', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '讓風把信吹進屋內' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '開始新一輪' }))
+
+    const originalRemoveItem = Storage.prototype.removeItem
+    vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(function (this: Storage, key) {
+      if (key.startsWith('storyforge.runtime.')) throw new Error('blocked')
+      originalRemoveItem.call(this, key)
+    })
+    fireEvent.click(screen.getByRole('button', { name: '確認開始新一輪' }))
+
+    expect(screen.getByText('目前無法開始新一輪，請確認瀏覽器儲存空間可用。')).toHaveAttribute('aria-live', 'polite')
+    expect(screen.getByText('閱讀完畢')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 3, name: '潮線之後' })).toBeInTheDocument()
+    expect(window.localStorage.getItem(runtimeStorageKey('runtime-demo'))).not.toBeNull()
   })
 })

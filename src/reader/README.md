@@ -24,4 +24,25 @@ story save or cross-run narrative memory.
 
 A future Story Runtime may provide presentation content to the Reader. The
 Reader itself must not understand Route, Choice, Condition, Effect, World
-State, branching, or any work-specific narrative concept.
+State, branching, Bookmark, or any work-specific narrative concept.
+
+## Reader Location and navigation
+
+`ReaderLocation` is the generic Reader navigation contract:
+
+```ts
+{
+  documentId: string
+  markerId: string
+  progress: number
+}
+```
+
+The Reader can report the visible marker through `onLocationChange` and accept
+a `requestedLocation` to scroll and focus an existing marker. This API carries
+only document navigation; it cannot restore Runtime, World State, Choice
+History, or rendered story content. `removeReadingPosition(documentId)` clears
+the approximate position key without touching preferences.
+
+The application may use this contract for a single Bookmark, but the Reader
+does not know that product concept.
