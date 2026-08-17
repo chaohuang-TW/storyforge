@@ -136,7 +136,7 @@ export function StorySession({ story }: StorySessionProps) {
       document={document}
       endMessage={ended ? '閱讀完畢' : null}
       contentComplete={ended}
-      afterContent={causalFeedback || pendingChoice || !ended ? afterContent : null}
+      afterContent={persistenceWarning || causalFeedback || pendingChoice || !ended ? afterContent : null}
     />
   )
 }

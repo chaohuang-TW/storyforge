@@ -194,6 +194,36 @@ describe('Book reader', () => {
     expect(screen.getByText('此瀏覽器目前無法保存因果。重新整理後進度可能遺失。')).toHaveAttribute('aria-live', 'polite')
   })
 
+  it('shows persistence warning when the final runtime save fails while entering the ending', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '讓風把信吹進屋內' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' }))
+
+    expect(screen.getByRole('heading', { level: 3, name: '鐘聲早了一拍' })).toBeInTheDocument()
+    expect(screen.queryByText('此瀏覽器目前無法保存因果。重新整理後進度可能遺失。')).not.toBeInTheDocument()
+
+    const originalSetItem = Storage.prototype.setItem
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (this: Storage, key, value) {
+      if (key.startsWith('storyforge.runtime.')) throw new Error('quota exceeded')
+      originalSetItem.call(this, key, value)
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+
+    const warning = screen.getByText('此瀏覽器目前無法保存因果。重新整理後進度可能遺失。')
+    expect(screen.getByRole('heading', { level: 3, name: '潮線之後' })).toBeInTheDocument()
+    expect(screen.getByText('閱讀完畢')).toBeInTheDocument()
+    expect(warning).toHaveAttribute('aria-live', 'polite')
+    expect(screen.queryByRole('button', { name: '繼續閱讀' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: '撥動因果' })).not.toBeInTheDocument()
+  })
+
   it('re-registers observers and observes markers from appended nodes', () => {
     render(<App />)
     const initialObserver = mainObserverFor('prologue-heading')
