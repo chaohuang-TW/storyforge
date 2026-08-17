@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState, type ReactNode } from 'react'
-import type { ReaderDocument } from '../types/reader'
+import type { ReaderDocument, ReaderLocation } from '../types/reader'
 import { useReaderPreferences } from '../hooks/useReaderPreferences'
 import { useReaderProgress } from '../hooks/useReaderProgress'
 import { ReaderContentBlock } from './content/ReaderContentBlock'
@@ -11,6 +11,9 @@ type BookReaderProps = {
   afterContent?: ReactNode
   endMessage?: string | null
   contentComplete?: boolean
+  headerActions?: ReactNode
+  onLocationChange?: (location: ReaderLocation) => void
+  requestedLocation?: ReaderLocation | null
 }
 
 export function BookReader({
@@ -18,6 +21,9 @@ export function BookReader({
   afterContent,
   endMessage = '本篇示例閱讀完畢',
   contentComplete = true,
+  headerActions,
+  onLocationChange,
+  requestedLocation,
 }: BookReaderProps) {
   const contentRef = useRef<HTMLElement>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -27,6 +33,8 @@ export function BookReader({
     contentRef,
     document.blocks.length,
     contentComplete,
+    onLocationChange,
+    requestedLocation,
   )
   const closeSettings = useCallback(() => setSettingsOpen(false), [])
 
@@ -41,6 +49,7 @@ export function BookReader({
         chapterLabel={document.chapterLabel}
         progress={progress}
         onOpenSettings={() => setSettingsOpen(true)}
+        actions={headerActions}
       />
 
       {resumeAvailable ? (
@@ -58,7 +67,7 @@ export function BookReader({
       ) : null}
 
       <main className="reader-main" aria-labelledby="reader-title">
-        <header className="reader-title-page" data-reader-progress-marker="0">
+          <header className="reader-title-page" data-reader-progress-marker="0">
           <p className="reader-title-page__product">StoryForge</p>
           <h1 id="reader-title">{document.title}</h1>
           {document.subtitle ? <p className="reader-title-page__subtitle">{document.subtitle}</p> : null}
@@ -71,11 +80,11 @@ export function BookReader({
           ))}
           {afterContent}
           {endMessage ? (
-            <p className="reader-end" data-reader-progress-marker={document.blocks.length + 1}>
+            <p id="reader-end" className="reader-end" data-reader-progress-marker={document.blocks.length + 1}>
               {endMessage}
             </p>
           ) : (
-            <div className="reader-end-marker" data-reader-progress-marker={document.blocks.length + 1} aria-hidden="true" />
+            <div id="reader-end-marker" className="reader-end-marker" data-reader-progress-marker={document.blocks.length + 1} aria-hidden="true" />
           )}
         </article>
       </main>

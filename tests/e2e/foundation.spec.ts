@@ -16,6 +16,13 @@ async function reachSecondChoice(page: import('@playwright/test').Page, firstCho
   await expect(page.getByRole('group', { name: '撥動因果' })).toBeVisible()
 }
 
+async function reachWindEnding(page: import('@playwright/test').Page) {
+  await reachSecondChoice(page, '讓風把信吹進屋內')
+  await page.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' }).click()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await expect(page.getByText('閱讀完畢')).toBeVisible()
+}
+
 test('loads only the runtime entry node in the continuous reader', async ({ page }) => {
   const response = await page.goto('/')
 
@@ -257,6 +264,73 @@ test('restores the ending and completion state after reload', async ({ page }) =
   await expect(page.getByText('閱讀完畢')).toBeVisible()
   await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeHidden()
   await expect(page.getByRole('group', { name: '撥動因果' })).toBeHidden()
+})
+
+test('saves a single Bookmark before Choice and returns without undoing causality', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: '加入書籤' }).click()
+  await expect(page.getByText('書籤已更新。')).toBeVisible()
+  await expect.poll(async () => page.evaluate(() => {
+    const value = JSON.parse(window.localStorage.getItem('storyforge.bookmark.runtime-demo') ?? '{}')
+    return value.location?.markerId
+  })).toBe('prologue-heading')
+
+  await reachChoice(page)
+  await page.getByRole('button', { name: '讓風把信吹進屋內' }).click()
+  await page.getByRole('button', { name: '回到書籤' }).click()
+  await expect(page.getByRole('heading', { level: 3, name: '風進屋時' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '讓風把信吹進屋內' })).toBeHidden()
+  await expect(page.getByRole('button', { name: '讓雨水暈開信封上的墨' })).toBeHidden()
+})
+
+test('restores Bookmark controls after reload without treating Bookmark as a Runtime save', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: '加入書籤' }).click()
+  await page.reload()
+
+  await expect(page.getByRole('button', { name: '更新書籤' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '回到書籤' })).toBeVisible()
+  await page.getByRole('button', { name: '回到書籤' }).click()
+  await expect(page.locator('#prologue-heading')).toBeFocused()
+})
+
+test('starts a second route only from Ending and clears the first run', async ({ page }) => {
+  await page.goto('/')
+  await reachWindEnding(page)
+  await page.getByRole('button', { name: '加入書籤' }).click()
+
+  await page.getByRole('button', { name: '開始新一輪' }).click()
+  await expect(page.getByText('這會清除目前這一輪的因果與書籤，從序章重新開始。閱讀偏好不受影響。')).toBeVisible()
+  await page.getByRole('button', { name: '取消' }).click()
+  await expect(page.getByText('閱讀完畢')).toBeVisible()
+  await page.getByRole('button', { name: '開始新一輪' }).click()
+  await page.getByRole('button', { name: '確認開始新一輪' }).click()
+
+  await expect(page.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeVisible()
+  await expect(page.getByText('閱讀完畢')).toBeHidden()
+  await expect(page.getByRole('button', { name: '回到書籤' })).toBeHidden()
+  await expect.poll(async () => page.evaluate(() => ({
+    runtime: window.localStorage.getItem('storyforge.runtime.runtime-demo'),
+    bookmark: window.localStorage.getItem('storyforge.bookmark.runtime-demo'),
+  }))).toEqual({ runtime: null, bookmark: null })
+
+  await reachChoice(page)
+  await page.getByRole('button', { name: '讓雨水暈開信封上的墨' }).click()
+  await expect(page.getByRole('heading', { level: 3, name: '墨跡散開時' })).toBeVisible()
+})
+
+test('reloads into the fresh entry after New Run without restoring the old Ending', async ({ page }) => {
+  await page.goto('/')
+  await reachWindEnding(page)
+  await page.getByRole('button', { name: '開始新一輪' }).click()
+  await page.getByRole('button', { name: '確認開始新一輪' }).click()
+  await page.reload()
+
+  await expect(page.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeVisible()
+  await expect(page.getByText('閱讀完畢')).toBeHidden()
+  await expect(page.getByRole('button', { name: '回到書籤' })).toBeHidden()
+  await reachChoice(page)
+  await expect(page.getByRole('button', { name: '讓風把信吹進屋內' })).toBeVisible()
 })
 
 test('restores a committed route after closing and reopening the page', async ({ page }) => {

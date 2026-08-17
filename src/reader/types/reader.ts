@@ -72,3 +72,10 @@ export type ReaderPosition = {
   progress: number
   updatedAt: string
 }
+
+/** A generic, content-owned Reader destination. It contains no story state. */
+export type ReaderLocation = {
+  documentId: string
+  markerId: string
+  progress: number
+}

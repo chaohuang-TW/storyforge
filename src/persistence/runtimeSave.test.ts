@@ -3,6 +3,7 @@ import type { StoryRuntimeSnapshot } from '../engine/runtime/runtimeSnapshot'
 import {
   createRuntimeSaveEnvelope,
   loadRuntimeSave,
+  removeRuntimeSave,
   runtimeStorageKey,
   saveRuntimeSave,
   type RuntimeSaveIdentity,
@@ -107,5 +108,14 @@ describe('runtime persistence save manager', () => {
     storage.shouldThrowOnGet = false
     storage.shouldThrowOnSet = true
     expect(saveRuntimeSave(storage, createRuntimeSaveEnvelope(identity, snapshot))).toEqual({ ok: false })
+  })
+
+  it('removes a Story Pack runtime save through its generic persistence API', () => {
+    const storage = new MemoryStorage()
+    saveRuntimeSave(storage, createRuntimeSaveEnvelope(identity, snapshot))
+    expect(removeRuntimeSave(storage, identity.storyId)).toBe(true)
+    expect(storage.values.has(runtimeStorageKey(identity.storyId))).toBe(false)
+    storage.shouldThrowOnRemove = true
+    expect(removeRuntimeSave(storage, identity.storyId)).toBe(false)
   })
 })

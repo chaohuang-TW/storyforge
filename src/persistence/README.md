@@ -15,6 +15,9 @@ flags, illustrations, or route names.
 - The Reader continues to own its existing preferences and reading-position
   storage. Runtime persistence never stores Reader position, rendered content,
   or transient UI feedback.
+- `storyBookmark.ts` stores one Reader Location per Story Pack. Bookmark
+  persistence never stores Runtime Snapshot, World State, Choice History,
+  pending Choice, story content, HTML/SVG, or Effects.
 
 ## Save envelope and key
 
@@ -44,5 +47,35 @@ still commits in memory and the session exposes a polite, low-interference
 warning that the causal state may be lost on reload.
 
 Cross-tab synchronization, cloud saves, manual save slots, manual load, reset
-or new-run UI, Bookmark, Reader Memory, New Game+, and Journey81 are outside
-Phase 4A.
+or new-run UI, Reader Memory, New Game+, and Journey81 are outside Phase 4A.
+
+## Bookmark envelope and key
+
+Phase 4B uses one replaceable Bookmark at:
+
+```text
+storyforge.bookmark.<encodeURIComponent(storyId)>
+```
+
+The envelope is deliberately small and versioned:
+
+```json
+{
+  "formatVersion": 1,
+  "storyId": "runtime-demo",
+  "storyVersion": "0.1.0",
+  "schemaVersion": "0.1",
+  "location": {
+    "documentId": "story:runtime-demo",
+    "markerId": "chapter-heading",
+    "progress": 42
+  }
+}
+```
+
+Bookmark identity must match the loaded Story Pack. Malformed or incompatible
+Bookmarks are discarded without affecting Runtime restore. Updating or
+returning to a Bookmark never changes fate; it only asks the generic Reader to
+navigate to a saved location. A new run removes Bookmark, Reader position, and
+Runtime save through their owning generic APIs, while preserving Reader
+preferences.

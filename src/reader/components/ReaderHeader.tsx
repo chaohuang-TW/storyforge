@@ -1,12 +1,14 @@
+import type { ReactNode } from 'react'
 import { ReaderProgress } from './ReaderProgress'
 
 type ReaderHeaderProps = {
   chapterLabel: string
   progress: number
   onOpenSettings: () => void
+  actions?: ReactNode
 }
 
-export function ReaderHeader({ chapterLabel, progress, onOpenSettings }: ReaderHeaderProps) {
+export function ReaderHeader({ chapterLabel, progress, onOpenSettings, actions }: ReaderHeaderProps) {
   return (
     <header className="reader-header">
       <div className="reader-header__inner">
@@ -16,9 +18,12 @@ export function ReaderHeader({ chapterLabel, progress, onOpenSettings }: ReaderH
         <span className="reader-header__chapter" aria-hidden="true">
           {chapterLabel}
         </span>
-        <button className="reader-header__settings" type="button" onClick={onOpenSettings}>
-          閱讀設定
-        </button>
+        <div className="reader-header__actions">
+          {actions}
+          <button className="reader-header__settings" type="button" onClick={onOpenSettings}>
+            閱讀設定
+          </button>
+        </div>
       </div>
       <ReaderProgress progress={progress} />
     </header>

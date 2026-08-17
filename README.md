@@ -2,7 +2,7 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 4A — Runtime Persistence (complete)**
+Status: **Phase 4B — Bookmark & Run Lifecycle UX (development)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 Phase 0 — Foundation, Phase 1 — Book Reader, Phase 2 — Story Runtime, Phase
@@ -46,6 +46,14 @@ LocalStorage:
 - Safe corrupt or incompatible save fallback
 - Non-blocking Storage failure warning
 - Reader preference and reading-position separation from story fate
+
+Phase 4B development adds the first lifecycle controls without changing the
+causal Engine or Story Pack schema:
+
+- One per-story Bookmark containing only a generic Reader Location
+- Bookmark save after a successful Runtime snapshot write
+- Ending-only, two-step `開始新一輪` reset for Runtime save, Bookmark, and Reader position
+- Reader preferences remain untouched by a new run
 
 In normal LocalStorage conditions, committed causality, the currently visible
 story, Choice History, pending Choice, and World State survive reload and
@@ -101,16 +109,16 @@ World State, Conditions, Effects, Conditional Story Nodes, and Story Runtime.
 Runtime persistence is owned by the separate `src/persistence/` boundary and
 restores committed story state without taking ownership of Reader UI state.
 Reading position and preferences remain separate Reader state and do not
-determine story fate.
+determine story fate. Bookmark navigation changes only the Reader viewport; it
+cannot undo a Choice, World State effect, Runtime snapshot, or visible story.
 
 The following remain intentionally out of scope:
 
-- Bookmark — NOT IMPLEMENTED
 - Reader Memory — NOT IMPLEMENTED
 - New Game+ — NOT IMPLEMENTED
 - Manual Save Slots — NOT IMPLEMENTED
 - Manual Load — NOT IMPLEMENTED
-- Reset / New Run UI — NOT IMPLEMENTED
 - Cloud Save — NOT IMPLEMENTED
 - Journey81 — NOT IMPLEMENTED
-- Phase 4B — NOT STARTED
+- Multiple Bookmarks, archive/history UI, achievements, account sync, and undo — NOT IMPLEMENTED
+- Phase 5 — NOT STARTED

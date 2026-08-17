@@ -43,6 +43,7 @@
 }
 
 .reader-header__settings,
+.story-session__bookmark-actions button,
 .reader-settings__close,
 .reader-resume button {
   border: 1px solid var(--reader-border);
@@ -61,7 +62,26 @@
   padding: 0.65rem 0.8rem;
 }
 
+.reader-header__actions {
+  display: flex;
+  justify-self: end;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.story-session__bookmark-actions {
+  display: flex;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.story-session__bookmark-actions button {
+  padding: 0.65rem 0.7rem;
+}
+
 .reader-header__settings:hover,
+.story-session__bookmark-actions button:hover,
 .reader-settings__close:hover,
 .reader-resume button:hover {
   border-color: var(--reader-accent);
@@ -69,6 +89,7 @@
 }
 
 .reader-header__settings:active,
+.story-session__bookmark-actions button:active,
 .reader-settings__close:active,
 .reader-resume button:active {
   transform: translateY(1px);
@@ -325,6 +346,71 @@
   text-align: center;
 }
 
+.story-session__bookmark-warning,
+.story-session__bookmark-feedback,
+.story-session__new-run-warning {
+  margin: 1.5rem 0 0;
+  color: var(--reader-muted);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.story-session__bookmark-feedback {
+  font-weight: 650;
+}
+
+.story-session__new-run {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  margin: 4rem 0 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--reader-border);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+  text-align: center;
+}
+
+.story-session__new-run p {
+  max-width: 30rem;
+  margin: 0;
+  color: var(--reader-muted);
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.story-session__new-run > button,
+.story-session__new-run-actions button {
+  min-height: 2.75rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--reader-border);
+  border-radius: 0.625rem;
+  background: var(--reader-surface);
+  color: var(--reader-text);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.story-session__new-run > button:hover,
+.story-session__new-run-actions button:hover {
+  border-color: var(--reader-accent);
+  background: var(--reader-surface-strong);
+}
+
+.story-session__new-run-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.story-session__new-run-actions button:last-child {
+  border-color: var(--reader-accent);
+  background: var(--reader-accent);
+  color: var(--reader-accent-contrast);
+}
+
 .choice-prompt {
   margin: clamp(4rem, 10vh, 6rem) 0 2rem;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
@@ -396,7 +482,9 @@
 }
 
 .choice-prompt button:focus-visible,
-.story-session__advance button:focus-visible {
+.story-session__advance button:focus-visible,
+.story-session__bookmark-actions button:focus-visible,
+.story-session__new-run button:focus-visible {
   outline: 3px solid var(--reader-focus);
   outline-offset: 3px;
 }
@@ -560,6 +648,21 @@
 
   .reader-header__chapter {
     display: none;
+  }
+
+  .reader-header__inner {
+    padding-inline: 0.75rem;
+  }
+
+  .reader-header__actions,
+  .story-session__bookmark-actions {
+    gap: 0.25rem;
+  }
+
+  .reader-header__settings,
+  .story-session__bookmark-actions button {
+    padding-inline: 0.55rem;
+    font-size: 0.72rem;
   }
 
   .reader-title-page {
