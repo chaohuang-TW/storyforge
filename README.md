@@ -2,13 +2,13 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 4A — Runtime Persistence (development)**
+Status: **Phase 4A — Runtime Persistence (complete)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 Phase 0 — Foundation, Phase 1 — Book Reader, Phase 2 — Story Runtime, Phase
-3A — Causality Foundation, Phase 3B — Choice & Causal Commit, and Phase 3C —
-Playable & Illustrated Vertical Slice. The Reader remains continuous and
-mobile-first.
+3A — Causality Foundation, Phase 3B — Choice & Causal Commit, Phase 3C —
+Illustrated Playable Slice, and Phase 4A — Runtime Persistence. The Reader
+remains continuous and mobile-first.
 
 Phase 3B production supports:
 
@@ -35,17 +35,23 @@ Phase 3C production supports the illustrated playable slice inside the existing
 - Four coherent causal combinations
 - Shared ending
 
-Phase 4A development adds automatic Runtime Persistence per Story Pack in
-LocalStorage. Reloading or reopening restores committed World State, visible
-narrative, pending Choice, current Runtime position, and Choice History before
-the Reader renders.
+Phase 4A production supports automatic Runtime Persistence per Story Pack in
+LocalStorage:
 
-Phase 4A guarantees that the active story run continues across normal reload
-and close/reopen when LocalStorage is available. Incompatible or corrupt saves
-start a fresh runtime; Phase 4A does not implement save migrations. Reader
-Memory, New Game+, Bookmark, cloud save, multiple save slots, and Journey81
-are not implemented. See [the
-causality foundation](src/engine/causality/README.md).
+- Automatic per-story runtime saves with a versioned save envelope
+- World State, visible narrative, current Runtime position, Choice History, and
+  pending Choice restoration
+- Ending restoration after reload
+- Reload and close/reopen persistence without replaying completed effects
+- Safe corrupt or incompatible save fallback
+- Non-blocking Storage failure warning
+- Reader preference and reading-position separation from story fate
+
+In normal LocalStorage conditions, committed causality, the currently visible
+story, Choice History, pending Choice, and World State survive reload and
+close/reopen. Restore does not re-apply completed node or Choice effects. See
+[the causality foundation](src/engine/causality/README.md) and [the Runtime
+Persistence boundary](src/persistence/README.md).
 
 ## Tech stack
 
@@ -90,18 +96,21 @@ base path from `GITHUB_REPOSITORY`, while local development uses `/`.
 
 ## Current scope
 
-This development branch keeps the [Reader boundary](src/reader/README.md)
-independent of Choice, World State, Conditions, Effects, Conditional Story
-Nodes, and Story Runtime. Choice commitments and Choice History exist only in
-the active runtime; persistence is owned by the separate `src/persistence/`
-boundary. Reading position and preferences remain separate Reader state and do
-not determine story fate.
+The [Reader boundary](src/reader/README.md) remains independent of Choice,
+World State, Conditions, Effects, Conditional Story Nodes, and Story Runtime.
+Runtime persistence is owned by the separate `src/persistence/` boundary and
+restores committed story state without taking ownership of Reader UI state.
+Reading position and preferences remain separate Reader state and do not
+determine story fate.
 
 The following remain intentionally out of scope:
 
-- Reader Memory
-- New Game+
-- Bookmark
-- Cloud save
-- Multiple save slots
-- Journey81
+- Bookmark — NOT IMPLEMENTED
+- Reader Memory — NOT IMPLEMENTED
+- New Game+ — NOT IMPLEMENTED
+- Manual Save Slots — NOT IMPLEMENTED
+- Manual Load — NOT IMPLEMENTED
+- Reset / New Run UI — NOT IMPLEMENTED
+- Cloud Save — NOT IMPLEMENTED
+- Journey81 — NOT IMPLEMENTED
+- Phase 4B — NOT STARTED
