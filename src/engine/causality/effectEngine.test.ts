@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { applyEffect, applyEffects } from './effectEngine'
+import { applyEffect, applyEffects, applyStoryEffects } from './effectEngine'
 import { StoryRuntimeError } from '../runtime/errors'
 
 describe('effect engine', () => {
@@ -64,5 +64,18 @@ describe('effect engine', () => {
       { type: 'increment', key: 'score', amount: 1e308 },
     ])).toThrow(StoryRuntimeError)
     expect(before).toEqual({ score: 1e308, untouched: true })
+  })
+
+  it('applies remember without changing World State and supports mixed effects', () => {
+    const before = { score: 1 }
+    const context = applyStoryEffects({ worldState: before, readerMemory: {} }, [
+      { type: 'remember', key: 'saw-signal' },
+      { type: 'increment', key: 'score' },
+      { type: 'remember', key: 'saw-signal' },
+    ])
+
+    expect(context.worldState).toEqual({ score: 2 })
+    expect(context.readerMemory).toEqual({ 'saw-signal': true })
+    expect(before).toEqual({ score: 1 })
   })
 })

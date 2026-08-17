@@ -74,6 +74,9 @@ export function copyRuntimeSnapshot(snapshot: StoryRuntimeSnapshot): StoryRuntim
 
 export function validateRuntimeSnapshot(story: LoadedStory, value: unknown): StoryRuntimeSnapshot {
   if (!isRecord(value)) throw new StoryRuntimeError('Runtime snapshot must be an object')
+  if ('readerMemory' in value || 'memory' in value) {
+    throw new StoryRuntimeError('Runtime snapshot must not contain Reader Memory')
+  }
   if (typeof value.currentNodeId !== 'string') throw new StoryRuntimeError('Runtime snapshot currentNodeId is invalid')
   if (!Array.isArray(value.visibleNodeIds) || value.visibleNodeIds.length === 0) {
     throw new StoryRuntimeError('Runtime snapshot visibleNodeIds must be a non-empty array')

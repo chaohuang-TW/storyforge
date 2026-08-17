@@ -1,7 +1,8 @@
 # Runtime Persistence
 
 Phase 4A stores the active Story Runtime automatically in the browser's
-`LocalStorage`. The persistence layer is generic: it knows a Story Pack's
+`LocalStorage`. Phase 6A adds a separate Reader Memory envelope. The
+persistence layer is generic: it knows a Story Pack's
 identity and serializable runtime snapshot, but it does not know story prose,
 flags, illustrations, or route names.
 
@@ -18,6 +19,18 @@ flags, illustrations, or route names.
 - `storyBookmark.ts` stores one Reader Location per Story Pack. Bookmark
   persistence never stores Runtime Snapshot, World State, Choice History,
   pending Choice, story content, HTML/SVG, or Effects.
+- `readerMemory.ts` stores only monotonic `Record<string, true>` knowledge flags
+  at `storyforge.memory.<encodeURIComponent(storyId)>`. It has its own identity
+  compatibility checks and corrupt-save fallback; it never appears in Runtime
+  Snapshots, Runtime Saves, or Bookmarks.
+
+Runtime Save and Reader Memory Save are separate persistence domains. After a
+successful Runtime mutation, StorySession saves Reader Memory first and writes
+the Runtime Snapshot only if that succeeds. A Memory write failure therefore
+cannot leave Runtime ahead of Memory; if the Runtime write fails after Memory
+succeeds, Memory may be ahead and the active session remains usable. A New Run
+clears Reader position, Bookmark, and Runtime Save in the existing fail-fast
+order while preserving the in-memory Reader Memory.
 
 ## Save envelope and key
 
@@ -46,8 +59,8 @@ fatal error. If storage is unavailable or a write fails, the active runtime
 still commits in memory and the session exposes a polite, low-interference
 warning that the causal state may be lost on reload.
 
-Cross-tab synchronization, cloud saves, manual save slots, manual load, reset
-or new-run UI, Reader Memory, New Game+, and Journey81 are outside Phase 4A.
+Cross-tab synchronization, cloud saves, manual save slots, manual load, New
+Game+, and Journey81 remain outside this persistence boundary.
 
 ## Bookmark envelope and key
 

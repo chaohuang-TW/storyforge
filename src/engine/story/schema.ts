@@ -122,6 +122,8 @@ export function parseCondition(value: unknown, label = 'condition'): Condition {
       return { type, key: string(source.key, `${label}.key`) }
     case 'notFlag':
       return { type, key: string(source.key, `${label}.key`) }
+    case 'readerRemembers':
+      return { type, key: string(source.key, `${label}.key`) }
     case 'all':
     case 'any': {
       if (!Array.isArray(source.conditions) || source.conditions.length === 0) {
@@ -151,6 +153,8 @@ export function parseEffect(value: unknown, label = 'effect'): Effect {
     case 'setFlag':
       return { type, key: string(source.key, `${label}.key`) }
     case 'clearFlag':
+      return { type, key: string(source.key, `${label}.key`) }
+    case 'remember':
       return { type, key: string(source.key, `${label}.key`) }
     default:
       throw new StoryLoadError(`Unsupported effect type: ${type}`)

@@ -31,6 +31,38 @@ describe('Story Pack validator', () => {
     expect(result).toEqual({ valid: true, issues: [] })
   })
 
+  it('accepts generic Reader Memory schema extensions without changing graph validation', () => {
+    const result = validateStoryPack(source([
+      {
+        id: 'start',
+        type: 'narrative',
+        content: [paragraph('start')],
+        effects: [{ type: 'remember', key: 'saw-signal' }],
+        next: 'route',
+      },
+      {
+        id: 'route',
+        type: 'conditional',
+        branches: [{ when: { type: 'readerRemembers', key: 'saw-signal' }, next: 'ending' }],
+        fallback: 'ending',
+      },
+      ending(),
+    ]))
+    expect(result).toEqual({ valid: true, issues: [] })
+    expect(validateStoryPack(source([narrative('start', 'ending', [paragraph('start')]), ending()])).valid).toBe(true)
+  })
+
+  it('rejects malformed Reader Memory schema fields', () => {
+    expect(codes(source([
+      { id: 'start', type: 'narrative', content: [paragraph('start')], effects: [{ type: 'remember' }], next: 'ending' },
+      ending(),
+    ]))).toContain('SCHEMA_INVALID')
+    expect(codes(source([
+      { id: 'start', type: 'conditional', branches: [{ when: { type: 'readerRemembers' }, next: 'ending' }], fallback: 'ending' },
+      ending(),
+    ]))).toContain('SCHEMA_INVALID')
+  })
+
   it('rejects duplicate node IDs', () => {
     expect(codes(source([narrative('start', 'ending'), ending(), ending('start')]))).toContain('DUPLICATE_NODE_ID')
   })

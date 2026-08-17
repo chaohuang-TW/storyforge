@@ -2,7 +2,7 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 5 — Story Validator (complete)**
+Status: **Phase 6A — Reader Memory Foundation (development)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 
@@ -15,6 +15,7 @@ StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 - Phase 4A — Runtime Persistence
 - Phase 4B — Bookmark & Run Lifecycle UX
 - Phase 5 — Story Validator
+- Phase 6A — Reader Memory Foundation (development)
 
 The Reader remains continuous and mobile-first.
 
@@ -72,8 +73,15 @@ Bookmarks store a Reader location for the active run. Returning to a Bookmark
 never restores earlier World State, Choice History, or Runtime state.
 
 A new run is available after the ending and clears the active Runtime save,
-Bookmark, and reading position while preserving Reader preferences. Phase 4B
-does not retain completed runs as loadable history.
+Bookmark, and reading position while preserving Reader preferences and generic
+Reader Memory. Phase 4B does not retain completed runs as loadable history.
+
+Phase 6A Reader Memory is a monotonic `Record<string, true>` shared across
+runs. `readerRemembers` conditions and `remember` effects are additive schema
+`0.1` extensions. Reader Memory has a separate LocalStorage envelope and is
+saved before Runtime Snapshot after each successful `advance` or `choose`.
+World State still resets with a New Run; Runtime Snapshots and Bookmarks never
+contain Reader Memory. The Reader UI remains unaware of these flags.
 
 ## Story validation
 
@@ -184,7 +192,7 @@ cannot undo a Choice, World State effect, Runtime snapshot, or visible story.
 
 The following remain intentionally out of scope:
 
-- Reader Memory — NOT IMPLEMENTED
+- Reader Memory — IN DEVELOPMENT
 - New Game+ — NOT IMPLEMENTED
 - Manual Save Slots — NOT IMPLEMENTED
 - Manual Load — NOT IMPLEMENTED
@@ -196,4 +204,8 @@ The following remain intentionally out of scope:
 - Story Studio — NOT IMPLEMENTED
 - Graph Editor — NOT IMPLEMENTED
 - AI authoring — NOT IMPLEMENTED
-- Phase 6 — NOT STARTED
+- Phase 6B — NOT STARTED
+
+Phase 6A does not include Journey81, 西遊人物/劇情, 微因, 劫變, 逆命, New
+Game+, run count, completed-run archives, memory UI, memory journal,
+achievements, manual memory reset, cloud sync, or accounts.

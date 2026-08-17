@@ -96,6 +96,13 @@ describe('story bookmark manager', () => {
     storage.values.set(key, JSON.stringify({ formatVersion: 1, storyId: identity.storyId }))
     expect(loadStoryBookmark(storage, identity)).toEqual({ status: 'invalid', reason: 'envelope' })
     expect(storage.values.has(key)).toBe(false)
+
+    storage.values.set(key, JSON.stringify({
+      ...createStoryBookmarkEnvelope(identity, location),
+      memory: { known: true },
+    }))
+    expect(loadStoryBookmark(storage, identity)).toEqual({ status: 'invalid', reason: 'envelope' })
+    expect(storage.values.has(key)).toBe(false)
   })
 
   it('reports get, set, and remove storage failures without throwing', () => {

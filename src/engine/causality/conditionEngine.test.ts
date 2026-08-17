@@ -41,6 +41,20 @@ describe('evaluateCondition', () => {
     ).toBe(true)
   })
 
+  it('checks Reader Memory separately, including nested conditions', () => {
+    const memory = { 'saw-signal': true as const }
+    expect(evaluateCondition({ type: 'readerRemembers', key: 'saw-signal' }, {}, memory)).toBe(true)
+    expect(evaluateCondition({ type: 'readerRemembers', key: 'signal' }, { signal: true }, {})).toBe(false)
+    expect(evaluateCondition({ type: 'all', conditions: [
+      { type: 'hasFlag', key: 'door-open' },
+      { type: 'readerRemembers', key: 'saw-signal' },
+    ] }, { 'door-open': true }, memory)).toBe(true)
+    expect(evaluateCondition({ type: 'any', conditions: [
+      { type: 'readerRemembers', key: 'missing' },
+      { type: 'readerRemembers', key: 'saw-signal' },
+    ] }, {}, memory)).toBe(true)
+  })
+
   it('does not mutate the state', () => {
     const before = { ...state }
     evaluateCondition({ type: 'equals', key: 'score', value: 5 }, state)

@@ -412,3 +412,72 @@ describe('Phase 3B choice runtime', () => {
     })).toThrow('Runtime snapshot visibleNodes references an unknown renderable node: missing')
   })
 })
+
+describe('Phase 6A Reader Memory runtime', () => {
+  const memoryStory = loadStory({
+    manifest: { id: 'memory-test', title: 'Memory Test', version: '0.1.0', schemaVersion: '0.1', language: 'en', entryNode: 'start' },
+    nodes: [
+      { id: 'start', type: 'narrative', content: [], next: 'choice' },
+      {
+        id: 'choice',
+        type: 'choice',
+        choices: [
+          { id: 'ordinary', label: 'Ordinary', effects: [{ type: 'remember', key: 'saw-signal' }], next: 'ordinary-end' },
+          { id: 'remembered', label: 'Remembered', conditions: [{ type: 'readerRemembers', key: 'saw-signal' }], next: 'remembered-end' },
+        ],
+      },
+      { id: 'ordinary-end', type: 'ending', content: [] },
+      { id: 'remembered-end', type: 'ending', content: [] },
+    ],
+  })
+
+  it('keeps Reader Memory outside World State and gates a Choice across runtime instances', () => {
+    const firstRun = createStoryRuntime(memoryStory)
+    firstRun.advance()
+    expect(firstRun.getPendingChoice()?.choices).toEqual([{ id: 'ordinary', label: 'Ordinary' }])
+    firstRun.choose('ordinary')
+    expect(firstRun.getWorldState()).toEqual({})
+    expect(firstRun.getReaderMemory()).toEqual({ 'saw-signal': true })
+
+    const secondRun = createStoryRuntime(memoryStory, { readerMemory: firstRun.getReaderMemory() })
+    secondRun.advance()
+    expect(secondRun.getPendingChoice()?.choices).toEqual([
+      { id: 'ordinary', label: 'Ordinary' },
+      { id: 'remembered', label: 'Remembered' },
+    ])
+    const copy = secondRun.getReaderMemory()
+    copy['saw-signal'] = true
+    expect(secondRun.getReaderMemory()).toEqual({ 'saw-signal': true })
+  })
+
+  it('routes a Conditional node using Reader Memory and applies node memory effects once', () => {
+    const storyWithRoute = loadStory({
+      manifest: { id: 'memory-route', title: 'Memory Route', version: '0.1.0', schemaVersion: '0.1', language: 'en', entryNode: 'start' },
+      nodes: [
+        { id: 'start', type: 'narrative', content: [], effects: [{ type: 'remember', key: 'saw-signal' }], next: 'route' },
+        { id: 'route', type: 'conditional', branches: [{ when: { type: 'readerRemembers', key: 'saw-signal' }, next: 'seen' }], fallback: 'unseen' },
+        { id: 'seen', type: 'narrative', content: [], next: 'ending' },
+        { id: 'unseen', type: 'narrative', content: [], next: 'ending' },
+        { id: 'ending', type: 'ending', content: [] },
+      ],
+    })
+    const runtime = createStoryRuntime(storyWithRoute)
+    expect(runtime.getReaderMemory()).toEqual({ 'saw-signal': true })
+    runtime.advance()
+    expect(runtime.getCurrentNode().id).toBe('seen')
+    const snapshot = runtime.exportSnapshot()
+    expect(snapshot).not.toHaveProperty('readerMemory')
+    const restored = createStoryRuntime(storyWithRoute, { snapshot, readerMemory: runtime.getReaderMemory() })
+    expect(restored.getReaderMemory()).toEqual({ 'saw-signal': true })
+    expect(restored.getCurrentNode().id).toBe('seen')
+  })
+
+  it('continues to forbid initial World State with snapshot while allowing memory with snapshot', () => {
+    const runtime = createStoryRuntime(memoryStory)
+    expect(() => createStoryRuntime(memoryStory, {
+      initialWorldState: {},
+      snapshot: runtime.exportSnapshot(),
+      readerMemory: { 'saw-signal': true },
+    })).toThrow('both initialWorldState and snapshot')
+  })
+})

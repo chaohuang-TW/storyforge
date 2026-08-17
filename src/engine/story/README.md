@@ -8,7 +8,9 @@ they never contain content or effects. Choice nodes contain one or more labelled
 options with optional conditions and effects plus a required next target. They
 never contain visible content or node-level effects.
 
-Choice is a backward-compatible schema `0.1` extension. Choice IDs need only be
+Choice is a backward-compatible schema `0.1` extension. Reader Memory's
+`readerRemembers` condition and `remember` effect are also additive pre-1.0
+extensions; the manifest schema version remains `0.1`. Choice IDs need only be
 unique within one Choice node. Choice and Conditional edges participate in
 generic target validation and graph cycle detection.
 

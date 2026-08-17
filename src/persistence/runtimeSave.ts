@@ -48,6 +48,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function hasBasicSnapshotShape(value: unknown): boolean {
   if (!isRecord(value)) return false
+  if ('readerMemory' in value || 'memory' in value) return false
   return (
     typeof value.currentNodeId === 'string' &&
     Array.isArray(value.visibleNodeIds) &&
