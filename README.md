@@ -2,7 +2,7 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 6A — Reader Memory Foundation (development)**
+Status: **Phase 6A — Reader Memory Foundation (complete)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 
@@ -15,7 +15,7 @@ StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 - Phase 4A — Runtime Persistence
 - Phase 4B — Bookmark & Run Lifecycle UX
 - Phase 5 — Story Validator
-- Phase 6A — Reader Memory Foundation (development)
+- Phase 6A — Reader Memory Foundation
 
 The Reader remains continuous and mobile-first.
 
@@ -82,6 +82,18 @@ runs. `readerRemembers` conditions and `remember` effects are additive schema
 saved before Runtime Snapshot after each successful `advance` or `choose`.
 World State still resets with a New Run; Runtime Snapshots and Bookmarks never
 contain Reader Memory. The Reader UI remains unaware of these flags.
+
+The persistence boundary stays explicit:
+
+| Boundary | World State | Reader Memory |
+| --- | --- | --- |
+| Current run | YES | YES |
+| New Run | RESET | PRESERVE |
+| Runtime Snapshot | YES | NO |
+| Runtime Save | YES | NO |
+| Memory Save | NO | YES |
+| Bookmark | NO | NO |
+| Reader UI state | NO | NO |
 
 ## Story validation
 
@@ -192,7 +204,6 @@ cannot undo a Choice, World State effect, Runtime snapshot, or visible story.
 
 The following remain intentionally out of scope:
 
-- Reader Memory — IN DEVELOPMENT
 - New Game+ — NOT IMPLEMENTED
 - Manual Save Slots — NOT IMPLEMENTED
 - Manual Load — NOT IMPLEMENTED
