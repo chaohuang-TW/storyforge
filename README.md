@@ -2,7 +2,7 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 3C — Playable & Illustrated Vertical Slice (complete)**
+Status: **Phase 4A — Runtime Persistence (development)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 Phase 0 — Foundation, Phase 1 — Book Reader, Phase 2 — Story Runtime, Phase
@@ -35,9 +35,16 @@ Phase 3C production supports the illustrated playable slice inside the existing
 - Four coherent causal combinations
 - Shared ending
 
-Phase 3B guarantees irreversible choice commitment within the active runtime.
-Cross-reload Runtime persistence is not implemented. Reader Memory, New Game+,
-and Journey81 are not implemented. See [the
+Phase 4A development adds automatic Runtime Persistence per Story Pack in
+LocalStorage. Reloading or reopening restores committed World State, visible
+narrative, pending Choice, current Runtime position, and Choice History before
+the Reader renders.
+
+Phase 4A guarantees that the active story run continues across normal reload
+and close/reopen when LocalStorage is available. Incompatible or corrupt saves
+start a fresh runtime; Phase 4A does not implement save migrations. Reader
+Memory, New Game+, Bookmark, cloud save, multiple save slots, and Journey81
+are not implemented. See [the
 causality foundation](src/engine/causality/README.md).
 
 ## Tech stack
@@ -83,15 +90,18 @@ base path from `GITHUB_REPOSITORY`, while local development uses `/`.
 
 ## Current scope
 
-This production branch keeps the [Reader boundary](src/reader/README.md)
+This development branch keeps the [Reader boundary](src/reader/README.md)
 independent of Choice, World State, Conditions, Effects, Conditional Story
 Nodes, and Story Runtime. Choice commitments and Choice History exist only in
-the active runtime. Reloading resets the runtime. Reading position does not
-persist Choice, World State, Choice History, or the Runtime cursor.
+the active runtime; persistence is owned by the separate `src/persistence/`
+boundary. Reading position and preferences remain separate Reader state and do
+not determine story fate.
 
 The following remain intentionally out of scope:
 
-- Cross-reload Runtime persistence
 - Reader Memory
 - New Game+
+- Bookmark
+- Cloud save
+- Multiple save slots
 - Journey81

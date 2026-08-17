@@ -317,6 +317,14 @@
   text-align: center;
 }
 
+.story-session__persistence-warning {
+  margin: 1.5rem 0 0;
+  color: var(--reader-muted);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+  font-size: 0.78rem;
+  text-align: center;
+}
+
 .choice-prompt {
   margin: clamp(4rem, 10vh, 6rem) 0 2rem;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;

@@ -14,5 +14,9 @@ routing, builds the complete next snapshot before mutation, and records
 be reselected in the active runtime. Direct Choice entry is not supported in
 Phase 3B.
 
-Runtime state is currently in-memory only. Cross-reload persistence is not yet
-implemented, so reloading creates a fresh runtime.
+Runtime state remains in-memory within the Engine. Cross-reload persistence is
+not implemented in this module. `exportSnapshot()` returns the serializable current
+node, visible node IDs, World State, Choice History, and pending Choice. A
+snapshot can be passed back through `createStoryRuntime(story, { snapshot })`;
+restore rebuilds runtime bookkeeping without replaying completed node or Choice
+effects. Browser storage remains outside the Engine in `src/persistence/`.
