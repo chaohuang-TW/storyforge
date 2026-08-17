@@ -42,5 +42,6 @@ The Runtime calculates the full post-choice state and route before committing
 any runtime-owned data. If an effect, target, or routed node fails, World State,
 Pending Choice, visible nodes, and Choice History remain unchanged.
 
-World State and Choice History are currently in-memory only. Reader Memory,
-cross-reload persistence, and work-specific story concepts remain out of scope.
+World State and Choice History remain in-memory within the Engine. Phase 4A
+serializes generic Runtime Snapshots outside the Engine; Reader Memory and
+work-specific story concepts remain out of scope.

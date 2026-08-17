@@ -196,7 +196,7 @@ test('commits a Choice with keyboard Enter', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 3, name: '風進屋時' })).toBeVisible()
 })
 
-test('resets causal runtime on reload while preserving Reader-only preferences', async ({ page }) => {
+test('preserves causal runtime on reload while keeping Reader state independent', async ({ page }) => {
   await page.goto('/')
   await reachChoice(page)
   await page.getByRole('button', { name: '讓風把信吹進屋內' }).click()
@@ -205,7 +205,109 @@ test('resets causal runtime on reload while preserving Reader-only preferences',
   await page.reload()
 
   await expect(page.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeVisible()
-  await expect(page.getByRole('heading', { level: 3, name: '風進屋時' })).toBeHidden()
+  await expect(page.getByRole('heading', { level: 3, name: '霧中的郵亭' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 3, name: '風進屋時' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '讓風把信吹進屋內' })).toBeHidden()
+  await expect(page.getByRole('button', { name: '讓雨水暈開信封上的墨' })).toBeHidden()
+  await expect.poll(async () =>
+    page.evaluate(() => JSON.parse(window.localStorage.getItem('storyforge.runtime.runtime-demo') ?? '{}').snapshot.worldState['letter-entered']),
+  ).toBe(true)
+})
+
+test('restores a delayed consequence after reload without switching causal branches', async ({ page }) => {
+  await page.goto('/')
+  await reachChoice(page)
+  await page.getByRole('button', { name: '讓風把信吹進屋內' }).click()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await expect(page.getByRole('heading', { level: 3, name: '燈下的信' })).toBeVisible()
+
+  await page.reload()
+
+  await expect(page.getByRole('heading', { level: 3, name: '燈下的信' })).toBeVisible()
+  await expect(page.getByRole('img', { name: /暖黃燈光下/ })).toBeAttached()
+  await expect(page.getByRole('heading', { level: 3, name: '石階上的藍痕' })).toBeHidden()
+})
+
+test('restores a second pending Choice without repeating the first Choice notice', async ({ page }) => {
+  await page.goto('/')
+  await reachSecondChoice(page, '讓風把信吹進屋內')
+  await expect(page.getByText('觀者可以回看已發生之事。')).toBeHidden()
+
+  await page.reload()
+
+  await expect(page.getByRole('group', { name: '撥動因果' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '讓繫纜繩在木樁上多停半分鐘' })).toBeVisible()
+  await expect(page.getByText('觀者可以回看已發生之事。')).toBeHidden()
+  await expect.poll(async () =>
+    page.evaluate(() => JSON.parse(window.localStorage.getItem('storyforge.runtime.runtime-demo') ?? '{}').snapshot.choiceHistory.length),
+  ).toBe(1)
+})
+
+test('restores the ending and completion state after reload', async ({ page }) => {
+  await page.goto('/')
+  await reachSecondChoice(page, '讓風把信吹進屋內')
+  await page.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' }).click()
+  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  await expect(page.getByText('閱讀完畢')).toBeVisible()
+
+  await page.reload()
+  await expect(page.getByRole('heading', { level: 3, name: '潮線之後' })).toBeVisible()
+  await expect(page.getByText('閱讀完畢')).toBeVisible()
+  await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeHidden()
+  await expect(page.getByRole('group', { name: '撥動因果' })).toBeHidden()
+})
+
+test('restores a committed route after closing and reopening the page', async ({ page }) => {
+  await page.goto('/')
+  await reachChoice(page)
+  await page.getByRole('button', { name: '讓雨水暈開信封上的墨' }).click()
+  const context = page.context()
+  await page.close()
+
+  const reopened = await context.newPage()
+  await reopened.goto('/')
+  await expect(reopened.getByRole('heading', { level: 3, name: '墨跡散開時' })).toBeVisible()
+  await expect(reopened.getByRole('heading', { level: 3, name: '風進屋時' })).toBeHidden()
+  await reopened.close()
+})
+
+test('starts fresh in an isolated browser context', async ({ browser }) => {
+  const firstContext = await browser.newContext()
+  const firstPage = await firstContext.newPage()
+  await firstPage.goto('http://127.0.0.1:4173/')
+  await reachChoice(firstPage)
+  await firstPage.getByRole('button', { name: '讓風把信吹進屋內' }).click()
+  await firstContext.close()
+
+  const secondContext = await browser.newContext()
+  const secondPage = await secondContext.newPage()
+  await secondPage.goto('http://127.0.0.1:4173/')
+  await expect(secondPage.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeVisible()
+  await expect(secondPage.getByRole('heading', { level: 3, name: '風進屋時' })).toBeHidden()
+  await secondContext.close()
+})
+
+test('falls back to a fresh runtime for malformed or incompatible saves', async ({ page }) => {
+  await page.goto('/')
+  await page.evaluate(() => window.localStorage.setItem('storyforge.runtime.runtime-demo', '{invalid'))
+  await page.reload()
+  await expect(page.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 3, name: '霧中的郵亭' })).toBeHidden()
+
+  await page.evaluate(() => window.localStorage.setItem(
+    'storyforge.runtime.runtime-demo',
+    JSON.stringify({
+      formatVersion: 999,
+      storyId: 'runtime-demo',
+      storyVersion: '0.1.0',
+      schemaVersion: '0.1',
+      snapshot: { currentNodeId: 'prologue', visibleNodeIds: ['prologue'], worldState: {}, choiceHistory: [] },
+    }),
+  ))
+  await page.reload()
+  await expect(page.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeVisible()
   await expect(page.getByRole('heading', { level: 3, name: '霧中的郵亭' })).toBeHidden()
 })
 

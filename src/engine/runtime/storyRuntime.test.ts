@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { loadStory } from '../story-loader/loadStory'
 import type { LoadedStory } from '../story/types'
-import { StoryRuntimeError, createStoryRuntime } from './storyRuntime'
+import { StoryRuntimeError, createStoryRuntime, type StoryRuntimeSnapshot } from './storyRuntime'
 
 const story = loadStory({
   manifest: { id: 'runtime-test', title: 'Runtime Test', version: '0.1.0', schemaVersion: '0.1', language: 'zh-TW', entryNode: 'prologue' },
@@ -340,5 +340,75 @@ describe('Phase 3B choice runtime', () => {
     })
 
     expect(() => createStoryRuntime(directChoiceStory)).toThrow('Direct Choice entry is not supported in Phase 3B: choice')
+  })
+
+  it('exports a defensive snapshot and restores a pending Choice', () => {
+    const runtime = createStoryRuntime(choiceStory())
+    runtime.advance()
+
+    const snapshot = runtime.exportSnapshot()
+    snapshot.visibleNodeIds.push('fake')
+    snapshot.worldState.counter = 99
+    snapshot.choiceHistory.push({ nodeId: 'fake', choiceId: 'fake' })
+
+    expect(runtime.exportSnapshot()).toEqual({
+      currentNodeId: 'start',
+      visibleNodeIds: ['start'],
+      worldState: {},
+      choiceHistory: [],
+      pendingChoiceNodeId: 'choice',
+    })
+
+    const restored = createStoryRuntime(choiceStory(), { snapshot: runtime.exportSnapshot() })
+    expect(restored.getPendingChoice()?.nodeId).toBe('choice')
+    expect(restored.getVisibleNodes().map((node) => node.id)).toEqual(['start'])
+    expect(restored.getChoiceHistory()).toEqual([])
+  })
+
+  it('restores a committed Choice without replaying its effect', () => {
+    const runtime = createStoryRuntime(choiceStory())
+    runtime.advance()
+    runtime.choose('available')
+
+    const restored = createStoryRuntime(choiceStory(), { snapshot: runtime.exportSnapshot() })
+
+    expect(restored.getWorldState()).toEqual({ counter: 1 })
+    expect(restored.getChoiceHistory()).toEqual([{ nodeId: 'choice', choiceId: 'available' }])
+    expect(restored.getCurrentNode().id).toBe('consequence')
+    expect(restored.advance()).toBe(true)
+    expect(restored.isEnding()).toBe(true)
+    expect(restored.getWorldState()).toEqual({ counter: 1 })
+  })
+
+  it('restores an ending without replaying its effect', () => {
+    const effectStory = loadStory({
+      manifest: { id: 'restore-effect-test', title: 'Restore Effect Test', version: '0.1.0', schemaVersion: '0.1', language: 'zh-TW', entryNode: 'start' },
+      nodes: [
+        { id: 'start', type: 'narrative', content: [], effects: [{ type: 'set', key: 'counter', value: 1 }], next: 'ending' },
+        { id: 'ending', type: 'ending', content: [], effects: [{ type: 'increment', key: 'counter' }] },
+      ],
+    })
+    const runtime = createStoryRuntime(effectStory)
+    runtime.advance()
+    const restored = createStoryRuntime(effectStory, { snapshot: runtime.exportSnapshot() })
+
+    expect(restored.isEnding()).toBe(true)
+    expect(restored.getWorldState()).toEqual({ counter: 2 })
+    expect(restored.advance()).toBe(false)
+    expect(restored.getWorldState()).toEqual({ counter: 2 })
+  })
+
+  it('rejects malformed and structurally invalid snapshots', () => {
+    expect(() => createStoryRuntime(story, { snapshot: '{broken' as unknown as StoryRuntimeSnapshot })).toThrow(
+      'Runtime snapshot must be an object',
+    )
+    expect(() => createStoryRuntime(story, {
+      snapshot: {
+        currentNodeId: 'missing',
+        visibleNodeIds: ['missing'],
+        worldState: {},
+        choiceHistory: [],
+      },
+    })).toThrow('Runtime snapshot visibleNodes references an unknown renderable node: missing')
   })
 })

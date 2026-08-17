@@ -11,11 +11,14 @@ import type {
   StoryRuntimeState,
 } from '../story/types'
 import { StoryRuntimeError } from './errors'
+import { copyRuntimeSnapshot, validateRuntimeSnapshot, type RuntimeChoiceRecord, type StoryRuntimeSnapshot } from './runtimeSnapshot'
 
 export { StoryRuntimeError } from './errors'
+export type { RuntimeChoiceRecord, StoryRuntimeSnapshot } from './runtimeSnapshot'
 
 export type StoryRuntimeOptions = {
   initialWorldState?: WorldState
+  snapshot?: StoryRuntimeSnapshot
 }
 
 export type AvailableChoice = {
@@ -29,10 +32,7 @@ export type PendingChoice = {
   choices: AvailableChoice[]
 }
 
-export type ChoiceCommit = {
-  nodeId: string
-  choiceId: string
-}
+export type ChoiceCommit = RuntimeChoiceRecord
 
 export type StoryRuntime = {
   getState: () => StoryRuntimeState
@@ -41,6 +41,7 @@ export type StoryRuntime = {
   getVisibleNodes: () => RenderableStoryNode[]
   getPendingChoice: () => PendingChoice | null
   getChoiceHistory: () => ChoiceCommit[]
+  exportSnapshot: () => StoryRuntimeSnapshot
   choose: (choiceId: string) => boolean
   advance: () => boolean
   isEnding: () => boolean
@@ -86,18 +87,50 @@ function pendingChoiceFor(node: ChoiceStoryNode, worldState: WorldState): Pendin
 }
 
 export function createStoryRuntime(story: LoadedStory, options: StoryRuntimeOptions = {}): StoryRuntime {
+  if (options.initialWorldState !== undefined && options.snapshot !== undefined) {
+    throw new StoryRuntimeError('Runtime cannot receive both initialWorldState and snapshot')
+  }
+
+  if (options.snapshot !== undefined) {
+    const restoredSnapshot = validateRuntimeSnapshot(story, options.snapshot)
+    const pendingNode = restoredSnapshot.pendingChoiceNodeId
+      ? nodeAt(story, restoredSnapshot.pendingChoiceNodeId)
+      : null
+    if (pendingNode?.type === 'choice') pendingChoiceFor(pendingNode, restoredSnapshot.worldState)
+
+    const state: StoryRuntimeState = {
+      currentNodeId: restoredSnapshot.currentNodeId,
+      worldState: { ...restoredSnapshot.worldState },
+      ...(restoredSnapshot.pendingChoiceNodeId ? { pendingChoiceNodeId: restoredSnapshot.pendingChoiceNodeId } : {}),
+    }
+    const visibleNodeIds = [...restoredSnapshot.visibleNodeIds]
+    const choiceHistory: ChoiceCommit[] = restoredSnapshot.choiceHistory.map((record) => ({ ...record }))
+
+    return createRuntimeApi(story, state, visibleNodeIds, choiceHistory)
+  }
+
   const initialWorldState = copyValidatedWorldState(options.initialWorldState ?? {})
   const entryBoundary = resolveRuntimeBoundary(story, story.manifest.entryNode, initialWorldState)
   if (entryBoundary.type === 'choice') {
     throw new StoryRuntimeError(`Direct Choice entry is not supported in Phase 3B: ${entryBoundary.id}`)
   }
 
-  let state: StoryRuntimeState = {
+  const state: StoryRuntimeState = {
     currentNodeId: entryBoundary.id,
     worldState: applyEffects(initialWorldState, entryBoundary.effects ?? []),
   }
-  let visibleNodeIds = [entryBoundary.id]
-  let choiceHistory: ChoiceCommit[] = []
+  const visibleNodeIds = [entryBoundary.id]
+  const choiceHistory: ChoiceCommit[] = []
+
+  return createRuntimeApi(story, state, visibleNodeIds, choiceHistory)
+}
+
+function createRuntimeApi(
+  story: LoadedStory,
+  state: StoryRuntimeState,
+  visibleNodeIds: string[],
+  choiceHistory: ChoiceCommit[],
+): StoryRuntime {
 
   const getCurrentNode = (): RenderableStoryNode => {
     const node = nodeAt(story, state.currentNodeId)
@@ -133,6 +166,13 @@ export function createStoryRuntime(story: LoadedStory, options: StoryRuntimeOpti
       return node ? pendingChoiceFor(node, state.worldState) : null
     },
     getChoiceHistory: () => choiceHistory.map((commit) => ({ ...commit })),
+    exportSnapshot: () => copyRuntimeSnapshot({
+      currentNodeId: state.currentNodeId,
+      visibleNodeIds,
+      worldState: state.worldState,
+      choiceHistory,
+      ...(state.pendingChoiceNodeId ? { pendingChoiceNodeId: state.pendingChoiceNodeId } : {}),
+    }),
     choose: (choiceId: string) => {
       const pendingNode = getPendingChoiceNode()
       if (!pendingNode) return false

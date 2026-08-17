@@ -7,6 +7,7 @@ import { BookReader } from '../reader/components/BookReader'
 import { demoDocument } from '../reader/fixtures/demoDocument'
 import { StorySession } from './StorySession'
 import { loadStory } from '../engine/story-loader/loadStory'
+import { runtimeStorageKey } from '../persistence/runtimeSave'
 
 class TestIntersectionObserver {
   static instances: TestIntersectionObserver[] = []
@@ -72,13 +73,23 @@ function mainObserverFor(markerId: string) {
 
 describe('Book reader', () => {
   beforeEach(() => {
-    window.localStorage.clear()
+    const keys = [
+      runtimeStorageKey('runtime-demo'),
+      runtimeStorageKey('choice-ending-ui'),
+      runtimeStorageKey('choice-choice-ui'),
+      READER_PREFERENCES_KEY,
+      positionKey,
+    ]
+    keys.forEach((key) => window.localStorage.removeItem(key))
     Object.defineProperty(window, 'scrollTo', { configurable: true, value: vi.fn(), writable: true })
     TestIntersectionObserver.instances = []
     vi.stubGlobal('IntersectionObserver', TestIntersectionObserver)
   })
 
-  afterEach(() => vi.unstubAllGlobals())
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
+  })
 
   it('loads the runtime entry node without future nodes', () => {
     render(<App />)
@@ -129,6 +140,58 @@ describe('Book reader', () => {
     expect(screen.getByRole('heading', { level: 3, name: '寄出以後' })).toBeInTheDocument()
     expect(screen.getByText('閱讀完畢')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '繼續閱讀' })).not.toBeInTheDocument()
+  })
+
+  it('persists the active runtime across a remount without changing Reader storage', () => {
+    const firstRender = render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '讓風把信吹進屋內' }))
+    expect(screen.getByRole('heading', { level: 3, name: '風進屋時' })).toBeInTheDocument()
+    const savedReaderPreferences = window.localStorage.getItem(READER_PREFERENCES_KEY)
+    firstRender.unmount()
+
+    render(<App />)
+
+    expect(screen.getByRole('heading', { level: 3, name: '風進屋時' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '讓風把信吹進屋內' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '讓雨水暈開信封上的墨' })).not.toBeInTheDocument()
+    expect(window.localStorage.getItem(READER_PREFERENCES_KEY)).toBe(savedReaderPreferences)
+    expect(JSON.parse(window.localStorage.getItem(runtimeStorageKey('runtime-demo')) ?? '{}')).toMatchObject({
+      formatVersion: 1,
+      storyId: 'runtime-demo',
+      snapshot: { currentNodeId: 'wind-path', worldState: { 'letter-entered': true } },
+    })
+  })
+
+  it('restores a pending Choice and preserves its first-choice notice state', () => {
+    const firstRender = render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    expect(screen.getByText('觀者可以回看已發生之事。')).toBeInTheDocument()
+    firstRender.unmount()
+
+    render(<App />)
+
+    expect(screen.getByRole('group', { name: '撥動因果' })).toBeInTheDocument()
+    expect(screen.getByText('觀者可以回看已發生之事。')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '讓風把信吹進屋內' })).toBeInTheDocument()
+  })
+
+  it('shows a polite warning when runtime storage writes fail without blocking a Choice', () => {
+    const originalSetItem = Storage.prototype.setItem
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (this: Storage, key, value) {
+      if (key.startsWith('storyforge.runtime.')) throw new Error('quota exceeded')
+      originalSetItem.call(this, key, value)
+    })
+
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '繼續閱讀' }))
+    fireEvent.click(screen.getByRole('button', { name: '讓風把信吹進屋內' }))
+
+    expect(screen.getByRole('heading', { level: 3, name: '風進屋時' })).toBeInTheDocument()
+    expect(screen.getByText('此瀏覽器目前無法保存因果。重新整理後進度可能遺失。')).toHaveAttribute('aria-live', 'polite')
   })
 
   it('re-registers observers and observes markers from appended nodes', () => {
