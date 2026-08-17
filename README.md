@@ -95,9 +95,13 @@ schema compatibility, node references, structural reachability, non-ending
 dead ends, cycles, reachable endings, and Story Pack-local asset references.
 Reachability is structural: it follows every declared graph edge and does not
 attempt symbolic evaluation of every possible World State. The current Story
-graph contract remains acyclic, so any structural cycle is an error. Local
-asset references must exist inside their Story Pack root and may not escape it;
-the validator does not fetch network URLs.
+graph contract remains acyclic, so any structural cycle is an error. Story
+illustration assets are logical keys: every key must resolve through the
+Story Pack asset map used by Runtime. The filesystem CLI derives one canonical
+key per repository-local asset using its extensionless path relative to the
+Story Pack `assets/` directory. Asset keys may not escape the Story Pack root;
+the validator does not fetch network URLs or bypass exact-key resolution for
+URL-looking references.
 
 The validator is a read-only build-time check. It does not auto-fix Story Pack
 files, execute Runtime choices, mutate World State, or run in the browser.

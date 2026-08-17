@@ -17,6 +17,13 @@ function posixPath(filePath) {
 }
 
 function filesUnder(root) {
+  try {
+    if (!statSync(root).isDirectory()) throw new Error(`Story asset root is not a directory: ${root}`)
+  } catch (error) {
+    if (error?.code === 'ENOENT') return []
+    throw error
+  }
+
   const files = []
   const visit = (directory) => {
     for (const entry of readdirSync(directory, { withFileTypes: true }).sort((left, right) => left.name.localeCompare(right.name))) {
@@ -29,12 +36,28 @@ function filesUnder(root) {
   return files.sort((left, right) => left.localeCompare(right))
 }
 
-function assetAliases(packRoot, assetRoot, filePath) {
-  const relativeToPack = posixPath(relative(packRoot, filePath))
-  const relativeToAssets = posixPath(relative(assetRoot, filePath))
-  const fileName = basename(filePath)
-  const stem = fileName.slice(0, -extname(fileName).length)
-  return [relativeToPack, relativeToAssets, fileName, stem]
+export function canonicalAssetKey(assetRoot, filePath) {
+  const relativePath = posixPath(relative(assetRoot, filePath))
+  const extension = extname(relativePath)
+  return extension ? relativePath.slice(0, -extension.length) : relativePath
+}
+
+function assetMap(packRoot, assetRoot, assetFiles) {
+  const assets = {}
+  const pathsByKey = new Map()
+  for (const filePath of assetFiles) {
+    const key = canonicalAssetKey(assetRoot, filePath)
+    const relativeFilePath = posixPath(relative(packRoot, filePath))
+    const paths = pathsByKey.get(key) ?? []
+    paths.push(relativeFilePath)
+    pathsByKey.set(key, paths)
+    if (!Object.hasOwn(assets, key)) assets[key] = relativeFilePath
+  }
+
+  const collisions = [...pathsByKey.entries()]
+    .filter(([, paths]) => paths.length > 1)
+    .map(([key, paths]) => ({ key, paths }))
+  return { assets, collisions }
 }
 
 export function discoverStoryPacks(storiesRoot) {
@@ -62,16 +85,31 @@ export function loadStoryPackDirectory(packRoot) {
     .sort((left, right) => posixPath(left).localeCompare(posixPath(right)))
   const nodes = nodeFiles.map((filePath) => jsonFile(filePath))
   const assetFiles = filesUnder(assetRoot)
-  const assets = {}
-  for (const filePath of assetFiles) {
-    for (const alias of assetAliases(packRoot, assetRoot, filePath)) assets[alias] = posixPath(relative(packRoot, filePath))
-  }
+  const { assets, collisions } = assetMap(packRoot, assetRoot, assetFiles)
   return {
     source: { manifest, nodes, assets },
     manifestPath,
     nodeFiles,
     assetFiles,
+    assetCollisions: collisions,
   }
+}
+
+function sortIssues(issues) {
+  return [...issues].sort((left, right) =>
+    (left.path ?? '').localeCompare(right.path ?? '') ||
+    (left.nodeId ?? '').localeCompare(right.nodeId ?? '') ||
+    left.code.localeCompare(right.code) ||
+    left.message.localeCompare(right.message),
+  )
+}
+
+function collisionIssues(collisions) {
+  return collisions.map(({ key, paths }) => ({
+    code: 'ASSET_KEY_COLLISION',
+    path: `assets/${key}`,
+    message: `Multiple physical assets resolve to the logical key "${key}": ${paths.join(', ')}`,
+  }))
 }
 
 function formatIssue(issue) {
@@ -83,7 +121,11 @@ function formatIssue(issue) {
 
 export function validateStoryDirectory(packRoot) {
   const loaded = loadStoryPackDirectory(packRoot)
-  const result = validateStoryPack(loaded.source, { assetPaths: new Set(Object.keys(loaded.source.assets)) })
+  const validationIssues = sortIssues([
+    ...validateStoryPack(loaded.source).issues,
+    ...collisionIssues(loaded.assetCollisions),
+  ])
+  const result = { valid: validationIssues.length === 0, issues: validationIssues }
   const storyId = loaded.source.manifest && typeof loaded.source.manifest.id === 'string'
     ? loaded.source.manifest.id
     : basename(packRoot)
@@ -114,6 +156,9 @@ export function runStoryValidation(storiesRoot = resolve(process.cwd(), 'stories
       } else {
         failures.push(...validated.result.issues)
         output.log(`FAIL ${validated.storyId}`)
+        output.log(`  nodes: ${validated.summary.nodes}`)
+        output.log(`  endings: ${validated.summary.endings}`)
+        output.log(`  assets: ${validated.summary.assets}`)
         for (const validationIssue of validated.result.issues) {
           output.log(`\n${formatIssue(validationIssue)}`)
         }

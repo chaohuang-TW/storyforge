@@ -15,4 +15,7 @@ generic target validation and graph cycle detection.
 The Phase 5 Story Validator reuses this schema parser but remains a separate,
 read-only build-time boundary. Its structural reachability and cycle checks do
 not execute Runtime choices or evaluate symbolic World State combinations; the
-Node-only CLI supplies Story Pack-local asset files for existence checks.
+`content.asset` field is a logical asset key resolved against
+`StoryPackSource.assets`, matching Runtime's exact `assets.get(key)` contract.
+The Node-only CLI derives one canonical extensionless relative key per
+repository-local asset file and supplies that map to the validator.

@@ -13,6 +13,7 @@ export type StoryValidationCode =
   | 'NO_REACHABLE_ENDING'
   | 'ASSET_NOT_FOUND'
   | 'ASSET_PATH_ESCAPE'
+  | 'ASSET_KEY_COLLISION'
 
 export type StoryValidationIssue = {
   code: StoryValidationCode
@@ -24,11 +25,6 @@ export type StoryValidationIssue = {
 export type StoryValidationResult = {
   valid: boolean
   issues: StoryValidationIssue[]
-}
-
-export type StoryValidationOptions = {
-  /** Asset keys known to exist, supplied by the Node filesystem adapter. */
-  assetPaths?: ReadonlySet<string>
 }
 
 type UnknownRecord = Record<string, unknown>
@@ -92,10 +88,6 @@ function storyContent(node: StoryNode): StoryContent[] {
   return node.type === 'narrative' || node.type === 'ending' ? node.content : []
 }
 
-function isExternalAssetReference(asset: string): boolean {
-  return /^(?:https?:|data:|blob:)/i.test(asset)
-}
-
 function assetEscapesPackRoot(asset: string): boolean {
   if (asset.startsWith('/') || asset.startsWith('\\') || /^[A-Za-z]:[\\/]/.test(asset)) return true
 
@@ -112,17 +104,17 @@ function assetEscapesPackRoot(asset: string): boolean {
   return false
 }
 
-function validateAssets(nodes: Iterable<StoryNode>, assetPaths: ReadonlySet<string> | undefined, issues: StoryValidationIssue[]) {
-  if (!assetPaths) return
+function validateAssets(nodes: Iterable<StoryNode>, assets: StoryPackSource['assets'], issues: StoryValidationIssue[]) {
+  const assetKeys = new Set(Object.keys(assets ?? {}))
 
   for (const node of nodes) {
     for (const [contentIndex, content] of storyContent(node).entries()) {
-      if (content.type !== 'illustration' || isExternalAssetReference(content.asset)) continue
+      if (content.type !== 'illustration') continue
       const path = `nodes.${node.id}.content[${contentIndex}].asset`
       if (assetEscapesPackRoot(content.asset)) {
         issues.push(issue('ASSET_PATH_ESCAPE', `Story-local asset path escapes the Story Pack root: ${content.asset}`, path, node.id))
-      } else if (!assetPaths.has(content.asset)) {
-        issues.push(issue('ASSET_NOT_FOUND', `Story-local asset was not found: ${content.asset}`, path, node.id))
+      } else if (!assetKeys.has(content.asset)) {
+        issues.push(issue('ASSET_NOT_FOUND', `Story asset key does not resolve in StoryPackSource.assets: ${content.asset}`, path, node.id))
       }
     }
   }
@@ -171,9 +163,10 @@ function finalize(issues: StoryValidationIssue[]): StoryValidationResult {
 
 /**
  * Validate a Story Pack without filesystem access or runtime execution.
- * Filesystem-backed asset keys are supplied by the Node CLI adapter.
+ * Illustration references resolve against the same logical asset-key map that
+ * Runtime uses (`StoryPackSource.assets`).
  */
-export function validateStoryPack(source: StoryPackSource, options: StoryValidationOptions = {}): StoryValidationResult {
+export function validateStoryPack(source: StoryPackSource): StoryValidationResult {
   const issues: StoryValidationIssue[] = []
   let manifest: StoryManifest
   try {
@@ -217,7 +210,7 @@ export function validateStoryPack(source: StoryPackSource, options: StoryValidat
     }
   }
 
-  validateAssets(nodes.values(), options.assetPaths, issues)
+  validateAssets(nodes.values(), source.assets, issues)
   validateCycles(nodes, edges, issues)
 
   const reachable = new Set<string>()

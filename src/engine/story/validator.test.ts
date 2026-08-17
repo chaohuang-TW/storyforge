@@ -13,6 +13,7 @@ const manifest = (entryNode = 'start') => ({
 })
 
 const paragraph = (id: string) => ({ id: `${id}-content`, type: 'paragraph', text: id })
+const illustration = (asset: string) => ({ id: 'illustration', type: 'illustration', asset, alt: asset, width: 1, height: 1 })
 const narrative = (id: string, next: string, content: unknown[] = [paragraph(id)]) => ({ id, type: 'narrative', content, next })
 const ending = (id = 'ending') => ({ id, type: 'ending', content: [paragraph(id)] })
 const source = (nodes: unknown[], entryNode = 'start', assets?: Record<string, string>): StoryPackSource => ({
@@ -21,12 +22,11 @@ const source = (nodes: unknown[], entryNode = 'start', assets?: Record<string, s
   assets,
 })
 
-const codes = (pack: StoryPackSource, assetPaths?: ReadonlySet<string>) =>
-  validateStoryPack(pack, { assetPaths }).issues.map((validationIssue) => validationIssue.code)
+const codes = (pack: StoryPackSource) => validateStoryPack(pack).issues.map((validationIssue) => validationIssue.code)
 
 describe('Story Pack validator', () => {
   it('accepts the current production Story Pack', () => {
-    const result = validateStoryPack(runtimeDemoPack, { assetPaths: new Set(Object.keys(runtimeDemoPack.assets ?? {})) })
+    const result = validateStoryPack(runtimeDemoPack)
 
     expect(result).toEqual({ valid: true, issues: [] })
   })
@@ -109,16 +109,49 @@ describe('Story Pack validator', () => {
     expect(result.issues).toContainEqual(expect.objectContaining({ code: 'NO_REACHABLE_ENDING' }))
   })
 
-  it('rejects missing Story-local assets', () => {
-    const content = [{ id: 'illustration', type: 'illustration', asset: 'assets/missing.svg', alt: 'Missing', width: 1, height: 1 }]
-    const result = validateStoryPack(source([narrative('start', 'ending', content), ending()]), { assetPaths: new Set(['assets/present.svg']) })
+  it('rejects a missing exact Story asset key', () => {
+    const result = validateStoryPack(source([narrative('start', 'ending', [illustration('missing')]), ending()], 'start', { present: '/whatever' }))
 
     expect(result.issues).toContainEqual(expect.objectContaining({ code: 'ASSET_NOT_FOUND', path: 'nodes.start.content[0].asset' }))
   })
 
+  it('accepts an exact Runtime asset key', () => {
+    const result = validateStoryPack(source([narrative('start', 'ending', [illustration('foo')]), ending()], 'start', { foo: '/resolved/foo.svg' }))
+
+    expect(result).toEqual({ valid: true, issues: [] })
+  })
+
+  it('rejects a physical-file extension alias', () => {
+    const result = validateStoryPack(source([narrative('start', 'ending', [illustration('foo.svg')]), ending()], 'start', { foo: '/resolved/foo.svg' }))
+
+    expect(result.issues).toContainEqual(expect.objectContaining({ code: 'ASSET_NOT_FOUND' }))
+  })
+
+  it('does not fall back to a filename or stem from another logical key', () => {
+    const result = validateStoryPack(source([narrative('start', 'ending', [illustration('foo')]), ending()], 'start', { 'chapter/foo': '/resolved/foo.svg' }))
+
+    expect(result.issues).toContainEqual(expect.objectContaining({ code: 'ASSET_NOT_FOUND' }))
+  })
+
+  it('rejects a URL-looking key when it is absent from the asset map', () => {
+    const result = validateStoryPack(source([narrative('start', 'ending', [illustration('https://example.com/foo.png')]), ending()], 'start', {}))
+
+    expect(result.issues).toContainEqual(expect.objectContaining({ code: 'ASSET_NOT_FOUND' }))
+  })
+
+  it('accepts an exact URL-looking logical key when Runtime can resolve it', () => {
+    const result = validateStoryPack(source(
+      [narrative('start', 'ending', [illustration('https://example.com/foo.png')]), ending()],
+      'start',
+      { 'https://example.com/foo.png': '/resolved/runtime-value' },
+    ))
+
+    expect(result).toEqual({ valid: true, issues: [] })
+  })
+
   it('rejects Story-local asset path escape', () => {
     const content = [{ id: 'illustration', type: 'illustration', asset: '../../README.md', alt: 'Escape', width: 1, height: 1 }]
-    const result = validateStoryPack(source([narrative('start', 'ending', content), ending()]), { assetPaths: new Set(['README.md']) })
+    const result = validateStoryPack(source([narrative('start', 'ending', content), ending()], 'start', { 'README.md': '/resolved/README.md' }))
 
     expect(result.issues).toContainEqual(expect.objectContaining({ code: 'ASSET_PATH_ESCAPE' }))
   })
