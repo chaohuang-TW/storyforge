@@ -2,13 +2,21 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 5 — Story Validator (development)**
+Status: **Phase 5 — Story Validator (complete)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
-Phase 0 — Foundation, Phase 1 — Book Reader, Phase 2 — Story Runtime, Phase
-3A — Causality Foundation, Phase 3B — Choice & Causal Commit, Phase 3C —
-Illustrated Playable Slice, Phase 4A — Runtime Persistence, and Phase 4B —
-Bookmark & Run Lifecycle UX. The Reader remains continuous and mobile-first.
+
+- Phase 0 — Foundation
+- Phase 1 — Book Reader
+- Phase 2 — Story Runtime
+- Phase 3A — Causality Foundation
+- Phase 3B — Choice & Causal Commit
+- Phase 3C — Illustrated Playable Vertical Slice
+- Phase 4A — Runtime Persistence
+- Phase 4B — Bookmark & Run Lifecycle UX
+- Phase 5 — Story Validator
+
+The Reader remains continuous and mobile-first.
 
 Phase 3B production supports:
 
@@ -90,18 +98,29 @@ Run it locally with:
 npm run story:validate
 ```
 
-Phase 5 reuses the existing Story schema parser and validates manifest and
-schema compatibility, node references, structural reachability, non-ending
-dead ends, cycles, reachable endings, and Story Pack-local asset references.
-Reachability is structural: it follows every declared graph edge and does not
-attempt symbolic evaluation of every possible World State. The current Story
-graph contract remains acyclic, so any structural cycle is an error. Story
-illustration assets are logical keys: every key must resolve through the
-Story Pack asset map used by Runtime. The filesystem CLI derives one canonical
-key per repository-local asset using its extensionless path relative to the
-Story Pack `assets/` directory. Asset keys may not escape the Story Pack root;
-the validator does not fetch network URLs or bypass exact-key resolution for
-URL-looking references.
+Phase 5 production reuses the existing Story schema parser and validates:
+
+- Story Pack schema validation and schema compatibility
+- Duplicate node IDs and manifest entry validation
+- Narrative, Choice, and Conditional target validation
+- Structural reachability and unreachable node rejection
+- Non-ending dead-end rejection
+- Cycle rejection and reachable Ending requirement
+- Exact Story asset-key validation and asset path escape rejection
+- Canonical asset-key collision rejection
+- Text-only Story Pack support
+- Generic Story discovery and `npm run story:validate`
+- CI Story Validate and GitHub Pages Story Validate gates
+
+Reachability analysis is structural. It follows every declared graph edge and
+does not attempt symbolic evaluation of all possible World State combinations.
+The current Story graph contract is acyclic. Any structural cycle is a
+validation error. Illustration assets are logical keys resolved through
+`StoryPackSource.assets`. Validation uses exact key matching consistent with
+Runtime `assets.get(key)`. The filesystem CLI derives one canonical
+extensionless relative key per repository-local asset. Asset keys may not
+escape the Story Pack root; the validator does not fetch network URLs or
+bypass exact-key resolution for URL-looking references.
 
 The validator is a read-only build-time check. It does not auto-fix Story Pack
 files, execute Runtime choices, mutate World State, or run in the browser.
@@ -177,5 +196,4 @@ The following remain intentionally out of scope:
 - Story Studio — NOT IMPLEMENTED
 - Graph Editor — NOT IMPLEMENTED
 - AI authoring — NOT IMPLEMENTED
-- Phase 5 — IN DEVELOPMENT
 - Phase 6 — NOT STARTED
