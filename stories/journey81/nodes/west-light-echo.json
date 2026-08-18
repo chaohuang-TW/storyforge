@@ -1,0 +1,12 @@
+{
+  "id": "west-light-echo",
+  "type": "narrative",
+  "title": "西行・光留下的臉",
+  "content": [
+    { "id": "west-light-echo-p1", "type": "paragraph", "text": "唐僧記得五行山下那一線光。不是因為光很亮，而是因為它讓悟空的臉先於他的名聲抵達。後來每當悟空轉身太快，唐僧都會想起那半張臉，想起一個人不能只由傳聞組成。" },
+    { "id": "west-light-echo-p2", "type": "paragraph", "text": "悟空沒有察覺這份記得。他把前方的石頭踢到路旁，為隊伍留出一條窄窄的路。那是保護，也是習慣；唐僧知道兩者有時會長得一模一樣。" },
+    { "id": "west-light-echo-p3", "type": "paragraph", "text": "唐僧問他能不能在動手前先說一聲。悟空說妖怪不會等他說完，唐僧說那就更要學會在一瞬間辨認。悟空把棒在肩上轉了一圈，說師父總把一瞬間想得太長。" },
+    { "id": "west-light-echo-p4", "type": "paragraph", "text": "沒有人知道哪個人更接近答案。光只留下那張臉，像一枚尚未兌現的承諾，等待下一次危險替它說明。" }
+  ],
+  "next": "west-rejoin"
+}

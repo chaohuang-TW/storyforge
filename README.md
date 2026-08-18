@@ -2,7 +2,7 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 6A — Reader Memory Foundation (complete)**
+Status: **Phase 6B1 — Journey81 Story Pack (development)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 
@@ -18,6 +18,11 @@ StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 - Phase 6A — Reader Memory Foundation
 
 The Reader remains continuous and mobile-first.
+
+Phase 6B1 adds the independent `stories/journey81/` Story Pack vertical slice
+for 《西遊：八十一劫》. It is validated and testable through the generic Engine
+without replacing the production `runtime-demo` App default. Phase 6B2 will
+handle playable Reader integration after narrative acceptance.
 
 Phase 3B production supports:
 
@@ -210,12 +215,13 @@ The following remain intentionally out of scope:
 - Cloud Save — NOT IMPLEMENTED
 - Run archive/history — NOT IMPLEMENTED
 - Achievements — NOT IMPLEMENTED
-- Journey81 — NOT IMPLEMENTED
+- Journey81 Vertical Slice — IN DEVELOPMENT
 - Multiple Bookmarks — NOT IMPLEMENTED
 - Story Studio — NOT IMPLEMENTED
 - Graph Editor — NOT IMPLEMENTED
 - AI authoring — NOT IMPLEMENTED
-- Phase 6B — NOT STARTED
+- Phase 6B1 — IN DEVELOPMENT
+- Phase 6B2 — NOT STARTED
 
 Phase 6A does not include Journey81, 西遊人物/劇情, 微因, 劫變, 逆命, New
 Game+, run count, completed-run archives, memory UI, memory journal,

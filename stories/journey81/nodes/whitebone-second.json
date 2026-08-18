@@ -1,0 +1,15 @@
+{
+  "id": "whitebone-second",
+  "type": "narrative",
+  "title": "白骨嶺・第二次回頭",
+  "content": [
+    { "id": "whitebone-second-p1", "type": "paragraph", "text": "夜還沒有完全落下。山腰傳來第二次腳步聲，比第一次更輕，也更像一個凡人怕驚動別人的走法。悟空轉身，唐僧也轉身；這一次，他們看的仍不是同一件事。" },
+    { "id": "whitebone-second-p2", "type": "paragraph", "text": "悟空的眼睛追著山影。唐僧的眼睛留在地上的水痕。八戒把嘴邊的話吞回去，沙悟淨則把一塊被踩歪的石頭放回原位。沒有人命令他們這樣做，只有每個人看見的條件不同。" },
+    { "id": "whitebone-second-illustration", "type": "illustration", "asset": "whitebone-ridge", "alt": "夜色沿白骨嶺下沉，四名取經人站在泉邊各自望向不同方向", "width": 1200, "height": 700 },
+    { "id": "whitebone-second-p3", "type": "paragraph", "text": "遠處的風帶來一點骨頭碰石的聲音。它很快就停了。唐僧問悟空有沒有聽見，悟空說有；唐僧又問八戒與沙悟淨，兩人一個說像是樹枝，一個說像是水裡的石頭。" },
+    { "id": "whitebone-second-p4", "type": "paragraph", "text": "同一個聲音經過四個人，已經變成四種可能。你只能讓其中一種可能早一點靠近，不能把它強行改成答案。" },
+    { "id": "whitebone-second-p5", "type": "paragraph", "text": "悟空忽然朝一棵空無一人的樹看了一眼，像只是聽見風。唐僧注意到了，卻沒有問他在看誰。那一眼很快消失，留下的只有樹葉彼此碰撞的聲音。" },
+    { "id": "whitebone-second-p6", "type": "paragraph", "text": "八戒把手放在肚子上，說自己只希望下一個破綻不要從飯裡出現。沙悟淨把他拉到身後，提醒他先看路。四個人再次向前，誰都不知道下一次回頭會先看見什麼。" }
+  ],
+  "next": "whitebone-wuxing-router"
+}

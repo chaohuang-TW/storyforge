@@ -1,0 +1,14 @@
+{
+  "id": "whitebone-mist-delay",
+  "type": "narrative",
+  "title": "白骨嶺・聲音的回聲",
+  "content": [
+    { "id": "whitebone-mist-delay-p1", "type": "paragraph", "text": "山影裡那個人向前一步，先有腳步聲，後有身影。唐僧想起五行山的霧，想起自己曾說過先聽清悟空，再走近。可聲音先抵達，從來不代表它帶來的東西值得相信。" },
+    { "id": "whitebone-mist-delay-p2", "type": "paragraph", "text": "這份記憶讓他的猶豫更慢，也更痛。他知道悟空的判斷可能是真的，卻不願意把每個先到的聲音都交給悟空處理。理解一個人，不能只等於把另一個人交出去。" },
+    { "id": "whitebone-mist-delay-p3", "type": "paragraph", "text": "八戒低聲說：" },
+    { "id": "whitebone-mist-delay-dialogue", "type": "dialogue", "lines": ["師父，你這樣想很累。", "所以才不能把想都省掉。"] },
+    { "id": "whitebone-mist-delay-p4", "type": "paragraph", "text": "悟空回頭看唐僧，像要問他是否終於願意相信。唐僧沒有給那個問題一個方便的回答。他說自己相信悟空聽見的東西，卻還在學著相信悟空要怎麼處理它。" },
+    { "id": "whitebone-mist-delay-p5", "type": "paragraph", "text": "霧裡的身影又靠近了一點。聲音已經抵達，真正的骨相還沒有。" }
+  ],
+  "next": "whitebone-third"
+}

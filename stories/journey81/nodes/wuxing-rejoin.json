@@ -1,0 +1,14 @@
+{
+  "id": "wuxing-rejoin",
+  "type": "narrative",
+  "title": "五行山・解開一角",
+  "content": [
+    { "id": "wuxing-rejoin-p1", "type": "paragraph", "text": "五色石不會因為一束光或一片霧就移開。它只在僧人誦完經後，從最下方鬆出一點塵土。石下的人把手伸出來，先摸到泥，再摸到風，像一個久未使用的方向忽然回到掌心。" },
+    { "id": "wuxing-rejoin-p2", "type": "paragraph", "text": "唐僧沒有說自己救了誰。孫悟空也沒有說自己欠了誰。他們只是一起看著山路，知道接下來要走的路不會因為第一次看見彼此就變得容易。" },
+    { "id": "wuxing-rejoin-illustration", "type": "illustration", "asset": "wuxing-release", "alt": "五行山石台鬆開一角，僧人與猴王的影子在山風中朝同一條路延伸", "width": 1200, "height": 700 },
+    { "id": "wuxing-rejoin-p3", "type": "paragraph", "text": "微小的改變不會立刻要求回報。它只會在很久以後，於某個人猶豫時，從記憶裡抬起頭。" },
+    { "id": "wuxing-rejoin-p4", "type": "paragraph", "text": "唐僧為悟空找了一件不太合身的僧衣，悟空嫌袖子短，八戒說他被壓在山下這麼久，終於找到一件會嫌的東西。沙悟淨在旁邊把斷掉的繩結重新打好，沒有人問他是不是也覺得這算一種開始。" },
+    { "id": "wuxing-rejoin-p5", "type": "paragraph", "text": "他們在山腳分吃一鍋清粥。悟空吃得最快，唐僧吃得最慢；兩種速度沒有互相說服，卻在同一只鍋裡留下了四個人的溫度。" }
+  ],
+  "next": "wuxing-release"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "whitebone-first-rejoin",
+  "type": "narrative",
+  "title": "白骨嶺・同一片暮色",
+  "content": [
+    { "id": "whitebone-first-rejoin-p1", "type": "paragraph", "text": "婦人退到山石旁。無論破綻是否被看見，空氣都已經變了：悟空知道自己被懷疑，唐僧知道自己不能只靠善意，八戒知道晚飯可能又要往後延，沙悟淨知道下一段路會更安靜。" },
+    { "id": "whitebone-first-rejoin-p2", "type": "paragraph", "text": "婦人最後看了唐僧一眼。那一眼裡沒有敗退，只有對人的閱讀：慈悲可以成為門，懷疑可以成為縫，悟空的急躁則是一把自己會先割傷自己的刀。她轉身走進山影，沒有留下名字。" },
+    { "id": "whitebone-first-rejoin-dialogue", "type": "dialogue", "lines": ["她不是第一次這樣看人。", "你怎麼知道？", "因為她知道我們會把責任分給彼此。"] },
+    { "id": "whitebone-first-rejoin-action", "type": "paragraph", "text": "八戒把乾糧袋繫緊。" },
+    { "id": "whitebone-first-rejoin-dialogue-2", "type": "dialogue", "lines": ["那我們能不能先別分，先吃一點？"] },
+    { "id": "whitebone-first-rejoin-p3", "type": "paragraph", "text": "沒有人回答八戒。暮色沿著泉水往下走，將四個人的影子拉到同一個方向，卻沒有把他們的想法拉在一起。" },
+    { "id": "whitebone-first-rejoin-p4", "type": "paragraph", "text": "唐僧收起佛珠，問悟空是否還能看見山影裡的婦人。悟空說看不見了。唐僧問那他為什麼還握著棒，悟空說看不見不代表危險消失。" },
+    { "id": "whitebone-first-rejoin-p5", "type": "paragraph", "text": "這一次，唐僧沒有立刻反駁。他知道自己看不見的地方，可能正是悟空必須獨自站著的地方；也知道讓一個人獨自站著，最後會讓隊伍失去什麼。" }
+  ],
+  "next": "whitebone-second"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "prologue-001",
+  "type": "narrative",
+  "title": "序章・沒有被風吹動的紙",
+  "content": [
+    { "id": "prologue-001-heading", "type": "heading", "level": 2, "kicker": "序章", "text": "沒有被風吹動的紙" },
+    { "id": "prologue-001-p1", "type": "paragraph", "text": "紙頁躺在石階中央，四周的草已經向東伏倒，只有它沒有動。紙上沒有字，沒有署名，也沒有可以追問的來處；它像一個本來不該存在的空白，靜靜等著某個人先看見它。" },
+    { "id": "prologue-001-illustration", "type": "illustration", "asset": "prologue-ink-sky", "alt": "舊紙頁躺在山路石階上，遠方是帶著朱色微光的水墨天際", "caption": "有些故事從空白開始。", "width": 1200, "height": 700 },
+    { "id": "prologue-001-p2", "type": "paragraph", "text": "你不在西遊記裡。你不能替任何人抬腳，也不能把一句話塞進任何人的嘴裡。你能碰到的，只有風從哪裡來、光在哪一刻落下，以及一件小事是否剛好被誰看見。" },
+    { "id": "prologue-001-p3", "type": "paragraph", "text": "山的另一面傳來一聲很輕的呼吸。不是野獸，也不像人在睡夢中翻身。那聲音停了片刻，像有人在黑暗裡確認自己還沒有被世界忘記。" },
+    { "id": "prologue-001-p4", "type": "paragraph", "text": "你若把紙頁拾起，故事會立刻有一個主人；你若把它留在原地，它便只是一個等待。於是你沒有伸手。山路仍然安靜，安靜到一粒灰落下來，也像有人在遠處翻動一件很久以前的案子。" }
+  ],
+  "next": "prologue-002"
+}

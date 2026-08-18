@@ -1,0 +1,15 @@
+{
+  "id": "whitebone-rejoin",
+  "type": "narrative",
+  "title": "白骨嶺・悟空離隊",
+  "content": [
+    { "id": "whitebone-rejoin-p1", "type": "paragraph", "text": "悟空離開了取經隊伍。有人說那是被逐出，有人說那是他自己走；唐僧沒有糾正任何一種說法，因為兩者都碰到了事情的一部分。" },
+    { "id": "whitebone-rejoin-illustration", "type": "illustration", "asset": "monkey-departure", "alt": "悟空的身影離開白骨嶺山路，唐僧、八戒與沙悟淨留在泉邊的暗光中", "caption": "同一個離開，可以由不同的看見造成。", "width": 1200, "height": 700 },
+    { "id": "whitebone-rejoin-p2", "type": "paragraph", "text": "八戒望著悟空消失的方向，想說他總會回來，又想起自己曾經看過悟空真的不回頭。沙悟淨把行李重新扛上肩，少了一根棒的隊伍忽然變得不成比例。" },
+    { "id": "whitebone-rejoin-dialogue", "type": "dialogue", "lines": ["師父，沒有他，我們要怎麼走？", "先走到明天。", "那明天之後呢？", "明天之後，再問一次。"] },
+    { "id": "whitebone-rejoin-p3", "type": "paragraph", "text": "山路沒有因為少了一個人而變窄。它只是留下了一道新的空位，讓每個人都知道自己曾經站在哪裡。" },
+    { "id": "whitebone-rejoin-p4", "type": "paragraph", "text": "八戒把悟空用過的水囊收進行李，走了幾步又拿出來。他說那傢伙總會回來，水囊放太裡面會找不到。沙悟淨接過水囊，掛在最外側，沒有說會不會真的有人回來取。" },
+    { "id": "whitebone-rejoin-p5", "type": "paragraph", "text": "唐僧聽著背後的金屬聲，一直沒有回頭。不是因為他不想，而是因為他知道有些回頭只會把決定重新變成一次爭吵。" }
+  ],
+  "next": "ending-001"
+}

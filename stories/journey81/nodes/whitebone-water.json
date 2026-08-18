@@ -1,0 +1,15 @@
+{
+  "id": "whitebone-water",
+  "type": "narrative",
+  "title": "白骨嶺・一圈水光",
+  "content": [
+    { "id": "whitebone-water-p1", "type": "paragraph", "text": "泉水漫過竹籃底，濕痕沿著竹篾爬上去。水光在婦人的左腕停了一瞬，腕骨的輪廓不該那麼清楚，皮膚下也沒有凡人該有的溫度。" },
+    { "id": "whitebone-water-p2", "type": "paragraph", "text": "唐僧看見了。他沒有看見一副完整的白骨，只看見一個破綻；可破綻一旦被看見，就不能再假裝泉水只是泉水。婦人低頭看著自己的手，第一次沒有立刻笑。" },
+    { "id": "whitebone-water-dialogue", "type": "dialogue", "lines": ["悟空，你說的妖氣，和這個破綻是同一件事嗎？", "不是同一件事。", "那你要怎麼做？", "先讓她離師父遠一點。"] },
+    { "id": "whitebone-water-p3", "type": "paragraph", "text": "悟空的棒沒有落下。唐僧仍然攔在他與婦人之間，卻不再只用身體擋住。他開始看水，看濕痕，看那個正在重新學會平靜的笑。部分證據沒有替他做決定，卻使決定變得不能敷衍。" },
+    { "id": "whitebone-water-illustration", "type": "illustration", "asset": "bone-reflection", "alt": "水光照在婦人左腕與竹籃邊緣，倒影短暫顯出骨白輪廓", "width": 1200, "height": 700 },
+    { "id": "whitebone-water-p4", "type": "paragraph", "text": "婦人沒有否認，也沒有承認。她只問唐僧是否曾經看過一個好人做錯事，問悟空是否曾經看過一個壞人說真話。這兩個問題沒有把她洗白，卻讓水裡的破綻不再足以替所有人完成判決。" },
+    { "id": "whitebone-water-p5", "type": "paragraph", "text": "唐僧叫悟空退後。悟空退了半步，像把一塊石頭暫時放下，卻沒有把手從棒上移開。部分資訊從來不是安全，只是比完全沒有資訊多一點可以承擔的重量。" }
+  ],
+  "next": "whitebone-first-rejoin"
+}

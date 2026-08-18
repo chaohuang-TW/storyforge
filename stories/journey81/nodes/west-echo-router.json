@@ -1,0 +1,9 @@
+{
+  "id": "west-echo-router",
+  "type": "conditional",
+  "branches": [
+    { "when": { "type": "equals", "key": "wuxing_first_touch", "value": "light" }, "next": "west-light-echo" },
+    { "when": { "type": "equals", "key": "wuxing_first_touch", "value": "mist" }, "next": "west-mist-echo" }
+  ],
+  "fallback": "west-mist-echo"
+}

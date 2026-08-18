@@ -1,0 +1,26 @@
+{
+  "id": "whitebone-choice",
+  "type": "choice",
+  "prompt": "真相不只取決於誰是對的，也取決於誰看見了什麼。",
+  "choices": [
+    {
+      "id": "canon",
+      "label": "不動。讓這一刻照原來的速度發生。",
+      "effects": [{ "type": "set", "key": "whitebone_intervention", "value": "canon" }],
+      "next": "whitebone-canon"
+    },
+    {
+      "id": "water",
+      "label": "讓山泉漫過竹籃底。",
+      "effects": [{ "type": "set", "key": "whitebone_intervention", "value": "water" }],
+      "next": "whitebone-water"
+    },
+    {
+      "id": "memory",
+      "label": "你記得那副白骨，讓水光先照進她的左腕。",
+      "conditions": [{ "type": "readerRemembers", "key": "journey81.white-bone-truth" }],
+      "effects": [{ "type": "set", "key": "whitebone_intervention", "value": "memory" }],
+      "next": "whitebone-memory"
+    }
+  ]
+}

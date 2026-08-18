@@ -1,0 +1,9 @@
+{
+  "id": "whitebone-outcome-router",
+  "type": "conditional",
+  "branches": [
+    { "when": { "type": "equals", "key": "whitebone_intervention", "value": "memory" }, "next": "whitebone-outcome-memory" },
+    { "when": { "type": "equals", "key": "whitebone_intervention", "value": "water" }, "next": "whitebone-outcome-water" }
+  ],
+  "fallback": "whitebone-outcome-canon"
+}

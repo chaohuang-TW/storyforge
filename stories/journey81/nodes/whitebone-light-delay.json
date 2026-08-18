@@ -1,0 +1,13 @@
+{
+  "id": "whitebone-light-delay",
+  "type": "narrative",
+  "title": "白骨嶺・光的回聲",
+  "content": [
+    { "id": "whitebone-light-delay-p1", "type": "paragraph", "text": "山影裡那個人向前一步，臉被月光擦亮。唐僧先想起五行山下那一線光，想起悟空的眼睛也是那樣被照出來的：不完整，卻不能再假裝不存在。" },
+    { "id": "whitebone-light-delay-p2", "type": "paragraph", "text": "這份記憶讓他的猶豫有了另一個方向。他不再只想問悟空是否看錯，而開始問自己：如果悟空真的看見了，自己是不是也有責任把那個看見留在眾人之間？" },
+    { "id": "whitebone-light-delay-illustration", "type": "illustration", "asset": "wuxing-eyes", "alt": "月光在白骨嶺石面留下一道細亮，像五行山下那雙眼睛的回聲", "width": 1200, "height": 700 },
+    { "id": "whitebone-light-delay-p3", "type": "paragraph", "text": "唐僧把悟空的名字在心裡念了一次。那不是替悟空辯護，而是提醒自己：他曾經先看見一個人，才聽見那些關於妖猴的傳聞。人一旦被先看見，就很難再只被一個判斷收乾淨。" },
+    { "id": "whitebone-light-delay-p4", "type": "paragraph", "text": "山影裡的腳步停下。光留下的臉與水裡的骨白，隔著幾年路程，第一次同時站到他的眼前。" }
+  ],
+  "next": "whitebone-third"
+}

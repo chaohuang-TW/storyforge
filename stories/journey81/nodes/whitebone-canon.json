@@ -1,0 +1,14 @@
+{
+  "id": "whitebone-canon",
+  "type": "narrative",
+  "title": "白骨嶺・不動",
+  "content": [
+    { "id": "whitebone-canon-p1", "type": "paragraph", "text": "沒有人動。水面慢慢恢復平整，婦人的左腕藏回袖中，竹籃底的影子也重新變得普通。唐僧把手放下，像把一個尚未證明的疑問暫時收進掌心。" },
+    { "id": "whitebone-canon-p2", "type": "paragraph", "text": "悟空沒有收回目光。他知道危險沒有離開，只是換了一個更像人的姿勢。可知道不是證據，急著把知道變成棍影，更不會讓別人看見他所看見的事。" },
+    { "id": "whitebone-canon-dialogue", "type": "dialogue", "lines": ["她會再來。", "也許她只是要走自己的路。", "師父，你真要等她走到我們身後？", "我至少要知道自己在防備什麼。"] },
+    { "id": "whitebone-canon-p3", "type": "paragraph", "text": "婦人向唐僧道謝，轉身沿著泉邊走遠。她走得很慢，慢到每個人都能看見她背影的平凡。悟空的怒氣被那個平凡逼得更窄，像一根不能出鞘的針。" },
+    { "id": "whitebone-canon-p4", "type": "paragraph", "text": "唐僧問悟空，如果他真的確定，為什麼不能再等一等。悟空說，妖怪最會利用人等的時候。唐僧說，人也會在等的時候把自己的恐懼誤認成慈悲。" },
+    { "id": "whitebone-canon-p5", "type": "paragraph", "text": "他們的聲音都不大，卻讓泉邊的每一塊石頭聽得清楚。婦人的背影消失在轉彎處，沒有留下任何可以拿來互相說服的東西。" }
+  ],
+  "next": "whitebone-first-rejoin"
+}
