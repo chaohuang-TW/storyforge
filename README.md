@@ -2,7 +2,7 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 6B1 — Journey81 Story Pack (development)**
+Status: **Phase 6B1 — Journey81 Story Pack (complete)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 
@@ -16,13 +16,16 @@ StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 - Phase 4B — Bookmark & Run Lifecycle UX
 - Phase 5 — Story Validator
 - Phase 6A — Reader Memory Foundation
+- Phase 6B1 — Journey81 Story Pack
 
 The Reader remains continuous and mobile-first.
 
-Phase 6B1 adds the independent `stories/journey81/` Story Pack vertical slice
-for 《西遊：八十一劫》. It is validated and testable through the generic Engine
-without replacing the production `runtime-demo` App default. Phase 6B2 will
-handle playable Reader integration after narrative acceptance.
+Phase 6B1 implements the independent `stories/journey81/` Story Pack vertical
+slice for 《西遊：八十一劫》. It is validated and testable through the generic
+Engine without replacing the production `runtime-demo` App default. The
+Journey81 Story Pack is implemented; the active Journey81 App is **NOT
+IMPLEMENTED**. Journey81 browser E2E belongs to Phase 6B2, which is **NOT
+STARTED**.
 
 Phase 3B production supports:
 
@@ -215,14 +218,16 @@ The following remain intentionally out of scope:
 - Cloud Save — NOT IMPLEMENTED
 - Run archive/history — NOT IMPLEMENTED
 - Achievements — NOT IMPLEMENTED
-- Journey81 Vertical Slice — IN DEVELOPMENT
+- Journey81 Story Pack — IMPLEMENTED
+- Journey81 active App — NOT IMPLEMENTED
 - Multiple Bookmarks — NOT IMPLEMENTED
 - Story Studio — NOT IMPLEMENTED
 - Graph Editor — NOT IMPLEMENTED
 - AI authoring — NOT IMPLEMENTED
-- Phase 6B1 — IN DEVELOPMENT
+- Phase 6B1 — COMPLETE
 - Phase 6B2 — NOT STARTED
 
-Phase 6A does not include Journey81, 西遊人物/劇情, 微因, 劫變, 逆命, New
-Game+, run count, completed-run archives, memory UI, memory journal,
-achievements, manual memory reset, cloud sync, or accounts.
+Phase 6B1 does not include Journey81 browser E2E, a Story selector, an active
+Journey81 App default, New Game+, run count, completed-run archives, memory UI,
+memory journal, achievements, manual memory reset, cloud sync, accounts, or
+Phase 6B2 work.
