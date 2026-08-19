@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 
 const light = '讓一線天光穿過雲縫。'
 const mist = '讓山霧再停一刻。'
@@ -263,4 +263,105 @@ test('persists Reader preference after reload', async ({ page }) => {
 
 test('saves and resumes a Journey reader position', async ({ page }) => {
   await page.goto('/'); await page.evaluate(() => localStorage.setItem('storyforge.reader.position.story:journey81', JSON.stringify({ documentId: 'story:journey81', progress: 42, updatedAt: new Date().toISOString() }))); await page.reload(); await expect(page.getByRole('button', { name: '回到上次閱讀處' })).toBeVisible(); await page.getByRole('button', { name: '回到上次閱讀處' }).click(); await expect(page.getByRole('button', { name: '回到上次閱讀處' })).toBeHidden()
+})
+
+test('supports keyboard skip navigation to the Reader main landmark', async ({ page }) => {
+  await page.goto('/')
+  await page.keyboard.press('Tab')
+  const skipLink = page.getByRole('link', { name: '跳至正文' })
+  await expect(skipLink).toBeFocused()
+  await expect(skipLink).toBeVisible()
+  await page.keyboard.press('Enter')
+  await expect(page.locator('#reader-main')).toBeFocused()
+})
+
+test('traps Settings focus, closes with Escape, restores focus, and locks body scroll', async ({ page }) => {
+  await page.goto('/')
+  const trigger = page.getByRole('button', { name: '閱讀設定' })
+  await trigger.focus()
+  await trigger.click()
+  const dialog = page.getByRole('dialog', { name: '閱讀設定' })
+  await expect(dialog).toHaveAttribute('aria-describedby', 'reader-settings-description')
+  await expect(page.getByRole('button', { name: '關閉' })).toBeFocused()
+  expect(await page.evaluate(() => document.body.style.overflow)).toBe('hidden')
+  await page.keyboard.press('Shift+Tab')
+  await expect(page.getByRole('radio', { name: '深色' })).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(page.getByRole('button', { name: '關閉' })).toBeFocused()
+  await page.keyboard.press('Escape')
+  await expect(dialog).toBeHidden()
+  await expect(trigger).toBeFocused()
+  expect(await page.evaluate(() => document.body.style.overflow)).toBe('')
+})
+
+test('keeps primary mobile touch targets at least 44 CSS pixels', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  const assertTouchTarget = async (locator: Locator, label: string) => {
+    const box = await locator.boundingBox()
+    expect(box, `${label} must have a bounding box`).not.toBeNull()
+    expect(box!.width, `${label} width`).toBeGreaterThanOrEqual(44)
+    expect(box!.height, `${label} height`).toBeGreaterThanOrEqual(44)
+  }
+
+  await assertTouchTarget(page.getByRole('button', { name: '閱讀設定' }), 'Reader Settings')
+  await assertTouchTarget(page.getByRole('button', { name: '加入書籤' }), 'Bookmark')
+  await assertTouchTarget(page.getByRole('button', { name: '繼續閱讀' }), 'Continue')
+  await page.getByRole('button', { name: '閱讀設定' }).click()
+  await assertTouchTarget(page.getByRole('button', { name: '關閉' }), 'Settings close')
+  const optionBox = await page.locator('label').filter({ hasText: '特大' }).boundingBox()
+  expect(optionBox).not.toBeNull(); expect(optionBox!.width).toBeGreaterThanOrEqual(44); expect(optionBox!.height).toBeGreaterThanOrEqual(44)
+  await page.getByRole('button', { name: '關閉' }).click()
+  await reachWuxingChoice(page)
+  await assertTouchTarget(page.getByRole('button', { name: light }), 'Choice')
+  await page.getByRole('button', { name: light }).click()
+  await advanceUntil(page, page.getByRole('button', { name: water }), 'mobile White Bone choice')
+  await page.getByRole('button', { name: water }).click()
+  await advanceUntil(page, page.getByText('閱讀完畢'), 'mobile ending')
+  await assertTouchTarget(page.getByRole('button', { name: '開始新一輪' }), 'New Run')
+})
+
+test('honors reduced motion without forced smooth scrolling', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  const motion = await page.evaluate(() => {
+    const values = [getComputedStyle(document.querySelector('.book-reader')!).transitionDuration, getComputedStyle(document.querySelector('.reader-skip-link')!).transitionDuration]
+    const milliseconds = values.flatMap((value) => value.split(',')).map((value) => {
+      const parsed = Number.parseFloat(value)
+      return value.trim().endsWith('ms') ? parsed : parsed * 1000
+    })
+    return { maxDuration: Math.max(...milliseconds), scrollBehavior: getComputedStyle(document.documentElement).scrollBehavior }
+  })
+  expect(motion.maxDuration).toBeLessThanOrEqual(0.01)
+  expect(motion.scrollBehavior).toBe('auto')
+})
+
+test('reflows header, Choice, Settings, and New Run at 320px with large relaxed text', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 })
+  await page.goto('/')
+  const noOverflow = async (label: string) => expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), label).toBe(true)
+  await noOverflow('entry')
+  await expect(page.getByRole('button', { name: '加入書籤' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '閱讀設定' })).toBeVisible()
+  await page.getByRole('button', { name: '閱讀設定' }).click()
+  await page.locator('label').filter({ hasText: '特大' }).click()
+  await page.locator('label').filter({ hasText: '寬鬆' }).click()
+  await page.locator('label').filter({ hasText: '深色' }).click()
+  await noOverflow('Settings')
+  await page.getByRole('button', { name: '關閉' }).click()
+  await expect(page.locator('.book-reader')).toHaveAttribute('data-font-size', 'x-large')
+  await expect(page.locator('.book-reader')).toHaveAttribute('data-line-height', 'relaxed')
+  await expect(page.locator('.book-reader')).toHaveAttribute('data-theme', 'dark')
+  await reachWuxingChoice(page)
+  await noOverflow('Choice')
+  await page.getByRole('button', { name: light }).click()
+  await advanceUntil(page, page.getByRole('button', { name: water }), 'narrow White Bone choice')
+  await noOverflow('White Bone choice')
+  await page.getByRole('button', { name: water }).click()
+  await advanceUntil(page, page.getByText('閱讀完畢'), 'narrow ending')
+  await page.getByRole('button', { name: '開始新一輪' }).click()
+  await noOverflow('New Run confirmation')
+  const stickyHeader = await page.locator('.reader-header').evaluate((header) => ({ position: getComputedStyle(header).position, top: header.getBoundingClientRect().top }))
+  expect(stickyHeader.position).toBe('sticky')
+  expect(Math.abs(stickyHeader.top)).toBeLessThanOrEqual(1)
 })

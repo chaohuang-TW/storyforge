@@ -45,6 +45,10 @@ export function BookReader({
       data-line-height={preferences.lineHeight}
       data-theme={preferences.theme}
     >
+      <a className="reader-skip-link" href="#reader-main">
+        跳至正文
+      </a>
+
       <ReaderHeader
         chapterLabel={document.chapterLabel}
         progress={progress}
@@ -66,8 +70,8 @@ export function BookReader({
         </aside>
       ) : null}
 
-      <main className="reader-main" aria-labelledby="reader-title">
-          <header className="reader-title-page" data-reader-progress-marker="0">
+      <main id="reader-main" className="reader-main" aria-labelledby="reader-title" tabIndex={-1}>
+        <header className="reader-title-page" data-reader-progress-marker="0">
           <p className="reader-title-page__product">StoryForge</p>
           <h1 id="reader-title">{document.title}</h1>
           {document.subtitle ? <p className="reader-title-page__subtitle">{document.subtitle}</p> : null}

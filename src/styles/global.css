@@ -13,7 +13,8 @@ html {
   min-width: 320px;
   min-height: 100%;
   margin: 0;
-  scroll-padding-top: 5rem;
+  scroll-padding-top: 7rem;
+  scrollbar-gutter: stable;
 }
 
 body,

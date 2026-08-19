@@ -101,6 +101,20 @@ describe('Book reader', () => {
     expect(screen.queryByText('五行山・一線天光')).not.toBeInTheDocument()
   })
 
+  it('provides a skip link and stable main landmark for keyboard readers', () => {
+    render(<App />)
+    expect(screen.getByRole('link', { name: '跳至正文' })).toHaveAttribute('href', '#reader-main')
+    expect(screen.getByRole('main', { name: '西遊：八十一劫' })).toHaveAttribute('id', 'reader-main')
+    expect(screen.getByRole('main', { name: '西遊：八十一劫' })).toHaveAttribute('tabindex', '-1')
+  })
+
+  it('keeps progress accessible without announcing every visual percentage update', () => {
+    render(<App />)
+    expect(screen.getByRole('progressbar', { name: '閱讀進度' })).toHaveAttribute('value', '0')
+    expect(screen.getByText('0%')).toHaveAttribute('aria-hidden', 'true')
+    expect(screen.getByText('0%')).not.toHaveAttribute('aria-live')
+  })
+
   it('appends Journey81 nodes until its first causal Choice', () => {
     render(<App />); reachWuxingChoice()
     expect(screen.getByRole('group', { name: '撥動因果' })).toBeInTheDocument()
@@ -208,6 +222,22 @@ describe('Book reader', () => {
 
   it('changes font size, line height, and theme immediately', () => {
     const { container } = render(<App />); const reader = container.querySelector('.book-reader'); fireEvent.click(screen.getByRole('button', { name: '閱讀設定' })); fireEvent.click(screen.getByRole('radio', { name: '大' })); fireEvent.click(screen.getByRole('radio', { name: '寬鬆' })); fireEvent.click(screen.getByRole('radio', { name: '深色' })); expect(reader).toHaveAttribute('data-font-size', 'large'); expect(reader).toHaveAttribute('data-line-height', 'relaxed'); expect(reader).toHaveAttribute('data-theme', 'dark')
+  })
+
+  it('describes Reader Settings, locks background scroll, and restores trigger focus', () => {
+    render(<App />)
+    const settingsButton = screen.getByRole('button', { name: '閱讀設定' })
+    settingsButton.focus()
+    fireEvent.click(settingsButton)
+    const dialog = screen.getByRole('dialog', { name: '閱讀設定' })
+    expect(dialog).toHaveAttribute('aria-describedby', 'reader-settings-description')
+    expect(screen.getByText('調整只會儲存在這個瀏覽器。')).toHaveAttribute('id', 'reader-settings-description')
+    expect(document.body.style.overflow).toBe('hidden')
+    expect(screen.getByRole('button', { name: '關閉' })).toHaveFocus()
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByRole('dialog', { name: '閱讀設定' })).not.toBeInTheDocument()
+    expect(settingsButton).toHaveFocus()
+    expect(document.body.style.overflow).toBe('')
   })
 
   it('persists preferences and restores them after remount', () => {
