@@ -2,7 +2,7 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 6B2 — Journey81 Reader Integration (development)**
+Status: **Phase 6B2 — Journey81 Reader Integration (complete)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 
@@ -17,6 +17,7 @@ StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 - Phase 5 — Story Validator
 - Phase 6A — Reader Memory Foundation
 - Phase 6B1 — Journey81 Story Pack
+- Phase 6B2 — Journey81 Reader Integration
 
 The Reader remains continuous and mobile-first.
 
@@ -24,8 +25,12 @@ Phase 6B1 implements the independent `stories/journey81/` Story Pack vertical
 slice for 《西遊：八十一劫》. Phase 6B2 switches the active StoryForge App from
 `runtime-demo` to Journey81 and proves the Journey81 first-run and cross-run
 Reader Memory flow through real browser E2E. The Journey81 Story Pack remains
-implemented; the active Journey81 App and Journey81 browser E2E are **IN
-DEVELOPMENT** on this branch.
+implemented; the active Journey81 App and Journey81 browser E2E are
+**IMPLEMENTED** in production.
+
+StoryForge now opens Journey81 as the active Reader story. The `runtime-demo`
+Story Pack remains in the repository as a generic regression pack and continues
+to pass Story Validator and tests.
 
 Phase 3B production supports:
 
@@ -212,21 +217,30 @@ cannot undo a Choice, World State effect, Runtime snapshot, or visible story.
 
 The following remain intentionally out of scope:
 
+- Story selector — NOT IMPLEMENTED
+- Multiple active stories UI — NOT IMPLEMENTED
 - New Game+ — NOT IMPLEMENTED
+- Run count — NOT IMPLEMENTED
 - Manual Save Slots — NOT IMPLEMENTED
 - Manual Load — NOT IMPLEMENTED
 - Cloud Save — NOT IMPLEMENTED
+- Cloud sync — NOT IMPLEMENTED
 - Run archive/history — NOT IMPLEMENTED
+- Memory UI — NOT IMPLEMENTED
+- Observer Awareness system — NOT IMPLEMENTED
+- Post-白骨精 chapters — NOT IMPLEMENTED
+- Accounts — NOT IMPLEMENTED
 - Achievements — NOT IMPLEMENTED
 - Journey81 Story Pack — IMPLEMENTED
-- Journey81 active App — IN DEVELOPMENT
-- Journey81 browser E2E — IN DEVELOPMENT
+- Journey81 active App — IMPLEMENTED
+- Journey81 browser E2E — IMPLEMENTED
 - Multiple Bookmarks — NOT IMPLEMENTED
 - Story Studio — NOT IMPLEMENTED
 - Graph Editor — NOT IMPLEMENTED
 - AI authoring — NOT IMPLEMENTED
 - Phase 6B1 — COMPLETE
-- Phase 6B2 — IN DEVELOPMENT
+- Phase 6B2 — COMPLETE
+- Phase 7 — NOT STARTED
 
 Phase 6B2 does not include a Story selector, multiple active stories UI,
 New Game+, run count, completed-run archives, memory UI, memory journal,
