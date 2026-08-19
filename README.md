@@ -2,7 +2,7 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 6B1 — Journey81 Story Pack (complete)**
+Status: **Phase 6B2 — Journey81 Reader Integration (development)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 
@@ -21,11 +21,11 @@ StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 The Reader remains continuous and mobile-first.
 
 Phase 6B1 implements the independent `stories/journey81/` Story Pack vertical
-slice for 《西遊：八十一劫》. It is validated and testable through the generic
-Engine without replacing the production `runtime-demo` App default. The
-Journey81 Story Pack is implemented; the active Journey81 App is **NOT
-IMPLEMENTED**. Journey81 browser E2E belongs to Phase 6B2, which is **NOT
-STARTED**.
+slice for 《西遊：八十一劫》. Phase 6B2 switches the active StoryForge App from
+`runtime-demo` to Journey81 and proves the Journey81 first-run and cross-run
+Reader Memory flow through real browser E2E. The Journey81 Story Pack remains
+implemented; the active Journey81 App and Journey81 browser E2E are **IN
+DEVELOPMENT** on this branch.
 
 Phase 3B production supports:
 
@@ -219,15 +219,16 @@ The following remain intentionally out of scope:
 - Run archive/history — NOT IMPLEMENTED
 - Achievements — NOT IMPLEMENTED
 - Journey81 Story Pack — IMPLEMENTED
-- Journey81 active App — NOT IMPLEMENTED
+- Journey81 active App — IN DEVELOPMENT
+- Journey81 browser E2E — IN DEVELOPMENT
 - Multiple Bookmarks — NOT IMPLEMENTED
 - Story Studio — NOT IMPLEMENTED
 - Graph Editor — NOT IMPLEMENTED
 - AI authoring — NOT IMPLEMENTED
 - Phase 6B1 — COMPLETE
-- Phase 6B2 — NOT STARTED
+- Phase 6B2 — IN DEVELOPMENT
 
-Phase 6B1 does not include Journey81 browser E2E, a Story selector, an active
-Journey81 App default, New Game+, run count, completed-run archives, memory UI,
-memory journal, achievements, manual memory reset, cloud sync, accounts, or
-Phase 6B2 work.
+Phase 6B2 does not include a Story selector, multiple active stories UI,
+New Game+, run count, completed-run archives, memory UI, memory journal,
+achievements, manual memory reset, cloud sync, accounts, Engine changes,
+schema changes, or chapters after 白骨精.

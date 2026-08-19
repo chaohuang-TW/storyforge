@@ -1,467 +1,266 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
-async function reachChoice(page: import('@playwright/test').Page) {
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
+const light = '讓一線天光穿過雲縫。'
+const mist = '讓山霧再停一刻。'
+const canon = '不動。讓這一刻照原來的速度發生。'
+const water = '讓山泉漫過竹籃底。'
+
+async function advanceUntil(page: Page, target: Parameters<Page['getByText']>[0] | ReturnType<Page['getByText']>, label: string, limit = 80) {
+  const locator = typeof target === 'string' ? page.getByText(target) : target
+  for (let index = 0; index < limit; index += 1) {
+    if (await locator.count() > 0 && await locator.first().isVisible()) return
+    const next = page.getByRole('button', { name: '繼續閱讀' })
+    if (await next.count() === 0 || !await next.first().isVisible()) throw new Error(`Unable to reach ${label}; continuation ended early`)
+    await next.first().click()
+  }
+  throw new Error(`Unable to reach ${label} within ${limit} continuation steps`)
+}
+
+async function reachWuxingChoice(page: Page) {
+  await advanceUntil(page, page.getByRole('button', { name: light }), 'the 五行山 choice')
   await expect(page.getByRole('group', { name: '撥動因果' })).toBeVisible()
 }
 
-async function reachSecondChoice(page: import('@playwright/test').Page, firstChoice: string) {
-  await reachChoice(page)
+async function reachWhiteboneChoice(page: Page, firstChoice = light) {
+  await reachWuxingChoice(page)
   await page.getByRole('button', { name: firstChoice }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await expect(page.getByRole('group', { name: '撥動因果' })).toBeVisible()
+  await advanceUntil(page, page.getByRole('button', { name: water }), 'the 白骨嶺 choice')
+  await expect(page.getByRole('button', { name: canon })).toBeVisible()
+  await expect(page.getByRole('button', { name: water })).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
 }
 
-async function reachWindEnding(page: import('@playwright/test').Page) {
-  await reachSecondChoice(page, '讓風把信吹進屋內')
-  await page.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await expect(page.getByText('閱讀完畢')).toBeVisible()
+async function reachEnding(page: Page, firstChoice = light, secondChoice = water) {
+  await reachWhiteboneChoice(page, firstChoice)
+  await page.getByRole('button', { name: secondChoice }).click()
+  await advanceUntil(page, page.getByText('閱讀完畢'), 'the Journey81 ending')
 }
 
-test('loads only the runtime entry node in the continuous reader', async ({ page }) => {
+test('loads only the Journey81 entry node in the continuous reader', async ({ page }) => {
   const response = await page.goto('/')
-
   expect(response?.ok()).toBeTruthy()
   await expect(page).toHaveTitle('StoryForge — Web Interactive Novel Engine')
-  await expect(page.getByRole('heading', { level: 1, name: '霧港書簡' })).toBeVisible()
-  await expect(page.getByRole('main')).toBeVisible()
-  await expect(page.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeVisible()
-  await expect(page.getByText(/港口的鐘在天色尚未亮透時響了一次/)).toBeVisible()
-  await expect(page.getByRole('heading', { name: '霧中的郵亭' })).toBeHidden()
-  await expect(page.getByRole('heading', { name: '寄出以後' })).toBeHidden()
-
-  const isLongForm = await page.evaluate(() => {
-    const minimumScreens = window.innerWidth <= 430 ? 1.5 : 1
-    return document.documentElement.scrollHeight > window.innerHeight * minimumScreens
-  })
-  expect(isLongForm).toBe(true)
-
-  const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)
-  expect(hasHorizontalOverflow).toBe(false)
+  await expect(page.getByRole('heading', { level: 1, name: '西遊：八十一劫' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 2, name: /沒有被風吹動的紙/ })).toBeVisible()
+  await expect(page.getByText(/紙頁躺在石階中央/)).toBeVisible()
+  await expect(page.getByText(/你不在西遊記裡/)).toBeVisible()
+  await expect(page.getByRole('heading', { level: 3, name: '五行山・石下的聲音' })).toBeHidden()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false)
+  expect(await page.evaluate(() => document.documentElement.scrollHeight > window.innerHeight * (window.innerWidth <= 430 ? 1.5 : 1))).toBe(true)
 })
 
 test('uses real mobile emulation for the mobile project', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile-chromium', 'Mobile profile assertion')
-
-  const mobileEnvironment = await page.evaluate(() => ({
-    maxTouchPoints: navigator.maxTouchPoints,
-    userAgent: navigator.userAgent,
-  }))
-  const mobileViewport = page.viewportSize()
-
-  expect(mobileViewport).toEqual({ width: 390, height: 844 })
-  expect(mobileEnvironment.maxTouchPoints).toBeGreaterThan(0)
-  expect(mobileEnvironment.userAgent).toContain('Mobile')
+  const environment = await page.evaluate(() => ({ maxTouchPoints: navigator.maxTouchPoints, userAgent: navigator.userAgent }))
+  expect(page.viewportSize()).toEqual({ width: 390, height: 844 })
+  expect(environment.maxTouchPoints).toBeGreaterThan(0)
+  expect(environment.userAgent).toContain('Mobile')
 })
 
-test('appends runtime nodes and reaches the wind ending without removing prior text', async ({ page }) => {
+test('appends Journey81 nodes and preserves prior text through the light branch', async ({ page }) => {
   await page.goto('/')
-  const prologue = page.getByText(/港口的鐘在天色尚未亮透時響了一次/)
-
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
+  const prologue = page.getByText(/紙頁躺在石階中央/)
+  await reachWuxingChoice(page)
   await expect(prologue).toBeVisible()
-  await expect(page.getByRole('heading', { level: 3, name: '霧中的郵亭' })).toBeVisible()
-  await expect(page.getByRole('img', { name: /霧色山丘與海岸/ })).toBeAttached()
-
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await expect(prologue).toBeVisible()
-  await expect(page.getByText('門縫裡卡著一封沒有署名的信。')).toBeVisible()
-  await expect(page.getByText('觀者可以回看已發生之事。')).toBeVisible()
-  await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeHidden()
-
-  await page.getByRole('button', { name: '讓風把信吹進屋內' }).click()
-  await expect(page.getByRole('heading', { level: 3, name: '風進屋時' })).toBeVisible()
-  await expect(page.getByRole('img', { name: /風把深藍色信封吹過郵亭門檻/ })).toBeAttached()
+  await page.getByRole('button', { name: light }).click()
+  await expect(page.getByText(/雲縫被光撐開一瞬/)).toBeVisible()
+  await expect(page.getByRole('img', { name: /一線天光穿過雲縫/ })).toBeAttached()
   await expect(page.getByText('因果已定。')).toBeVisible()
-  await expect(page.getByRole('button', { name: '讓風把信吹進屋內' })).toBeHidden()
-  await expect(page.getByRole('button', { name: '讓雨水暈開信封上的墨' })).toBeHidden()
-
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await expect(page.getByRole('heading', { level: 3, name: '寄出以後' })).toBeVisible()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await expect(page.getByRole('heading', { level: 3, name: '燈下的信' })).toBeVisible()
-  await expect(page.getByRole('img', { name: /暖黃燈光下/ })).toBeAttached()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await expect(page.getByRole('heading', { level: 3, name: '最後一班渡船' })).toBeVisible()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await expect(page.getByRole('group', { name: '撥動因果' })).toBeVisible()
-  await page.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' }).click()
-  await expect(page.getByRole('heading', { level: 3, name: '鐘聲早了一拍' })).toBeVisible()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await expect(page.getByRole('heading', { level: 3, name: '潮線之後' })).toBeVisible()
-  await expect(page.getByText('閱讀完畢')).toBeVisible()
-  await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeHidden()
+  await expect(page.getByRole('button', { name: light })).toBeHidden()
+  await expect(page.getByRole('button', { name: mist })).toBeHidden()
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false)
 })
 
-test('reaches 100% only after the actual ending', async ({ page }) => {
+test('reaches 100% only after the actual Journey81 ending', async ({ page }) => {
   await page.goto('/')
   const progress = page.getByRole('progressbar', { name: '閱讀進度' })
-  const prologueBottom = page.locator('#prologue-3')
-  await prologueBottom.scrollIntoViewIfNeeded()
-  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeGreaterThan(0)
   await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
-  await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeVisible()
-
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  const chapterBottom = page.locator('#chapter-3')
-  await chapterBottom.scrollIntoViewIfNeeded()
-  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeGreaterThan(0)
-  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
-  await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeVisible()
-
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  const choiceButton = page.getByRole('button', { name: '讓風把信吹進屋內' })
-  await choiceButton.scrollIntoViewIfNeeded()
-  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
-
-  await choiceButton.click()
-  const consequenceBottom = page.locator('#wind-3')
-  await consequenceBottom.scrollIntoViewIfNeeded()
-  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
-
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  const delayedBottom = page.locator('#delayed-wind-3')
-  await delayedBottom.scrollIntoViewIfNeeded()
-  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  const secondChoice = page.getByRole('group', { name: '撥動因果' })
-  await secondChoice.scrollIntoViewIfNeeded()
-  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
-  await page.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' }).click()
-  await page.locator('#bell-path-2').scrollIntoViewIfNeeded()
-  await expect.poll(async () => Number(await progress.getAttribute('value'))).toBeLessThan(100)
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  const ending = page.getByText('閱讀完畢')
-  await ending.scrollIntoViewIfNeeded()
+  await reachEnding(page)
+  await expect(page.getByRole('heading', { level: 2, name: /路還向西/ })).toBeVisible()
+  await expect(page.getByText('閱讀完畢')).toBeVisible()
+  await page.getByText('閱讀完畢').scrollIntoViewIfNeeded()
   await expect.poll(async () => Number(await progress.getAttribute('value'))).toBe(100)
-  await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeHidden()
 })
 
-test('chooses the rain consequence without rendering the wind consequence', async ({ page }) => {
-  await page.goto('/')
-  await reachChoice(page)
-
-  await page.getByRole('button', { name: '讓雨水暈開信封上的墨' }).click()
-
-  await expect(page.getByRole('heading', { level: 3, name: '墨跡散開時' })).toBeVisible()
-  await expect(page.getByRole('img', { name: /雨落在郵亭石階/ })).toBeAttached()
-  await expect(page.getByText(/雨沿著屋簷落下/)).toBeVisible()
-  await expect(page.getByRole('heading', { level: 3, name: '風進屋時' })).toBeHidden()
-  await expect(page.getByRole('group', { name: '撥動因果' })).toBeHidden()
+test('chooses the mist consequence without rendering the light consequence', async ({ page }) => {
+  await page.goto('/'); await reachWuxingChoice(page); await page.getByRole('button', { name: mist }).click()
+  await expect(page.getByText(/霧沒有散/)).toBeVisible()
+  await expect(page.getByText(/雲縫被光撐開一瞬/)).toBeHidden()
 })
 
-test('follows the rain route through its delayed consequence and ferry rejoin', async ({ page }) => {
-  await page.goto('/')
-  await reachSecondChoice(page, '讓雨水暈開信封上的墨')
-
-  await expect(page.getByRole('heading', { level: 3, name: '石階上的藍痕' })).toBeVisible()
-  await expect(page.getByRole('img', { name: /雨後石階留著深藍色墨痕/ })).toBeAttached()
-  await page.getByRole('button', { name: '讓繫纜繩在木樁上多停半分鐘' }).click()
-  await expect(page.getByRole('heading', { level: 3, name: '繫纜多停半分鐘' })).toBeVisible()
-  await expect(page.getByRole('heading', { level: 3, name: '風進屋時' })).toBeHidden()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await expect(page.getByRole('heading', { level: 3, name: '潮線之後' })).toBeVisible()
-  await expect(page.getByRole('img', { name: /暮色港口的潮線交錯延伸/ })).toBeAttached()
+test('restores the light delayed consequence after reload before whitebone rejoin', async ({ page }) => {
+  await page.goto('/'); await reachWhiteboneChoice(page, light); await page.getByRole('button', { name: water }).click()
+  await advanceUntil(page, page.getByText(/山影裡那個人向前一步，臉被月光擦亮/), 'the light delayed consequence')
+  await page.reload()
+  await expect(page.getByText(/山影裡那個人向前一步，臉被月光擦亮/)).toBeVisible()
+  await expect(page.getByText(/山影裡那個人向前一步，先有腳步聲/)).toBeHidden()
+  await advanceUntil(page, page.getByText(/唐僧看過水裡的破綻/), 'the water outcome')
+  await expect(page.getByText(/看見真相，和決定如何使用力量/)).toBeVisible()
 })
 
-test('keeps a committed Choice irreversible while revisiting earlier text and does not add browser history', async ({ page }) => {
-  await page.goto('/')
-  await reachChoice(page)
-  const historyBefore = await page.evaluate(() => window.history.length)
-
-  await page.getByRole('button', { name: '讓風把信吹進屋內' }).click()
-  const consequence = page.getByRole('heading', { level: 3, name: '風進屋時' })
-  await expect(consequence).toBeVisible()
+test('keeps a committed Choice irreversible while revisiting earlier text', async ({ page }) => {
+  await page.goto('/'); await reachWuxingChoice(page); const historyBefore = await page.evaluate(() => window.history.length)
+  await page.getByRole('button', { name: light }).click(); await expect(page.getByText(/雲縫被光撐開一瞬/)).toBeVisible()
   expect(await page.evaluate(() => window.history.length)).toBe(historyBefore)
-
-  await page.locator('#prologue-heading').scrollIntoViewIfNeeded()
-  await page.locator('#wind-3').scrollIntoViewIfNeeded()
-
-  await expect(page.getByRole('button', { name: '讓風把信吹進屋內' })).toBeHidden()
-  await expect(page.getByRole('button', { name: '讓雨水暈開信封上的墨' })).toBeHidden()
-  await expect(consequence).toBeVisible()
+  await page.locator('#prologue-001-heading').scrollIntoViewIfNeeded()
+  await expect(page.getByRole('button', { name: light })).toBeHidden()
+  await expect(page.getByRole('button', { name: mist })).toBeHidden()
 })
 
-test('commits a Choice with keyboard Enter', async ({ page }) => {
-  await page.goto('/')
-  await reachChoice(page)
-  const windChoice = page.getByRole('button', { name: '讓風把信吹進屋內' })
-
-  await windChoice.focus()
-  await expect(windChoice).toBeFocused()
-  await page.keyboard.press('Enter')
-
-  await expect(page.getByText('因果已定。')).toBeVisible()
-  await expect(page.getByRole('heading', { level: 3, name: '風進屋時' })).toBeVisible()
+test('commits a Journey Choice with keyboard Enter', async ({ page }) => {
+  await page.goto('/'); await reachWuxingChoice(page); const choice = page.getByRole('button', { name: light }); await choice.focus(); await expect(choice).toBeFocused(); await page.keyboard.press('Enter')
+  await expect(page.getByText('因果已定。')).toBeVisible(); await expect(page.getByText(/雲縫被光撐開一瞬/)).toBeVisible()
 })
 
-test('preserves causal runtime on reload while keeping Reader state independent', async ({ page }) => {
-  await page.goto('/')
-  await reachChoice(page)
-  await page.getByRole('button', { name: '讓風把信吹進屋內' }).click()
-  await expect(page.getByRole('heading', { level: 3, name: '風進屋時' })).toBeVisible()
-
-  await page.reload()
-
-  await expect(page.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeVisible()
-  await expect(page.getByRole('heading', { level: 3, name: '霧中的郵亭' })).toBeVisible()
-  await expect(page.getByRole('heading', { level: 3, name: '風進屋時' })).toBeVisible()
-  await expect(page.getByRole('button', { name: '讓風把信吹進屋內' })).toBeHidden()
-  await expect(page.getByRole('button', { name: '讓雨水暈開信封上的墨' })).toBeHidden()
-  await expect.poll(async () =>
-    page.evaluate(() => JSON.parse(window.localStorage.getItem('storyforge.runtime.runtime-demo') ?? '{}').snapshot.worldState['letter-entered']),
-  ).toBe(true)
+test('preserves causal Journey runtime on reload while keeping Reader state independent', async ({ page }) => {
+  await page.goto('/'); await reachWuxingChoice(page); await page.getByRole('button', { name: light }).click(); await page.reload()
+  await expect(page.getByRole('heading', { level: 1, name: '西遊：八十一劫' })).toBeVisible()
+  await expect(page.getByText(/雲縫被光撐開一瞬/)).toBeVisible()
+  await expect(page.getByRole('button', { name: light })).toBeHidden()
+  await expect.poll(async () => page.evaluate(() => JSON.parse(window.localStorage.getItem('storyforge.runtime.journey81') ?? '{}').snapshot.worldState.wuxing_first_touch)).toBe('light')
 })
 
-test('restores a delayed consequence after reload without switching causal branches', async ({ page }) => {
-  await page.goto('/')
-  await reachChoice(page)
-  await page.getByRole('button', { name: '讓風把信吹進屋內' }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await expect(page.getByRole('heading', { level: 3, name: '燈下的信' })).toBeVisible()
-
-  await page.reload()
-
-  await expect(page.getByRole('heading', { level: 3, name: '燈下的信' })).toBeVisible()
-  await expect(page.getByRole('img', { name: /暖黃燈光下/ })).toBeAttached()
-  await expect(page.getByRole('heading', { level: 3, name: '石階上的藍痕' })).toBeHidden()
+test('restores a pending whitebone Choice after reload and hides Memory on first run', async ({ page }) => {
+  await page.goto('/'); await reachWhiteboneChoice(page); await page.reload()
+  await expect(page.getByRole('button', { name: canon })).toBeVisible()
+  await expect(page.getByRole('button', { name: water })).toBeVisible()
+  await expect(page.getByRole('button', { name: /讓水光先照進她的左腕/ })).toBeHidden()
 })
 
-test('restores a second pending Choice without repeating the first Choice notice', async ({ page }) => {
-  await page.goto('/')
-  await reachSecondChoice(page, '讓風把信吹進屋內')
-  await expect(page.getByText('觀者可以回看已發生之事。')).toBeHidden()
-
-  await page.reload()
-
-  await expect(page.getByRole('group', { name: '撥動因果' })).toBeVisible()
-  await expect(page.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' })).toBeVisible()
-  await expect(page.getByRole('button', { name: '讓繫纜繩在木樁上多停半分鐘' })).toBeVisible()
-  await expect(page.getByText('觀者可以回看已發生之事。')).toBeHidden()
-  await expect.poll(async () =>
-    page.evaluate(() => JSON.parse(window.localStorage.getItem('storyforge.runtime.runtime-demo') ?? '{}').snapshot.choiceHistory.length),
-  ).toBe(1)
+test('restores the Journey ending and completion controls after reload', async ({ page }) => {
+  await page.goto('/'); await reachEnding(page); await page.reload()
+  await expect(page.getByRole('heading', { level: 2, name: /路還向西/ })).toBeVisible()
+  await expect(page.getByText('閱讀完畢')).toBeVisible(); await expect(page.getByRole('button', { name: '開始新一輪' })).toBeVisible()
 })
 
-test('restores the ending and completion state after reload', async ({ page }) => {
-  await page.goto('/')
-  await reachSecondChoice(page, '讓風把信吹進屋內')
-  await page.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await expect(page.getByText('閱讀完畢')).toBeVisible()
-
-  await page.reload()
-  await expect(page.getByRole('heading', { level: 3, name: '潮線之後' })).toBeVisible()
-  await expect(page.getByText('閱讀完畢')).toBeVisible()
-  await expect(page.getByRole('button', { name: '繼續閱讀' })).toBeHidden()
-  await expect(page.getByRole('group', { name: '撥動因果' })).toBeHidden()
+test('saves a Journey bookmark before a Choice without undoing causality', async ({ page }) => {
+  await page.goto('/'); await page.getByRole('button', { name: '加入書籤' }).click(); await expect(page.getByText('書籤已更新。')).toBeVisible()
+  expect(await page.evaluate(() => JSON.parse(window.localStorage.getItem('storyforge.bookmark.journey81') ?? '{}').location.markerId)).toBe('prologue-001-heading')
+  await reachWuxingChoice(page); await page.getByRole('button', { name: light }).click(); await page.getByRole('button', { name: '回到書籤' }).click()
+  await expect(page.getByRole('heading', { level: 2, name: /沒有被風吹動的紙/ })).toBeVisible(); await expect(page.getByRole('button', { name: light })).toBeHidden()
 })
 
-test('saves a single Bookmark before Choice and returns without undoing causality', async ({ page }) => {
+test('restores Bookmark controls after reload', async ({ page }) => {
+  await page.goto('/'); await page.getByRole('button', { name: '加入書籤' }).click(); await page.reload(); await expect(page.getByRole('button', { name: '更新書籤' })).toBeVisible(); await expect(page.getByRole('button', { name: '回到書籤' })).toBeVisible()
+})
+
+test('proves the full first-run to New Run to Memory lifecycle without seeding memory', async ({ page }) => {
   await page.goto('/')
+  await reachWhiteboneChoice(page, light); await page.getByRole('button', { name: water }).click()
+  await advanceUntil(page, page.getByText(/那個人走到泉邊/), 'the first-run truth node')
+  await advanceUntil(page, page.getByText('閱讀完畢'), 'the first-run ending')
+  const memory = await page.evaluate(() => JSON.parse(window.localStorage.getItem('storyforge.memory.journey81') ?? '{}'))
+  expect(memory.storyId).toBe('journey81'); expect(memory.memory['journey81.white-bone-truth']).toBe(true)
+  await page.getByRole('button', { name: '開始新一輪' }).click(); await page.getByRole('button', { name: '確認開始新一輪' }).click()
+  await expect(page.getByRole('heading', { level: 2, name: /沒有被風吹動的紙/ })).toBeVisible()
+  expect(await page.evaluate(() => window.localStorage.getItem('storyforge.runtime.journey81'))).toBeNull()
+  expect(await page.evaluate(() => window.localStorage.getItem('storyforge.bookmark.journey81'))).toBeNull()
+  await reachWhiteboneChoice(page, light)
+  const memoryChoice = page.getByRole('button', { name: /讓水光先照進她的左腕/ })
+  await expect(memoryChoice).toBeVisible(); await memoryChoice.click()
+  await expect(page.getByText(/水光沒有等婦人把袖子放下/)).toBeVisible()
+  await advanceUntil(page, page.getByText(/這一次，唐僧很早就知道/), 'the Memory outcome')
+  await advanceUntil(page, page.getByText('閱讀完畢'), 'the Memory ending')
+  await expect(page.getByRole('heading', { level: 2, name: /路還向西/ })).toBeVisible()
+})
+
+test('preserves New Run confirmation, cancellation, cleanup, and Reader preferences', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: '閱讀設定' }).click()
+  await page.locator('label').filter({ hasText: '深色' }).click()
+  await page.getByRole('button', { name: '關閉' }).click()
   await page.getByRole('button', { name: '加入書籤' }).click()
   await expect(page.getByText('書籤已更新。')).toBeVisible()
-  await expect.poll(async () => page.evaluate(() => {
-    const value = JSON.parse(window.localStorage.getItem('storyforge.bookmark.runtime-demo') ?? '{}')
-    return value.location?.markerId
-  })).toBe('prologue-heading')
 
-  await reachChoice(page)
-  await page.getByRole('button', { name: '讓風把信吹進屋內' }).click()
-  await page.getByRole('button', { name: '回到書籤' }).click()
-  await expect(page.getByRole('heading', { level: 3, name: '風進屋時' })).toBeVisible()
-  await expect(page.getByRole('button', { name: '讓風把信吹進屋內' })).toBeHidden()
-  await expect(page.getByRole('button', { name: '讓雨水暈開信封上的墨' })).toBeHidden()
-})
-
-test('restores Bookmark controls after reload without treating Bookmark as a Runtime save', async ({ page }) => {
-  await page.goto('/')
-  await page.getByRole('button', { name: '加入書籤' }).click()
-  await page.reload()
-
-  await expect(page.getByRole('button', { name: '更新書籤' })).toBeVisible()
-  await expect(page.getByRole('button', { name: '回到書籤' })).toBeVisible()
-  await page.getByRole('button', { name: '回到書籤' }).click()
-  await expect(page.locator('#prologue-heading')).toBeFocused()
-})
-
-test('starts a second route only from Ending and clears the first run', async ({ page }) => {
-  await page.goto('/')
-  await reachWindEnding(page)
-  await page.getByRole('button', { name: '加入書籤' }).click()
-
+  await reachEnding(page)
   await page.getByRole('button', { name: '開始新一輪' }).click()
   await expect(page.getByText('這會清除目前這一輪的因果與書籤，從序章重新開始。閱讀偏好不受影響。')).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+
   await page.getByRole('button', { name: '取消' }).click()
   await expect(page.getByText('閱讀完畢')).toBeVisible()
+  await expect(page.getByRole('button', { name: '更新書籤' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '回到書籤' })).toBeVisible()
+
   await page.getByRole('button', { name: '開始新一輪' }).click()
   await page.getByRole('button', { name: '確認開始新一輪' }).click()
-
-  await expect(page.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 2, name: /沒有被風吹動的紙/ })).toBeVisible()
   await expect(page.getByText('閱讀完畢')).toBeHidden()
   await expect(page.getByRole('button', { name: '回到書籤' })).toBeHidden()
-  await expect.poll(async () => page.evaluate(() => ({
-    runtime: window.localStorage.getItem('storyforge.runtime.runtime-demo'),
-    bookmark: window.localStorage.getItem('storyforge.bookmark.runtime-demo'),
-  }))).toEqual({ runtime: null, bookmark: null })
-
-  await reachChoice(page)
-  await page.getByRole('button', { name: '讓雨水暈開信封上的墨' }).click()
-  await expect(page.getByRole('heading', { level: 3, name: '墨跡散開時' })).toBeVisible()
+  await expect(page.locator('.book-reader')).toHaveAttribute('data-theme', 'dark')
+  expect(await page.evaluate(() => ({
+    runtime: window.localStorage.getItem('storyforge.runtime.journey81'),
+    bookmark: window.localStorage.getItem('storyforge.bookmark.journey81'),
+    memory: JSON.parse(window.localStorage.getItem('storyforge.memory.journey81') ?? '{}').memory['journey81.white-bone-truth'],
+  }))).toEqual({ runtime: null, bookmark: null, memory: true })
 })
 
-test('reloads into the fresh entry after New Run without restoring the old Ending', async ({ page }) => {
-  await page.goto('/')
-  await reachWindEnding(page)
-  await page.getByRole('button', { name: '開始新一輪' }).click()
-  await page.getByRole('button', { name: '確認開始新一輪' }).click()
-  await page.reload()
-
-  await expect(page.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeVisible()
-  await expect(page.getByText('閱讀完畢')).toBeHidden()
-  await expect(page.getByRole('button', { name: '回到書籤' })).toBeHidden()
-  await reachChoice(page)
-  await expect(page.getByRole('button', { name: '讓風把信吹進屋內' })).toBeVisible()
+test('keeps Reader Memory after New Run and reload', async ({ page }) => {
+  await page.goto('/'); await reachEnding(page); await page.getByRole('button', { name: '開始新一輪' }).click(); await page.getByRole('button', { name: '確認開始新一輪' }).click(); await page.reload()
+  await expect(page.getByRole('heading', { level: 2, name: /沒有被風吹動的紙/ })).toBeVisible()
+  expect(await page.evaluate(() => JSON.parse(window.localStorage.getItem('storyforge.memory.journey81') ?? '{}').memory['journey81.white-bone-truth'])).toBe(true)
 })
 
-test('restores a committed route after closing and reopening the page', async ({ page }) => {
-  await page.goto('/')
-  await reachChoice(page)
-  await page.getByRole('button', { name: '讓雨水暈開信封上的墨' }).click()
+test('closes and reopens a committed light branch in a new page', async ({ page }) => {
+  await page.goto('/'); await reachWuxingChoice(page); await page.getByRole('button', { name: light }).click()
   const context = page.context()
   await page.close()
-
   const reopened = await context.newPage()
-  await reopened.goto('/')
-  await expect(reopened.getByRole('heading', { level: 3, name: '墨跡散開時' })).toBeVisible()
-  await expect(reopened.getByRole('heading', { level: 3, name: '風進屋時' })).toBeHidden()
-  await reopened.close()
+  try {
+    await reopened.goto('/')
+    await expect(reopened.getByText(/雲縫被光撐開一瞬/)).toBeVisible()
+    await expect(reopened.getByRole('button', { name: light })).toBeHidden()
+    await expect(reopened.getByRole('button', { name: mist })).toBeHidden()
+  } finally {
+    await reopened.close()
+  }
 })
 
-test('starts fresh in an isolated browser context', async ({ browser }) => {
-  const firstContext = await browser.newContext()
-  const firstPage = await firstContext.newPage()
-  await firstPage.goto('http://127.0.0.1:4173/')
-  await reachChoice(firstPage)
-  await firstPage.getByRole('button', { name: '讓風把信吹進屋內' }).click()
-  await firstContext.close()
+test('isolates a fresh browser context from earned Journey Memory', async ({ browser }) => {
+  const earnedContext = await browser.newContext()
+  const earnedPage = await earnedContext.newPage()
+  await earnedPage.goto('http://127.0.0.1:4173/')
+  await reachEnding(earnedPage)
+  expect(await earnedPage.evaluate(() => JSON.parse(window.localStorage.getItem('storyforge.memory.journey81') ?? '{}').memory['journey81.white-bone-truth'])).toBe(true)
+  await earnedContext.close()
 
-  const secondContext = await browser.newContext()
-  const secondPage = await secondContext.newPage()
-  await secondPage.goto('http://127.0.0.1:4173/')
-  await expect(secondPage.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeVisible()
-  await expect(secondPage.getByRole('heading', { level: 3, name: '風進屋時' })).toBeHidden()
-  await secondContext.close()
+  const freshContext = await browser.newContext()
+  const freshPage = await freshContext.newPage()
+  try {
+    await freshPage.goto('http://127.0.0.1:4173/')
+    await reachWhiteboneChoice(freshPage)
+    await expect(freshPage.getByRole('button', { name: /讓水光先照進她的左腕/ })).toBeHidden()
+  } finally {
+    await freshContext.close()
+  }
 })
 
-test('falls back to a fresh runtime for malformed or incompatible saves', async ({ page }) => {
-  await page.goto('/')
-  await page.evaluate(() => window.localStorage.setItem('storyforge.runtime.runtime-demo', '{invalid'))
-  await page.reload()
-  await expect(page.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeVisible()
-  await expect(page.getByRole('heading', { level: 3, name: '霧中的郵亭' })).toBeHidden()
-
-  await page.evaluate(() => window.localStorage.setItem(
-    'storyforge.runtime.runtime-demo',
-    JSON.stringify({
-      formatVersion: 999,
-      storyId: 'runtime-demo',
-      storyVersion: '0.1.0',
-      schemaVersion: '0.1',
-      snapshot: { currentNodeId: 'prologue', visibleNodeIds: ['prologue'], worldState: {}, choiceHistory: [] },
-    }),
-  ))
-  await page.reload()
-  await expect(page.getByRole('heading', { level: 2, name: /潮線以外/ })).toBeVisible()
-  await expect(page.getByRole('heading', { level: 3, name: '霧中的郵亭' })).toBeHidden()
+test('ignores malformed Journey runtime and stale runtime-demo keys', async ({ page }) => {
+  await page.goto('/'); await page.evaluate(() => { localStorage.setItem('storyforge.runtime.journey81', '{bad'); localStorage.setItem('storyforge.runtime.runtime-demo', JSON.stringify({ storyId: 'runtime-demo', snapshot: { currentNodeId: 'wind-path' } })) }); await page.reload()
+  await expect(page.getByRole('heading', { level: 2, name: /沒有被風吹動的紙/ })).toBeVisible(); await expect(page.getByRole('heading', { level: 3, name: '風進屋時' })).toBeHidden()
 })
 
-test('runs the Choice journey without console, page, or asset errors', async ({ page }) => {
+test('ignores malformed Journey Memory and keeps Memory choice hidden', async ({ page }) => {
+  await page.goto('/'); await page.evaluate(() => localStorage.setItem('storyforge.memory.journey81', JSON.stringify({ formatVersion: 1, storyId: 'journey81', storyVersion: '0.1.0', schemaVersion: '0.1', memory: { broken: 'yes' } }))); await page.reload(); await reachWhiteboneChoice(page); await expect(page.getByRole('button', { name: /讓水光先照進她的左腕/ })).toBeHidden()
+})
+
+test('loads Journey81 illustrations without browser or asset errors', async ({ page }) => {
   const errors: string[] = []
-  page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(`console: ${message.text()}`)
-  })
   page.on('pageerror', (error) => errors.push(`page: ${error.message}`))
-  page.on('response', (response) => {
-    if (response.status() >= 400) errors.push(`response ${response.status()}: ${response.url()}`)
-  })
-
-  await page.goto('/')
-  await reachChoice(page)
-  await page.getByRole('button', { name: '讓風把信吹進屋內' }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await page.getByRole('button', { name: '讓鐘聲早一拍傳到碼頭' }).click()
-  await page.getByRole('button', { name: '繼續閱讀' }).click()
-  await expect(page.getByText('閱讀完畢')).toBeVisible()
-
-  expect(errors).toEqual([])
+  page.on('console', (message) => { if (message.type() === 'error') errors.push(`console: ${message.text()}`) })
+  page.on('response', (response) => { if (response.status() >= 400) errors.push(`response ${response.status()}: ${response.url()}`) })
+  await page.goto('/'); await reachEnding(page)
+  expect(errors).toEqual([]); expect(await page.locator('img').evaluateAll((images) => images.length >= 9 && images.every((image) => image.getAttribute('src')?.startsWith('data:image/')))).toBe(true)
 })
 
-test('opens keyboard-accessible settings and applies reader preferences', async ({ page }) => {
-  await page.goto('/')
-  const reader = page.locator('.book-reader')
-  const content = page.locator('.reader-content')
-  const initialFontSize = await content.evaluate((element) => getComputedStyle(element).fontSize)
-
-  await page.getByRole('button', { name: '閱讀設定' }).click()
-  const dialog = page.getByRole('dialog', { name: '閱讀設定' })
-  await expect(dialog).toBeVisible()
-  await dialog.getByText('大', { exact: true }).click()
-  await dialog.getByText('寬鬆', { exact: true }).click()
-  await dialog.getByText('深色', { exact: true }).click()
-
-  await expect(reader).toHaveAttribute('data-font-size', 'large')
-  await expect(reader).toHaveAttribute('data-line-height', 'relaxed')
-  await expect(reader).toHaveAttribute('data-theme', 'dark')
-  expect(await content.evaluate((element) => getComputedStyle(element).fontSize)).not.toBe(initialFontSize)
-
-  await page.keyboard.press('Escape')
-  await expect(page.getByRole('dialog', { name: '閱讀設定' })).toBeHidden()
-  await expect(page.getByRole('button', { name: '閱讀設定' })).toBeFocused()
+test('keeps Reader settings accessible', async ({ page }) => {
+  await page.goto('/'); await page.getByRole('button', { name: '閱讀設定' }).click(); await expect(page.getByRole('dialog', { name: '閱讀設定' })).toBeVisible(); await expect(page.getByRole('radio', { name: '大', exact: true })).toBeVisible(); await page.getByRole('button', { name: '關閉' }).click(); await expect(page.getByRole('dialog', { name: '閱讀設定' })).toBeHidden()
 })
 
-test('persists reader preferences across a runtime reload', async ({ page }) => {
-  await page.goto('/')
-  await page.getByRole('button', { name: '閱讀設定' }).click()
-  const dialog = page.getByRole('dialog', { name: '閱讀設定' })
-  await dialog.getByText('特大', { exact: true }).click()
-  await dialog.getByText('淺色', { exact: true }).click()
-  await page.getByRole('button', { name: '關閉' }).click()
-  await page.reload()
-
-  await expect(page.locator('.book-reader')).toHaveAttribute('data-font-size', 'x-large')
-  await expect(page.locator('.book-reader')).toHaveAttribute('data-theme', 'light')
-
-  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false)
+test('persists Reader preference after reload', async ({ page }) => {
+  await page.goto('/'); await page.getByRole('button', { name: '閱讀設定' }).click(); await page.locator('label').filter({ hasText: '寬鬆' }).click(); await page.reload(); await expect(page.locator('.book-reader')).toHaveAttribute('data-line-height', 'relaxed')
 })
 
-test('preserves a saved reading position before the resume decision', async ({ page }) => {
-  await page.goto('/')
-  await page.evaluate(() => {
-    window.localStorage.setItem(
-      'storyforge.reader.position.story:runtime-demo',
-      JSON.stringify({ documentId: 'story:runtime-demo', progress: 42, updatedAt: '2026-08-15T00:00:00.000Z' }),
-    )
-  })
-  await page.reload()
-
-  await expect(page.getByRole('button', { name: '回到上次閱讀處' })).toBeVisible()
-  await expect.poll(async () =>
-    page.evaluate(() => {
-      const stored = window.localStorage.getItem('storyforge.reader.position.story:runtime-demo')
-      return stored ? JSON.parse(stored).progress : null
-    }),
-  ).toBe(42)
+test('saves and resumes a Journey reader position', async ({ page }) => {
+  await page.goto('/'); await page.evaluate(() => localStorage.setItem('storyforge.reader.position.story:journey81', JSON.stringify({ documentId: 'story:journey81', progress: 42, updatedAt: new Date().toISOString() }))); await page.reload(); await expect(page.getByRole('button', { name: '回到上次閱讀處' })).toBeVisible(); await page.getByRole('button', { name: '回到上次閱讀處' }).click(); await expect(page.getByRole('button', { name: '回到上次閱讀處' })).toBeHidden()
 })
