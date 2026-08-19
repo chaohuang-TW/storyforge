@@ -35,6 +35,13 @@ export function ReaderSettings({ open, preferences, onChange, onClose }: ReaderS
     if (!open) return
 
     const previousFocus = document.activeElement as HTMLElement | null
+    const previousBodyOverflow = document.body.style.overflow
+    const previousBodyPaddingRight = document.body.style.paddingRight
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+    document.body.style.overflow = 'hidden'
+    if (scrollbarWidth > 0 && document.documentElement.clientWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`
+    }
     closeRef.current?.focus()
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -64,6 +71,8 @@ export function ReaderSettings({ open, preferences, onChange, onClose }: ReaderS
     document.addEventListener('keydown', handleKeyDown)
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = previousBodyOverflow
+      document.body.style.paddingRight = previousBodyPaddingRight
       previousFocus?.focus()
     }
   }, [onClose, open])
@@ -84,11 +93,12 @@ export function ReaderSettings({ open, preferences, onChange, onClose }: ReaderS
         role="dialog"
         aria-modal="true"
         aria-labelledby="reader-settings-title"
+        aria-describedby="reader-settings-description"
       >
         <div className="reader-settings__header">
           <div>
             <h2 id="reader-settings-title">閱讀設定</h2>
-            <p>調整只會儲存在這個瀏覽器。</p>
+            <p id="reader-settings-description">調整只會儲存在這個瀏覽器。</p>
           </div>
           <button ref={closeRef} className="reader-settings__close" type="button" onClick={onClose}>
             關閉

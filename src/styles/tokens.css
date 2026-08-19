@@ -1,44 +1,47 @@
 .book-reader {
-  --reader-bg: #f3f5f6;
-  --reader-surface: #e9edef;
-  --reader-surface-strong: #dce3e6;
-  --reader-text: #1b2428;
-  --reader-muted: #58666d;
-  --reader-border: #c9d2d6;
-  --reader-accent: #3e6873;
-  --reader-accent-contrast: #f7fafb;
-  --reader-focus: #356f80;
-  --reader-overlay: rgb(13 22 26 / 0.52);
+  --reader-bg: #f4f2ec;
+  --reader-surface: #ebe8e0;
+  --reader-surface-strong: #dfddd4;
+  --reader-text: #242a28;
+  --reader-muted: #5b6561;
+  --reader-border: #c7cbc5;
+  --reader-accent: #3d6761;
+  --reader-accent-contrast: #f8f6f0;
+  --reader-focus: #245e70;
+  --reader-warning: #72573b;
+  --reader-overlay: rgb(20 27 25 / 0.58);
   --reader-font-size: 1.125rem;
-  --reader-line-height: 1.92;
+  --reader-line-height: 1.95;
   color-scheme: light;
 }
 
 .book-reader[data-theme="dark"] {
-  --reader-bg: #151b1e;
-  --reader-surface: #1d262a;
-  --reader-surface-strong: #263237;
-  --reader-text: #e8edef;
-  --reader-muted: #a9b6bc;
-  --reader-border: #3b494f;
-  --reader-accent: #89b7c2;
-  --reader-accent-contrast: #101719;
-  --reader-focus: #8dc7d5;
+  --reader-bg: #171c1b;
+  --reader-surface: #202725;
+  --reader-surface-strong: #2a3330;
+  --reader-text: #e7e9e3;
+  --reader-muted: #adb6b0;
+  --reader-border: #46514d;
+  --reader-accent: #9abfb7;
+  --reader-accent-contrast: #14201e;
+  --reader-focus: #a6d4df;
+  --reader-warning: #d1b28b;
   --reader-overlay: rgb(3 7 9 / 0.72);
   color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
   .book-reader[data-theme="system"] {
-    --reader-bg: #151b1e;
-    --reader-surface: #1d262a;
-    --reader-surface-strong: #263237;
-    --reader-text: #e8edef;
-    --reader-muted: #a9b6bc;
-    --reader-border: #3b494f;
-    --reader-accent: #89b7c2;
-    --reader-accent-contrast: #101719;
-    --reader-focus: #8dc7d5;
+    --reader-bg: #171c1b;
+    --reader-surface: #202725;
+    --reader-surface-strong: #2a3330;
+    --reader-text: #e7e9e3;
+    --reader-muted: #adb6b0;
+    --reader-border: #46514d;
+    --reader-accent: #9abfb7;
+    --reader-accent-contrast: #14201e;
+    --reader-focus: #a6d4df;
+    --reader-warning: #d1b28b;
     --reader-overlay: rgb(3 7 9 / 0.72);
     color-scheme: dark;
   }

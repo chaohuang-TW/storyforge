@@ -2,7 +2,7 @@
 
 **A Web Interactive Novel Engine**
 
-Status: **Phase 6B2 — Journey81 Reader Integration (complete)**
+Status: **Phase 7 — Reader Polish & Accessibility (development)**
 
 StoryForge is a reading-first Web Interactive Novel Engine. Completed phases:
 
@@ -31,6 +31,13 @@ implemented; the active Journey81 App and Journey81 browser E2E are
 StoryForge now opens Journey81 as the active Reader story. The `runtime-demo`
 Story Pack remains in the repository as a generic regression pack and continues
 to pass Story Validator and tests.
+
+Phase 7 development refines the generic Reader without adding gameplay or Story
+content. Its scope is visual hierarchy, long-form typography, light and dark
+themes, responsive layout, mobile touch targets and safe areas, visible focus,
+dialog accessibility, narrow-screen reflow, contrast, and reduced-motion
+verification. Reader behavior, causal state, persistence, Story Packs, and the
+active Journey81 integration remain unchanged.
 
 Phase 3B production supports:
 
@@ -240,9 +247,12 @@ The following remain intentionally out of scope:
 - AI authoring — NOT IMPLEMENTED
 - Phase 6B1 — COMPLETE
 - Phase 6B2 — COMPLETE
-- Phase 7 — NOT STARTED
+- Phase 7 — DEVELOPMENT
 
 Phase 6B2 does not include a Story selector, multiple active stories UI,
 New Game+, run count, completed-run archives, memory UI, memory journal,
 achievements, manual memory reset, cloud sync, accounts, Engine changes,
 schema changes, or chapters after 白骨精.
+
+Phase 7 does not include a Story selector, New Game+, run count, Memory UI,
+Observer Awareness system, post-白骨精 chapters, cloud services, or accounts.
