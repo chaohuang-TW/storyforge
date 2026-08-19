@@ -27,6 +27,7 @@ async function reachWhiteboneChoice(page: Page, firstChoice = light) {
   await advanceUntil(page, page.getByRole('button', { name: water }), 'the 白骨嶺 choice')
   await expect(page.getByRole('button', { name: canon })).toBeVisible()
   await expect(page.getByRole('button', { name: water })).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
 }
 
 async function reachEnding(page: Page, firstChoice = light, secondChoice = water) {
@@ -87,9 +88,11 @@ test('chooses the mist consequence without rendering the light consequence', asy
   await expect(page.getByText(/雲縫被光撐開一瞬/)).toBeHidden()
 })
 
-test('follows the light route through its delayed consequence and whitebone rejoin', async ({ page }) => {
+test('restores the light delayed consequence after reload before whitebone rejoin', async ({ page }) => {
   await page.goto('/'); await reachWhiteboneChoice(page, light); await page.getByRole('button', { name: water }).click()
   await advanceUntil(page, page.getByText(/山影裡那個人向前一步，臉被月光擦亮/), 'the light delayed consequence')
+  await page.reload()
+  await expect(page.getByText(/山影裡那個人向前一步，臉被月光擦亮/)).toBeVisible()
   await expect(page.getByText(/山影裡那個人向前一步，先有腳步聲/)).toBeHidden()
   await advanceUntil(page, page.getByText(/唐僧看過水裡的破綻/), 'the water outcome')
   await expect(page.getByText(/看見真相，和決定如何使用力量/)).toBeVisible()
@@ -161,18 +164,75 @@ test('proves the full first-run to New Run to Memory lifecycle without seeding m
   await expect(page.getByRole('heading', { level: 2, name: /路還向西/ })).toBeVisible()
 })
 
+test('preserves New Run confirmation, cancellation, cleanup, and Reader preferences', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: '閱讀設定' }).click()
+  await page.locator('label').filter({ hasText: '深色' }).click()
+  await page.getByRole('button', { name: '關閉' }).click()
+  await page.getByRole('button', { name: '加入書籤' }).click()
+  await expect(page.getByText('書籤已更新。')).toBeVisible()
+
+  await reachEnding(page)
+  await page.getByRole('button', { name: '開始新一輪' }).click()
+  await expect(page.getByText('這會清除目前這一輪的因果與書籤，從序章重新開始。閱讀偏好不受影響。')).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+
+  await page.getByRole('button', { name: '取消' }).click()
+  await expect(page.getByText('閱讀完畢')).toBeVisible()
+  await expect(page.getByRole('button', { name: '更新書籤' })).toBeVisible()
+  await expect(page.getByRole('button', { name: '回到書籤' })).toBeVisible()
+
+  await page.getByRole('button', { name: '開始新一輪' }).click()
+  await page.getByRole('button', { name: '確認開始新一輪' }).click()
+  await expect(page.getByRole('heading', { level: 2, name: /沒有被風吹動的紙/ })).toBeVisible()
+  await expect(page.getByText('閱讀完畢')).toBeHidden()
+  await expect(page.getByRole('button', { name: '回到書籤' })).toBeHidden()
+  await expect(page.locator('.book-reader')).toHaveAttribute('data-theme', 'dark')
+  expect(await page.evaluate(() => ({
+    runtime: window.localStorage.getItem('storyforge.runtime.journey81'),
+    bookmark: window.localStorage.getItem('storyforge.bookmark.journey81'),
+    memory: JSON.parse(window.localStorage.getItem('storyforge.memory.journey81') ?? '{}').memory['journey81.white-bone-truth'],
+  }))).toEqual({ runtime: null, bookmark: null, memory: true })
+})
+
 test('keeps Reader Memory after New Run and reload', async ({ page }) => {
   await page.goto('/'); await reachEnding(page); await page.getByRole('button', { name: '開始新一輪' }).click(); await page.getByRole('button', { name: '確認開始新一輪' }).click(); await page.reload()
   await expect(page.getByRole('heading', { level: 2, name: /沒有被風吹動的紙/ })).toBeVisible()
   expect(await page.evaluate(() => JSON.parse(window.localStorage.getItem('storyforge.memory.journey81') ?? '{}').memory['journey81.white-bone-truth'])).toBe(true)
 })
 
-test('closes and reopens a committed light branch', async ({ page }) => {
-  await page.goto('/'); await reachWuxingChoice(page); await page.getByRole('button', { name: light }).click(); await page.reload(); await expect(page.getByText(/雲縫被光撐開一瞬/)).toBeVisible()
+test('closes and reopens a committed light branch in a new page', async ({ page }) => {
+  await page.goto('/'); await reachWuxingChoice(page); await page.getByRole('button', { name: light }).click()
+  const context = page.context()
+  await page.close()
+  const reopened = await context.newPage()
+  try {
+    await reopened.goto('/')
+    await expect(reopened.getByText(/雲縫被光撐開一瞬/)).toBeVisible()
+    await expect(reopened.getByRole('button', { name: light })).toBeHidden()
+    await expect(reopened.getByRole('button', { name: mist })).toBeHidden()
+  } finally {
+    await reopened.close()
+  }
 })
 
-test('isolates a fresh browser context from Journey Memory', async ({ browser }) => {
-  const context = await browser.newContext(); const page = await context.newPage(); await page.goto('http://127.0.0.1:4173/'); await reachWuxingChoice(page); await expect(page.getByRole('button', { name: /讓水光先照進她的左腕/ })).toBeHidden(); await context.close()
+test('isolates a fresh browser context from earned Journey Memory', async ({ browser }) => {
+  const earnedContext = await browser.newContext()
+  const earnedPage = await earnedContext.newPage()
+  await earnedPage.goto('http://127.0.0.1:4173/')
+  await reachEnding(earnedPage)
+  expect(await earnedPage.evaluate(() => JSON.parse(window.localStorage.getItem('storyforge.memory.journey81') ?? '{}').memory['journey81.white-bone-truth'])).toBe(true)
+  await earnedContext.close()
+
+  const freshContext = await browser.newContext()
+  const freshPage = await freshContext.newPage()
+  try {
+    await freshPage.goto('http://127.0.0.1:4173/')
+    await reachWhiteboneChoice(freshPage)
+    await expect(freshPage.getByRole('button', { name: /讓水光先照進她的左腕/ })).toBeHidden()
+  } finally {
+    await freshContext.close()
+  }
 })
 
 test('ignores malformed Journey runtime and stale runtime-demo keys', async ({ page }) => {
@@ -185,7 +245,11 @@ test('ignores malformed Journey Memory and keeps Memory choice hidden', async ({
 })
 
 test('loads Journey81 illustrations without browser or asset errors', async ({ page }) => {
-  const errors: string[] = []; page.on('pageerror', (error) => errors.push(error.message)); page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()) }); await page.goto('/'); await reachEnding(page)
+  const errors: string[] = []
+  page.on('pageerror', (error) => errors.push(`page: ${error.message}`))
+  page.on('console', (message) => { if (message.type() === 'error') errors.push(`console: ${message.text()}`) })
+  page.on('response', (response) => { if (response.status() >= 400) errors.push(`response ${response.status()}: ${response.url()}`) })
+  await page.goto('/'); await reachEnding(page)
   expect(errors).toEqual([]); expect(await page.locator('img').evaluateAll((images) => images.length >= 9 && images.every((image) => image.getAttribute('src')?.startsWith('data:image/')))).toBe(true)
 })
 
